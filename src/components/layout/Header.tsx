@@ -43,17 +43,18 @@ export const Header: React.FC<HeaderProps> = () => {
     <header className="fixed top-0 left-0 right-0 z-40 w-full max-w-[1440px] mx-auto p-2 sm:p-3 pointer-events-none">
       <div className="bg-white/95 backdrop-blur-md rounded-full p-[6px] sm:p-[8px] flex items-center justify-between shadow-[0_4px_25px_rgba(11,79,156,0.08)] border border-white/80 pointer-events-auto transition-all">
         
-        {/* LEFT: PillNav with Logo and Interactive Pills */}
+        {/* LEFT: PillNav with Logo and Interactive Pills on White Background */}
         <div className="flex items-center gap-2">
           <PillNav
             logo="/logo1.svg"
             logoAlt="EasyTraining Cursos Profissionalizantes"
             items={navItems}
             activeHref="/"
-            baseColor="#052e7f"
-            pillColor="#ffffff"
-            hoveredPillTextColor="#ffffff"
+            baseColor="#ffffff"
+            hoverBgColor="#052e7f"
+            pillColor="transparent"
             pillTextColor="#052e7f"
+            hoveredPillTextColor="#ffffff"
             ease="power3.easeOut"
             initialLoadAnimation={true}
           />

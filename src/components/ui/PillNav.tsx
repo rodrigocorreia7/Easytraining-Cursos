@@ -18,6 +18,7 @@ export interface PillNavProps {
   className?: string;
   ease?: string;
   baseColor?: string;
+  hoverBgColor?: string;
   pillColor?: string;
   hoveredPillTextColor?: string;
   pillTextColor?: string;
@@ -32,14 +33,15 @@ export const PillNav: React.FC<PillNavProps> = ({
   activeHref,
   className = '',
   ease = 'power3.easeOut',
-  baseColor = '#052e7f',
-  pillColor = '#ffffff',
+  baseColor = '#ffffff',
+  hoverBgColor = '#052e7f',
+  pillColor = 'transparent',
   hoveredPillTextColor = '#ffffff',
   pillTextColor = '#052e7f',
   onMobileMenuClick,
   initialLoadAnimation = true
 }) => {
-  const resolvedPillTextColor = pillTextColor ?? baseColor;
+  const resolvedPillTextColor = pillTextColor ?? '#052e7f';
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const circleRefs = useRef<Array<HTMLSpanElement | null>>([]);
   const tlRefs = useRef<Array<gsap.core.Timeline | null>>([]);
@@ -238,13 +240,14 @@ export const PillNav: React.FC<PillNavProps> = ({
 
   const cssVars = {
     ['--base']: baseColor,
+    ['--hover-bg']: hoverBgColor,
     ['--pill-bg']: pillColor,
     ['--hover-text']: hoveredPillTextColor,
     ['--pill-text']: resolvedPillTextColor,
-    ['--nav-h']: '44px',
-    ['--logo']: '38px',
+    ['--nav-h']: '42px',
+    ['--logo']: '36px',
     ['--pill-pad-x']: '18px',
-    ['--pill-gap']: '4px'
+    ['--pill-gap']: '3px'
   } as React.CSSProperties;
 
   return (
@@ -260,28 +263,27 @@ export const PillNav: React.FC<PillNavProps> = ({
           aria-label={logoAlt}
           onMouseEnter={handleLogoEnter}
           ref={logoRef}
-          className="rounded-full p-1.5 inline-flex items-center justify-center overflow-hidden transition-transform hover:scale-105 shadow-sm"
+          className="rounded-full p-1.5 inline-flex items-center justify-center overflow-hidden transition-transform hover:scale-105 shadow-2xs border border-slate-200/80 bg-white"
           style={{
             width: 'var(--nav-h)',
-            height: 'var(--nav-h)',
-            background: 'var(--base)'
+            height: 'var(--nav-h)'
           }}
         >
           <img
             src={logo}
             alt={logoAlt}
             ref={logoImgRef}
-            className="w-full h-full object-contain block drop-shadow-xs"
+            className="w-full h-full object-contain block"
           />
         </Link>
 
         {/* PILL MENU ITEMS (DESKTOP) */}
         <div
           ref={navItemsRef}
-          className="relative items-center rounded-full hidden md:flex ml-2.5 shadow-sm border border-slate-200/60"
+          className="relative items-center rounded-full hidden md:flex ml-2.5 shadow-2xs border border-slate-200/80 bg-white"
           style={{
             height: 'var(--nav-h)',
-            background: 'var(--base)'
+            background: 'var(--base, #ffffff)'
           }}
         >
           <ul
@@ -304,7 +306,7 @@ export const PillNav: React.FC<PillNavProps> = ({
                   <span
                     className="hover-circle absolute left-1/2 bottom-0 rounded-full z-[1] block pointer-events-none"
                     style={{
-                      background: 'var(--base)',
+                      background: 'var(--hover-bg, #052e7f)',
                       willChange: 'transform'
                     }}
                     aria-hidden="true"
@@ -384,20 +386,17 @@ export const PillNav: React.FC<PillNavProps> = ({
           onClick={toggleMobileMenu}
           aria-label="Abrir Menu de Navegação"
           aria-expanded={isMobileMenuOpen}
-          className="md:hidden rounded-full border-0 flex flex-col items-center justify-center gap-1.5 cursor-pointer p-0 relative shadow-sm"
+          className="md:hidden rounded-full border border-slate-200 flex flex-col items-center justify-center gap-1.5 cursor-pointer p-0 relative shadow-2xs bg-white"
           style={{
             width: 'var(--nav-h)',
-            height: 'var(--nav-h)',
-            background: 'var(--base)'
+            height: 'var(--nav-h)'
           }}
         >
           <span
-            className="hamburger-line w-4 h-0.5 rounded origin-center"
-            style={{ background: 'var(--pill-bg)' }}
+            className="hamburger-line w-4 h-0.5 rounded origin-center bg-slate-800"
           />
           <span
-            className="hamburger-line w-4 h-0.5 rounded origin-center"
-            style={{ background: 'var(--pill-bg)' }}
+            className="hamburger-line w-4 h-0.5 rounded origin-center bg-slate-800"
           />
         </button>
       </nav>
@@ -405,17 +404,13 @@ export const PillNav: React.FC<PillNavProps> = ({
       {/* MOBILE MENU DROPDOWN */}
       <div
         ref={mobileMenuRef}
-        className="md:hidden absolute top-[3.5em] left-0 right-0 rounded-3xl shadow-2xl z-[998] origin-top border border-white/20 p-2 overflow-hidden"
-        style={{
-          ...cssVars,
-          background: 'var(--base)'
-        }}
+        className="md:hidden absolute top-[3.5em] left-0 right-0 rounded-3xl shadow-2xl z-[998] origin-top border border-slate-200 bg-white/98 backdrop-blur-xl p-2 overflow-hidden"
       >
         <ul className="list-none m-0 p-1 flex flex-col gap-1.5">
           {items.map(item => {
             const isHashOrExternal = item.href.startsWith('#') || item.href.startsWith('/#') || item.href.startsWith('http');
             const linkClasses =
-              'block py-3 px-5 text-sm font-bold text-slate-800 bg-white hover:bg-emerald-50 hover:text-[#00874A] rounded-2xl transition-all text-center';
+              'block py-3 px-5 text-sm font-bold text-slate-800 bg-slate-50 hover:bg-emerald-50 hover:text-[#00874A] rounded-2xl transition-all text-center';
 
             return (
               <li key={item.href}>
