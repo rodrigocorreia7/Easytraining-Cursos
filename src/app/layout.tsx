@@ -48,8 +48,11 @@ export const metadata: Metadata = {
     }
   },
   icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-touch-icon.png'
+    icon: [
+      { url: '/logo1.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico' }
+    ],
+    apple: '/logo1.png'
   }
 };
 
@@ -66,7 +69,7 @@ export default function RootLayout({
     name: 'EasyTraining - Cursos Profissionalizantes',
     description: 'Cursos Profissionalizantes e de Informática em Guarulhos - SP. Mais de 5.000 alunos formados.',
     url: 'https://easytraining.com.br',
-    logo: 'https://easytraining.com.br/images/logos/logo-easytraining.webp',
+    logo: 'https://easytraining.com.br/logo1.svg',
     image: 'https://easytraining.com.br/images/robot/image-hero.webp',
     address: {
       '@type': 'PostalAddress',
@@ -93,6 +96,8 @@ export default function RootLayout({
     <html lang="pt-BR">
       <head>
         <meta name="theme-color" content="#052e7f" />
+        <link rel="icon" href="/logo1.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/logo1.png" />
         <link rel="dns-prefetch" href="https://wa.me" />
         <link rel="dns-prefetch" href="https://api.whatsapp.com" />
         <link rel="preload" as="image" href="/images/robot/image-hero.webp" type="image/webp" />
