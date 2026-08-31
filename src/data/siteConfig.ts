@@ -1,8 +1,8 @@
 export const siteConfig = {
   name: "EasyTraining Cursos Profissionalizantes",
   shortName: "EasyTraining",
-  slogan: "Transformando seu futuro com cursos praticos e certificados reconhecidos em Guarulhos",
-  description: "Escola de cursos profissionalizantes em Guarulhos. Informatica, Gestao Empresarial, Auxiliar Veterinario, Banho e Tosa, Farmacia, Design Grafico e Marketing.",
+  slogan: "Transformando seu futuro com cursos práticos e certificados reconhecidos em Guarulhos",
+  description: "Escola de cursos profissionalizantes em Guarulhos. Informática, Gestão Empresarial, Auxiliar Veterinário, Banho e Tosa, Farmácia, Design Gráfico e Marketing.",
   url: "https://easytraining.com.br",
   phone: "(11) 2484-4848",
   phoneClean: "551124844848",
@@ -15,11 +15,11 @@ export const siteConfig = {
     city: "Guarulhos",
     state: "SP",
     zipCode: "07272-000",
-    reference: "Proximo ao Terminal Pimentas e Shopping Bonsucesso"
+    reference: "Próximo ao Terminal Pimentas e Shopping Bonsucesso"
   },
   openingHours: {
-    weekdays: "Segunda a Sexta: 08:00 as 20:30",
-    saturday: "Sabados: 08:00 as 17:00",
+    weekdays: "Segunda a Sexta: 08:00 às 20:30",
+    saturday: "Sábados: 08:00 às 17:00",
     sunday: "Domingos: Fechado"
   },
   rating: {
