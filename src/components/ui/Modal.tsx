@@ -135,8 +135,14 @@ export const CourseModal: React.FC<CourseModalProps> = ({ course, isOpen, onClos
         </div>
 
         <div className="p-4 sm:p-6 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0">
-          <div className="text-xs text-slate-500 text-center sm:text-left">
-            <span className="font-bold text-[#052e7f]">Turmas reduzidas em Guarulhos</span> • Vagas limitadas
+          <div className="flex items-center gap-4 text-xs text-slate-500 text-center sm:text-left">
+            <span><strong className="text-[#052e7f]">Turmas reduzidas em Guarulhos</strong> • Vagas limitadas</span>
+            <a
+              href={`/curso/${course.slug}`}
+              className="text-[#00B060] font-bold hover:underline hidden md:inline-flex items-center gap-1"
+            >
+              Página do Curso ↗
+            </a>
           </div>
           <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
             <button
