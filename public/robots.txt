@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# AI Crawlers & LLM Directives
+Allow: /llms.txt
+Allow: /llms-full.txt
+
+Sitemap: https://easytraining.com.br/sitemap.xml

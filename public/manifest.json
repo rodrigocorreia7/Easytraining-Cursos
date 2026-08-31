@@ -1,0 +1,21 @@
+{
+  "name": "EasyTraining Cursos Profissionalizantes",
+  "short_name": "EasyTraining",
+  "description": "Escola de Cursos Profissionalizantes em Guarulhos - Pimentas",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#EFEFEF",
+  "theme_color": "#071722",
+  "icons": [
+    {
+      "src": "/images/logos/cropped-site-favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/logos/cropped-site-favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
