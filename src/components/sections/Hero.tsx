@@ -94,12 +94,12 @@ export const Hero: React.FC = () => {
     <section
       id="home"
       ref={heroRef}
-      className="relative bg-white pt-24 sm:pt-28 lg:pt-32 pb-12 lg:pb-16 overflow-hidden"
+      className="relative bg-white pt-24 sm:pt-28 lg:pt-32 pb-12 lg:pb-20 overflow-hidden min-h-[600px] lg:min-h-[680px] xl:min-h-[720px] flex items-center"
     >
       {/* ========================================================= */}
       {/* 1. MOBILE LAYOUT (lg:hidden) */}
       {/* ========================================================= */}
-      <div className="lg:hidden w-full max-w-[480px] mx-auto px-4 sm:px-6 flex flex-col items-center text-left space-y-4">
+      <div className="lg:hidden w-full max-w-[480px] mx-auto px-4 sm:px-6 flex flex-col items-center text-left space-y-4 relative z-20">
         
         {/* 1.1 Matrículas Pill */}
         <div className="self-start inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white shadow-xs border border-emerald-100 text-[11px] font-bold text-emerald-800">
@@ -171,21 +171,21 @@ export const Hero: React.FC = () => {
       </div>
 
       {/* ========================================================= */}
-      {/* 2. DESKTOP LAYOUT (hidden lg:grid) - 100% RESPONSIVE NO-OVERLAP */}
+      {/* 2. DESKTOP LAYOUT (hidden lg:block) - MAJESTIC BIG ROBOT BEHIND */}
       {/* ========================================================= */}
-      <div className="hidden lg:grid max-w-[1440px] mx-auto px-6 lg:px-8 xl:px-12 grid-cols-12 gap-8 xl:gap-12 items-center min-h-[580px] lg:min-h-[620px] relative z-20">
+      <div className="hidden lg:block w-full max-w-[1440px] mx-auto px-6 lg:px-8 xl:px-12 relative z-30">
         
-        {/* Left Column Content (Occupies columns 1-7) */}
-        <div className="col-span-12 lg:col-span-7 xl:col-span-6 space-y-6 text-left relative z-30">
+        {/* Left Foreground Content (Sitting proudly in front in relative z-30) */}
+        <div className="max-w-xl xl:max-w-2xl space-y-6 text-left">
           
           {/* Tag Pill */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-200/80 text-xs font-bold text-slate-800 shadow-xs">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-50/90 backdrop-blur-md border border-slate-200/80 text-xs font-bold text-slate-800 shadow-xs">
             <span className="w-2.5 h-2.5 rounded-full bg-[#00B060] animate-pulse" />
             <span>Matrículas Abertas 2026 • Guarulhos (Pimentas)</span>
           </div>
 
           {/* Main Headline H1 */}
-          <h1 className="text-4xl lg:text-[44px] xl:text-[52px] font-black tracking-tight text-slate-900 leading-[1.12]">
+          <h1 className="text-4xl lg:text-[46px] xl:text-[54px] font-black tracking-tight text-slate-900 leading-[1.12]">
             <span className="text-[#052e7f]">Easytraining - </span>
             <span className="text-[#00B060]">Cursos de Informática e Profissionalizantes</span>
             <span className="text-slate-800 block text-3xl lg:text-4xl mt-1 font-extrabold">
@@ -211,7 +211,7 @@ export const Hero: React.FC = () => {
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 px-6 py-3.5 bg-white hover:bg-slate-50 text-[#052e7f] border border-slate-200 text-sm font-bold rounded-full transition-all shadow-xs hover:border-[#00B060] active:scale-95"
+              className="flex items-center gap-2 px-6 py-3.5 bg-white/90 backdrop-blur-md hover:bg-white text-[#052e7f] border border-slate-200 text-sm font-bold rounded-full transition-all shadow-xs hover:border-[#00B060] active:scale-95"
             >
               <MessageCircle className="w-4 h-4 text-[#00B060]" />
               <span>Falar no WhatsApp</span>
@@ -220,15 +220,15 @@ export const Hero: React.FC = () => {
 
           {/* Metric Cards */}
           <div className="grid grid-cols-3 gap-3 sm:gap-4 max-w-lg pt-3 text-center">
-            <div className="p-3.5 bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:border-[#052e7f]/30 transition-colors">
+            <div className="p-3.5 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 shadow-xs hover:border-[#052e7f]/30 transition-colors">
               <p className="text-xl sm:text-2xl font-black text-[#052e7f]">19+</p>
               <p className="text-[11px] sm:text-xs text-slate-600 font-semibold mt-0.5">Cursos Práticos</p>
             </div>
-            <div className="p-3.5 bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:border-[#FFB800]/40 transition-colors">
+            <div className="p-3.5 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 shadow-xs hover:border-[#FFB800]/40 transition-colors">
               <p className="text-xl sm:text-2xl font-black text-[#FFB800]">★ 5.0</p>
               <p className="text-[11px] sm:text-xs text-slate-600 font-semibold mt-0.5">Nota no Google</p>
             </div>
-            <div className="p-3.5 bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:border-[#00B060]/40 transition-colors">
+            <div className="p-3.5 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 shadow-xs hover:border-[#00B060]/40 transition-colors">
               <p className="text-xl sm:text-2xl font-black text-[#00B060]">100%</p>
               <p className="text-[11px] sm:text-xs text-slate-600 font-semibold mt-0.5">Com Certificado</p>
             </div>
@@ -236,18 +236,20 @@ export const Hero: React.FC = () => {
 
         </div>
 
-        {/* Right Column: Responsive Dedicated Space for Robot Canvas (Occupies columns 8-12) */}
-        <div className="col-span-12 lg:col-span-5 xl:col-span-6 flex items-center justify-end relative select-none pointer-events-none min-h-[480px] lg:min-h-[560px]">
-          <div className="relative w-full max-w-[540px] xl:max-w-[620px] 2xl:max-w-[680px] h-[480px] lg:h-[560px] xl:h-[600px] flex items-center justify-end">
-            <canvas
-              ref={canvasRef}
-              width={1280}
-              height={720}
-              className="w-full h-full object-contain object-right-bottom scale-110 lg:scale-120 xl:scale-125 origin-right-bottom select-none mix-blend-multiply"
-            />
-          </div>
-        </div>
+      </div>
 
+      {/* ========================================================= */}
+      {/* 3. DESKTOP IMPRESSIVE BIG ROBOT CANVAS IN THE BACKGROUND */}
+      {/* ========================================================= */}
+      <div className="hidden lg:flex absolute right-[-4%] lg:right-[0%] xl:right-[2%] 2xl:right-[5%] bottom-0 top-0 w-[70%] sm:w-[65%] lg:w-[60%] xl:w-[58%] 2xl:w-[55%] h-full items-end justify-end pointer-events-none z-10 select-none">
+        <div className="relative w-full h-full flex items-end justify-end overflow-visible">
+          <canvas
+            ref={canvasRef}
+            width={1280}
+            height={720}
+            className="h-full w-full max-h-[105vh] lg:max-h-[110vh] xl:max-h-[115vh] object-contain object-bottom-right scale-120 lg:scale-130 xl:scale-135 2xl:scale-140 origin-bottom-right select-none mix-blend-multiply"
+          />
+        </div>
       </div>
 
     </section>
