@@ -53,29 +53,28 @@ export const metadata: Metadata = {
   }
 };
 
+import { CookieConsent } from '../components/layout/CookieConsent';
+
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'EducationalOrganization',
     name: 'EasyTraining - Cursos Profissionalizantes',
+    description: 'Cursos Profissionalizantes e de Informática em Guarulhos - SP. Mais de 5.000 alunos formados.',
     url: 'https://easytraining.com.br',
     logo: 'https://easytraining.com.br/images/logos/logo-easytraining.webp',
+    image: 'https://easytraining.com.br/images/robot/image-hero.webp',
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'Estrada do Sacramento, 1250',
+      streetAddress: 'Estrada do Sacramento, 1250 - Sala 02',
       addressLocality: 'Guarulhos',
       addressRegion: 'SP',
-      addressCountry: 'BR',
-      postalCode: '07263-000'
-    },
-    geo: {
-      '@type': 'GeoCoordinates',
-      latitude: -23.4428,
-      longitude: -46.4028
+      postalCode: '07272-000',
+      addressCountry: 'BR'
     },
     telephone: '+55 11 2303-7983',
     aggregateRating: {
@@ -106,8 +105,9 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="antialiased bg-[#F8FAFC] text-slate-800 selection:bg-[#00B060] selection:text-white">
+      <body className="antialiased bg-[#F8FAFC] text-slate-800 selection:bg-[#00874A] selection:text-white">
         {children}
+        <CookieConsent />
       </body>
     </html>
   );

@@ -51,6 +51,18 @@ let xml = `<?xml version="1.0" encoding="UTF-8"?>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
+  <url>
+    <loc>https://easytraining.com.br/politica-de-privacidade</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://easytraining.com.br/termos-de-uso</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
 `;
 
 courses.forEach(slug => {
@@ -76,4 +88,4 @@ blogSlugs.forEach(slug => {
 xml += `</urlset>\n`;
 
 fs.writeFileSync(path.join(__dirname, 'public', 'sitemap.xml'), xml, 'utf-8');
-console.log('sitemap.xml updated with full courses and blog routes!');
+console.log('sitemap.xml updated with full courses, blog, and LGPD legal routes!');

@@ -71,12 +71,14 @@ export const Footer: React.FC = () => {
 
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
           <p>© {currentYear} {siteConfig.name}. Todos os direitos reservados.</p>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+            <a href="/politica-de-privacidade" className="hover:text-emerald-400 transition-colors">Política de Privacidade (LGPD)</a>
+            <span>•</span>
+            <a href="/termos-de-uso" className="hover:text-white transition-colors">Termos de Uso</a>
+            <span>•</span>
             <a href="/llms.txt" className="hover:text-white transition-colors" title="Indexação para IAs">llms.txt</a>
             <span>•</span>
             <a href="/sitemap.xml" className="hover:text-white transition-colors">Sitemap</a>
-            <span>•</span>
-            <span>Guarulhos - São Paulo</span>
           </div>
         </div>
       </div>

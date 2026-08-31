@@ -156,6 +156,20 @@ export const ContactSection: React.FC = () => {
                 />
               </div>
 
+              <div className="flex items-start gap-2.5 pt-1">
+                <input
+                  type="checkbox"
+                  id="lgpd-consent"
+                  name="lgpd-consent"
+                  defaultChecked
+                  required
+                  className="mt-0.5 rounded border-slate-300 text-[#00874A] focus:ring-[#00874A] cursor-pointer"
+                />
+                <label htmlFor="lgpd-consent" className="text-[11px] text-slate-600 leading-snug cursor-pointer">
+                  Concordo com a <a href="/politica-de-privacidade" target="_blank" className="text-[#00874A] font-semibold underline">Política de Privacidade</a> e autorizo o contato da EasyTraining para informações pedagógicas e valores.
+                </label>
+              </div>
+
               <button
                 type="submit"
                 className="w-full py-3.5 bg-[#00874A] hover:bg-[#00703C] text-white font-bold text-sm rounded-full transition-all shadow-md active:scale-98 cursor-pointer flex items-center justify-center gap-2"
