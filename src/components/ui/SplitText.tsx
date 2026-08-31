@@ -98,28 +98,31 @@ export const SplitText: React.FC<SplitTextProps> = ({
   return (
     <Tag
       ref={containerRef as any}
+      aria-label={text}
       style={{ textAlign, wordWrap: 'break-word' }}
       className={`split-parent overflow-hidden inline-block whitespace-normal ${className}`}
     >
-      {words.map((word, wordIndex) => (
-        <span
-          key={`word-${wordIndex}`}
-          className="split-word inline-block whitespace-nowrap mr-[0.28em] last:mr-0"
-        >
-          {word.split('').map((char, charIndex) => (
-            <span
-              key={`char-${wordIndex}-${charIndex}`}
-              className="split-char inline-block"
-              style={{
-                opacity: inView ? 1 : (typeof from?.opacity === 'number' ? from.opacity : 0),
-                transform: inView ? 'translateY(0)' : `translateY(${typeof from?.y === 'number' ? from.y : 35}px)`
-              }}
-            >
-              {char}
-            </span>
-          ))}
-        </span>
-      ))}
+      <span aria-hidden="true" className="inline">
+        {words.map((word, wordIndex) => (
+          <span
+            key={`word-${wordIndex}`}
+            className="split-word inline-block whitespace-nowrap mr-[0.28em] last:mr-0"
+          >
+            {word.split('').map((char, charIndex) => (
+              <span
+                key={`char-${wordIndex}-${charIndex}`}
+                className="split-char inline-block"
+                style={{
+                  opacity: inView ? 1 : (typeof from?.opacity === 'number' ? from.opacity : 0),
+                  transform: inView ? 'translateY(0)' : `translateY(${typeof from?.y === 'number' ? from.y : 35}px)`
+                }}
+              >
+                {char}
+              </span>
+            ))}
+          </span>
+        ))}
+      </span>
     </Tag>
   );
 };
