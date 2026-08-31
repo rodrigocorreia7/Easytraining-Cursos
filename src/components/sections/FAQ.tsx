@@ -61,7 +61,7 @@ export const FAQSection: React.FC = () => {
             <HelpCircle className="w-3.5 h-3.5 text-[#FFB800]" />
             <span>Tire Suas Dúvidas</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#052e7f] tracking-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#052e7f] tracking-tight leading-normal pb-1">
             <SplitText
               text="Perguntas Frequentes"
               className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#052e7f] tracking-tight"

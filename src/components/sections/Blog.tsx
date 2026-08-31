@@ -16,7 +16,7 @@ export const BlogSection: React.FC = () => {
             <Newspaper className="w-3.5 h-3.5 text-[#00874A]" />
             <span>Blog Oficial EasyTraining</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-black text-[#052e7f] tracking-tight">
+          <h2 className="text-3xl sm:text-4xl font-black text-[#052e7f] tracking-tight leading-normal pb-1">
             <SplitText
               text="Conteúdo para acelerar o seu crescimento"
               className="text-3xl sm:text-4xl font-black text-[#052e7f] tracking-tight"

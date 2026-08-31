@@ -99,7 +99,7 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ initialCategory 
             <BookOpen className="w-3.5 h-3.5" />
             <span>Grade Completa de Cursos</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#052e7f] tracking-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#052e7f] tracking-tight leading-normal pb-1">
             <SplitText
               text="Escolha o curso que vai transformar o seu futuro"
               className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#052e7f] tracking-tight"

@@ -227,7 +227,7 @@ export const Methodology: React.FC = () => {
             <CheckCircle2 className="w-3.5 h-3.5 text-[#00874A]" />
             <span>Por que escolher a EasyTraining?</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-normal pb-1">
             <SplitText
               text="Metodologia pensada para a sua contratação"
               className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight"

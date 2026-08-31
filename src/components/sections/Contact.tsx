@@ -27,7 +27,7 @@ export const ContactSection: React.FC = () => {
             <MessageSquare className="w-3.5 h-3.5 text-[#00874A]" />
             <span>Fale com a EasyTraining</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#052e7f] tracking-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#052e7f] tracking-tight leading-normal pb-1">
             <SplitText
               text="Venha nos visitar ou tire dúvidas agora mesmo"
               className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#052e7f] tracking-tight"

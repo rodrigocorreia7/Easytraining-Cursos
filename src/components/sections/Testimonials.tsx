@@ -64,7 +64,7 @@ export const Testimonials: React.FC = () => {
             <span>Avaliações Reais de Alunos no Google</span>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#052e7f] tracking-tight leading-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#052e7f] tracking-tight leading-normal pb-1">
             <SplitText
               text="Nota 5.0 no Google com mais de 320 alunos satisfeitos"
               className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#052e7f] tracking-tight leading-tight"

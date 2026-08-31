@@ -32,7 +32,7 @@ export const About: React.FC = () => {
             <Award className="w-4 h-4 text-[#D97706]" />
             <span>Tradição em Qualificação Profissional</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight drop-shadow-md">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight drop-shadow-md leading-normal pb-1">
             <SplitText
               text="Mais que uma escola, o caminho para o seu sucesso profissional"
               className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight drop-shadow-md"
