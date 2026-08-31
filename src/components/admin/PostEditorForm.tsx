@@ -9,6 +9,7 @@ import {
   Link as LinkIcon, GraduationCap, CheckCircle2, AlertCircle 
 } from 'lucide-react';
 import { PostDetailView } from '../blog/PostDetailView';
+import { sanitizeSlug, sanitizeInput } from '../../utils/security';
 
 interface PostEditorFormProps {
   initialPost?: BlogPost;
@@ -65,17 +66,18 @@ export const PostEditorForm: React.FC<PostEditorFormProps> = ({ initialPost, isE
     setSaving(true);
     setMessage(null);
 
+    const safeSlug = sanitizeSlug(slug);
     const relatedCourse = AVAILABLE_COURSES.find(c => c.slug === selectedCourseSlug) || AVAILABLE_COURSES[0];
 
     const postPayload: Partial<BlogPost> = {
-      title,
-      slug: slug.trim().toLowerCase(),
-      excerpt,
-      category,
+      title: title.trim(),
+      slug: safeSlug,
+      excerpt: excerpt.trim(),
+      category: sanitizeInput(category),
       image,
       contentHtml,
       content: contentHtml,
-      author,
+      author: sanitizeInput(author),
       authorRole: 'Especialistas em Carreira e Qualificação',
       date: initialPost?.date || new Date().toISOString().split('T')[0],
       readTime: `${Math.max(1, Math.round(contentHtml.replace(/<[^>]+>/g, '').split(/\s+/).length / 180))} min`,
