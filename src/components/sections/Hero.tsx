@@ -94,7 +94,7 @@ export const Hero: React.FC = () => {
     <section
       id="home"
       ref={heroRef}
-      className="relative bg-white pt-24 sm:pt-28 lg:pt-32 pb-12 lg:pb-20 overflow-hidden min-h-[600px] lg:min-h-[680px] xl:min-h-[720px] flex items-center"
+      className="relative bg-white pt-24 sm:pt-28 lg:pt-32 pb-12 lg:pb-20 overflow-hidden min-h-[600px] lg:min-h-[680px] xl:min-h-[740px] 2xl:min-h-[800px] flex items-center"
     >
       {/* ========================================================= */}
       {/* 1. MOBILE LAYOUT (lg:hidden) */}
@@ -171,12 +171,12 @@ export const Hero: React.FC = () => {
       </div>
 
       {/* ========================================================= */}
-      {/* 2. DESKTOP LAYOUT (hidden lg:block) - MAJESTIC BIG ROBOT BEHIND */}
+      {/* 2. DESKTOP & 4K UNIFIED RESPONSIVE WRAPPER */}
       {/* ========================================================= */}
-      <div className="hidden lg:block w-full max-w-[1440px] mx-auto px-6 lg:px-8 xl:px-12 relative z-30">
+      <div className="hidden lg:block w-full max-w-[1536px] 2xl:max-w-[1720px] mx-auto px-6 lg:px-10 xl:px-14 relative">
         
-        {/* Left Foreground Content (Sitting proudly in front in relative z-30) */}
-        <div className="max-w-xl xl:max-w-2xl space-y-6 text-left">
+        {/* Left Foreground Content */}
+        <div className="max-w-xl xl:max-w-2xl 2xl:max-w-3xl space-y-6 text-left relative z-30 py-4">
           
           {/* Tag Pill */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-50/90 backdrop-blur-md border border-slate-200/80 text-xs font-bold text-slate-800 shadow-xs">
@@ -185,16 +185,16 @@ export const Hero: React.FC = () => {
           </div>
 
           {/* Main Headline H1 */}
-          <h1 className="text-4xl lg:text-[46px] xl:text-[54px] font-black tracking-tight text-slate-900 leading-[1.12]">
+          <h1 className="text-4xl lg:text-[46px] xl:text-[54px] 2xl:text-[60px] font-black tracking-tight text-slate-900 leading-[1.12]">
             <span className="text-[#052e7f]">Easytraining - </span>
             <span className="text-[#00B060]">Cursos de Informática e Profissionalizantes</span>
-            <span className="text-slate-800 block text-3xl lg:text-4xl mt-1 font-extrabold">
+            <span className="text-slate-800 block text-3xl lg:text-4xl 2xl:text-5xl mt-1 font-extrabold">
               em Guarulhos-SP
             </span>
           </h1>
 
           {/* Subtitle */}
-          <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-xl font-medium">
+          <p className="text-base sm:text-lg 2xl:text-xl text-slate-600 leading-relaxed max-w-xl 2xl:max-w-2xl font-medium">
             Mais de <strong className="text-slate-900 font-bold">5.000 alunos</strong> já transformaram suas carreiras. Venha para a <strong className="text-[#052e7f] font-bold">Easytraining</strong> e faça parte deste time! Formação 100% presencial e prática com certificado reconhecido.
           </p>
 
@@ -202,7 +202,7 @@ export const Hero: React.FC = () => {
           <div className="flex flex-wrap items-center gap-4 pt-2">
             <button
               onClick={scrollToCourses}
-              className="flex items-center gap-2 px-7 py-3.5 bg-[#00B060] hover:bg-[#009652] text-white text-sm font-bold rounded-full transition-all shadow-lg shadow-emerald-500/20 active:scale-95 cursor-pointer"
+              className="flex items-center gap-2 px-7 py-3.5 bg-[#00B060] hover:bg-[#009652] text-white text-sm 2xl:text-base font-bold rounded-full transition-all shadow-lg shadow-emerald-500/20 active:scale-95 cursor-pointer"
             >
               <span>Conhecer os Cursos</span>
               <ArrowRight className="w-4 h-4" />
@@ -211,7 +211,7 @@ export const Hero: React.FC = () => {
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 px-6 py-3.5 bg-white/90 backdrop-blur-md hover:bg-white text-[#052e7f] border border-slate-200 text-sm font-bold rounded-full transition-all shadow-xs hover:border-[#00B060] active:scale-95"
+              className="flex items-center gap-2 px-6 py-3.5 bg-white/90 backdrop-blur-md hover:bg-white text-[#052e7f] border border-slate-200 text-sm 2xl:text-base font-bold rounded-full transition-all shadow-xs hover:border-[#00B060] active:scale-95"
             >
               <MessageCircle className="w-4 h-4 text-[#00B060]" />
               <span>Falar no WhatsApp</span>
@@ -219,37 +219,35 @@ export const Hero: React.FC = () => {
           </div>
 
           {/* Metric Cards */}
-          <div className="grid grid-cols-3 gap-3 sm:gap-4 max-w-lg pt-3 text-center">
+          <div className="grid grid-cols-3 gap-3 sm:gap-4 max-w-lg 2xl:max-w-xl pt-3 text-center">
             <div className="p-3.5 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 shadow-xs hover:border-[#052e7f]/30 transition-colors">
-              <p className="text-xl sm:text-2xl font-black text-[#052e7f]">19+</p>
-              <p className="text-[11px] sm:text-xs text-slate-600 font-semibold mt-0.5">Cursos Práticos</p>
+              <p className="text-xl sm:text-2xl 2xl:text-3xl font-black text-[#052e7f]">19+</p>
+              <p className="text-[11px] sm:text-xs 2xl:text-sm text-slate-600 font-semibold mt-0.5">Cursos Práticos</p>
             </div>
             <div className="p-3.5 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 shadow-xs hover:border-[#FFB800]/40 transition-colors">
-              <p className="text-xl sm:text-2xl font-black text-[#FFB800]">★ 5.0</p>
-              <p className="text-[11px] sm:text-xs text-slate-600 font-semibold mt-0.5">Nota no Google</p>
+              <p className="text-xl sm:text-2xl 2xl:text-3xl font-black text-[#FFB800]">★ 5.0</p>
+              <p className="text-[11px] sm:text-xs 2xl:text-sm text-slate-600 font-semibold mt-0.5">Nota no Google</p>
             </div>
             <div className="p-3.5 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 shadow-xs hover:border-[#00B060]/40 transition-colors">
-              <p className="text-xl sm:text-2xl font-black text-[#00B060]">100%</p>
-              <p className="text-[11px] sm:text-xs text-slate-600 font-semibold mt-0.5">Com Certificado</p>
+              <p className="text-xl sm:text-2xl 2xl:text-3xl font-black text-[#00B060]">100%</p>
+              <p className="text-[11px] sm:text-xs 2xl:text-sm text-slate-600 font-semibold mt-0.5">Com Certificado</p>
             </div>
           </div>
 
         </div>
 
-      </div>
-
-      {/* ========================================================= */}
-      {/* 3. DESKTOP IMPRESSIVE BIG ROBOT CANVAS IN THE BACKGROUND */}
-      {/* ========================================================= */}
-      <div className="hidden lg:flex absolute right-[-4%] lg:right-[0%] xl:right-[2%] 2xl:right-[5%] bottom-0 top-0 w-[70%] sm:w-[65%] lg:w-[60%] xl:w-[58%] 2xl:w-[55%] h-full items-end justify-end pointer-events-none z-10 select-none">
-        <div className="relative w-full h-full flex items-end justify-end overflow-visible">
-          <canvas
-            ref={canvasRef}
-            width={1280}
-            height={720}
-            className="h-full w-full max-h-[105vh] lg:max-h-[110vh] xl:max-h-[115vh] object-contain object-bottom-right scale-120 lg:scale-130 xl:scale-135 2xl:scale-140 origin-bottom-right select-none mix-blend-multiply"
-          />
+        {/* Right Robot Canvas (Anchored directly inside the same max-w container!) */}
+        <div className="absolute right-0 bottom-0 top-12 lg:top-14 xl:top-16 2xl:top-20 w-[58%] xl:w-[60%] 2xl:w-[58%] h-full flex items-end justify-end pointer-events-none z-10 select-none">
+          <div className="relative w-full h-full flex items-end justify-end overflow-visible">
+            <canvas
+              ref={canvasRef}
+              width={1280}
+              height={720}
+              className="h-full w-full max-h-[92%] 2xl:max-h-[95%] object-contain object-bottom-right scale-110 lg:scale-120 xl:scale-125 2xl:scale-130 origin-bottom-right select-none mix-blend-multiply"
+            />
+          </div>
         </div>
+
       </div>
 
     </section>
