@@ -23,8 +23,9 @@ export const siteConfig = {
     sunday: "Domingos: Fechado"
   },
   rating: {
-    score: 4.9,
-    reviewsCount: 380
+    score: 5.0,
+    reviewsCount: 323,
+    googleProfileUrl: "https://share.google/9t0EXR5lgQQy8d0Do"
   },
   social: {
     facebook: "https://www.facebook.com/easytrainingcursosprofissionalizantes",
