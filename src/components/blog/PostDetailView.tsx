@@ -39,7 +39,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ post, relatedPos
       name: 'EasyTraining - Cursos Profissionalizantes',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://easytraining.com.br/images/logos/logo-easytraining.png'
+        url: 'https://easytraining.com.br/images/logos/logo-easytraining.webp'
       }
     },
     mainEntityOfPage: {

@@ -10,7 +10,7 @@ export const blogPosts: BlogPost[] = [
     date: "2026-08-15",
     category: "Mercado de Trabalho",
     readTime: "4 min",
-    image: "/images/wordpress/diverse-work-team-working-in-the-office-ZD9JBTU.jpg"
+    image: "/images/wordpress/diverse-work-team-working-in-the-office-ZD9JBTU.webp"
   },
   {
     id: 2,
@@ -21,7 +21,7 @@ export const blogPosts: BlogPost[] = [
     date: "2026-08-10",
     category: "Setor Pet & Veterinária",
     readTime: "3 min",
-    image: "/images/wordpress/animals-for-examination-and-treatment-in-the-veterinary-clinic.jpg"
+    image: "/images/wordpress/animals-for-examination-and-treatment-in-the-veterinary-clinic.webp"
   },
   {
     id: 3,
@@ -32,6 +32,6 @@ export const blogPosts: BlogPost[] = [
     date: "2026-08-05",
     category: "Dicas de Carreira",
     readTime: "5 min",
-    image: "/images/wordpress/young-smiling-student-of-online-course-of-study-lo-587BY9F.jpg"
+    image: "/images/wordpress/young-smiling-student-of-online-course-of-study-lo-587BY9F.webp"
   }
 ];

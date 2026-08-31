@@ -13,7 +13,7 @@ export const courses: Course[] = [
     duration: '3 a 6 meses',
     modality: 'Presencial / Prático',
     certificate: true,
-    image: '/images/courses/ATENTENDE-FARMACIA.jpg',
+    image: '/images/courses/ATENTENDE-FARMACIA.webp',
     featured: true,
     modules: [
       {
@@ -53,7 +53,7 @@ export const courses: Course[] = [
     duration: '3 a 6 meses',
     modality: '100% Prático em Animais Reais',
     certificate: true,
-    image: '/images/courses/curso-de-tosa-em-guarulhos.jpg',
+    image: '/images/courses/curso-de-tosa-em-guarulhos.webp',
     featured: true,
     modules: [
       {
@@ -93,7 +93,7 @@ export const courses: Course[] = [
     duration: '2 a 4 meses',
     modality: '100% Prático em Animais Reais',
     certificate: true,
-    image: '/images/courses/happy-woman-playing-with-dog-in-grooming-studio.jpg',
+    image: '/images/courses/happy-woman-playing-with-dog-in-grooming-studio.webp',
     modules: [
       {
         title: 'Módulo 1: Cosmetologia e Tipos de Pelos',
@@ -127,7 +127,7 @@ export const courses: Course[] = [
     duration: '4 a 8 meses',
     modality: 'Presencial / Prático',
     certificate: true,
-    image: '/images/courses/animals-for-examination-and-treatment-in-the-veterinary-clinic.jpg',
+    image: '/images/courses/animals-for-examination-and-treatment-in-the-veterinary-clinic.webp',
     featured: true,
     modules: [
       {
@@ -169,7 +169,7 @@ export const courses: Course[] = [
     duration: '3 a 6 meses',
     modality: 'Presencial / Prático',
     certificate: true,
-    image: '/images/courses/RECURSOS-HUMANOS.jpg',
+    image: '/images/courses/RECURSOS-HUMANOS.webp',
     featured: true,
     modules: [
       {
@@ -204,7 +204,7 @@ export const courses: Course[] = [
     duration: '3 a 6 meses',
     modality: 'Presencial / Prático',
     certificate: true,
-    image: '/images/courses/assistente-administrativo.png',
+    image: '/images/courses/assistente-administrativo.webp',
     modules: [
       {
         title: 'Módulo 1: Rotinas Corporativas e Comunicação',
@@ -239,7 +239,7 @@ export const courses: Course[] = [
     duration: '3 a 6 meses',
     modality: 'Presencial / Prático',
     certificate: true,
-    image: '/images/courses/ASSISTENTE-LOGISTICA.jpg',
+    image: '/images/courses/ASSISTENTE-LOGISTICA.webp',
     modules: [
       {
         title: 'Módulo 1: Cadeia de Suprimentos (Supply Chain)',
@@ -274,7 +274,7 @@ export const courses: Course[] = [
     duration: '3 a 6 meses',
     modality: 'Presencial / Prático',
     certificate: true,
-    image: '/images/courses/CONTABILIDADE.jpg',
+    image: '/images/courses/CONTABILIDADE.webp',
     modules: [
       {
         title: 'Módulo 1: Fundamentos da Contabilidade',
@@ -308,7 +308,7 @@ export const courses: Course[] = [
     duration: '3 a 6 meses',
     modality: 'Presencial / Prático',
     certificate: true,
-    image: '/images/courses/gestao-comercial.png',
+    image: '/images/courses/gestao-comercial.webp',
     modules: [
       {
         title: 'Módulo 1: Técnicas Avançadas de Vendas',
@@ -344,7 +344,7 @@ export const courses: Course[] = [
     duration: '4 a 8 meses',
     modality: '100% Prático no Computador',
     certificate: true,
-    image: '/images/courses/designer-grafico.png',
+    image: '/images/courses/designer-grafico.webp',
     featured: true,
     modules: [
       {
@@ -415,7 +415,7 @@ export const courses: Course[] = [
     duration: '4 a 8 meses',
     modality: '100% Prático no Computador',
     certificate: true,
-    image: '/images/courses/projetista-digital.png',
+    image: '/images/courses/projetista-digital.webp',
     modules: [
       {
         title: 'Módulo 1: Desenho Técnico e Normas ABNT',
@@ -449,7 +449,7 @@ export const courses: Course[] = [
     duration: '3 a 6 meses',
     modality: '100% Prático no Computador',
     certificate: true,
-    image: '/images/courses/arte-finalista.png',
+    image: '/images/courses/arte-finalista.webp',
     modules: [
       {
         title: 'Módulo 1: Pré-impressão e Fechamento de Arquivos',
@@ -485,7 +485,7 @@ export const courses: Course[] = [
     duration: '3 a 6 meses',
     modality: '100% Prático no Computador',
     certificate: true,
-    image: '/images/courses/informatica-basica.png',
+    image: '/images/courses/informatica-basica.webp',
     featured: true,
     modules: [
       {
@@ -520,7 +520,7 @@ export const courses: Course[] = [
     duration: '2 a 4 meses',
     modality: '100% Prático no Computador',
     certificate: true,
-    image: '/images/courses/excel-avancado.png',
+    image: '/images/courses/excel-avancado.webp',
     featured: true,
     modules: [
       {
@@ -555,7 +555,7 @@ export const courses: Course[] = [
     duration: '3 a 6 meses',
     modality: '100% Prático no Computador',
     certificate: true,
-    image: '/images/courses/informatica-empresarial.png',
+    image: '/images/courses/informatica-empresarial.webp',
     modules: [
       {
         title: 'Módulo 1: Ferramentas Google Workspace e Nuvem',
@@ -589,7 +589,7 @@ export const courses: Course[] = [
     duration: '3 a 6 meses',
     modality: '100% Prático no Computador',
     certificate: true,
-    image: '/images/courses/informatica-avancada.png',
+    image: '/images/courses/informatica-avancada.webp',
     modules: [
       {
         title: 'Módulo 1: Hardware e Montagem de Computadores',
@@ -623,7 +623,7 @@ export const courses: Course[] = [
     duration: '2 a 4 meses',
     modality: '100% Prático no Computador',
     certificate: true,
-    image: '/images/courses/INFORMATICA-APLICADA-1.jpg',
+    image: '/images/courses/INFORMATICA-APLICADA-1.webp',
     modules: [
       {
         title: 'Módulo 1: Normas ABNT no Microsoft Word',
@@ -657,7 +657,7 @@ export const courses: Course[] = [
     duration: '6 a 12 meses',
     modality: '100% Prático no Computador',
     certificate: true,
-    image: '/images/courses/Curso-de-Informatica-em-Guarulhos-presencial-na-Easytraining.jpg',
+    image: '/images/courses/Curso-de-Informatica-em-Guarulhos-presencial-na-Easytraining.webp',
     modules: [
       {
         title: 'Módulo 1: Informática Básica e Digitação',

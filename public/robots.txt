@@ -1,8 +1,25 @@
 User-agent: *
 Allow: /
 
-# AI Crawlers & LLM Directives
+# Agentic Navigation & LLM Indexing Directives
 Allow: /llms.txt
 Allow: /llms-full.txt
+Allow: /blog
+Allow: /images/
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
 
 Sitemap: https://easytraining.com.br/sitemap.xml

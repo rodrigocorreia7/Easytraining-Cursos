@@ -41,7 +41,7 @@ export default function AdminLoginPage() {
         {/* Brand */}
         <div className="text-center mb-8">
           <img
-            src="/images/logos/logo-easytraining.png"
+            src="/images/logos/logo-easytraining.webp"
             alt="EasyTraining Formação Profissional"
             className="h-10 sm:h-12 w-auto object-contain mx-auto mb-4"
           />

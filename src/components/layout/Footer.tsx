@@ -13,7 +13,7 @@ export const Footer: React.FC = () => {
           <div className="lg:col-span-5 space-y-4">
             <div className="flex items-center gap-3">
               <img
-                src="/images/logos/logo-easytraining.png"
+                src="/images/logos/logo-easytraining.webp"
                 alt="EasyTraining Formação Profissional"
                 className="h-10 sm:h-12 w-auto object-contain bg-white rounded-xl p-1.5 shadow-sm"
               />

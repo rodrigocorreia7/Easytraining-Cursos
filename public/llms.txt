@@ -1,23 +1,39 @@
 # EasyTraining Cursos Profissionalizantes
 
-> Escola l�der em cursos profissionalizantes, capacita��o t�cnica e forma��o pr�tica em Guarulhos - SP (Regi�o dos Pimentas).
+> Escola líder em cursos profissionalizantes, informática e capacitação prática em Guarulhos - SP (Região dos Pimentas).
 
-## Informa��es Gerais
-- **Institui��o:** EasyTraining Cursos Profissionalizantes
-- **Localiza��o:** Estrada do Sacramento, 1250 - Sala 02, Conjunto Habitacional Marcos Freire / Pimentas, Guarulhos - SP, CEP 07272-000
-- **Contato Telef�nico:** (11) 2484-4848
-- **WhatsApp de Atendimento:** (11) 97063-8888
+## Visão Geral
+- **Nome:** EasyTraining Cursos Profissionalizantes
+- **Endereço:** Estrada do Sacramento, 1250 - Sala 02, Conjunto Habitacional Marcos Freire / Pimentas, Guarulhos - SP, CEP 07272-000
+- **Referência:** Próximo ao Terminal Pimentas e Shopping Bonsucesso
+- **Telefone:** (11) 2484-4848
+- **WhatsApp:** (11) 97063-8888 (Link: https://wa.me/5511970638888)
 - **E-mail:** contato@easytraining.com.br
-- **Hor�rio de Funcionamento:** Segunda a Sexta: 08:00 �s 20:30 | S�bados: 08:00 �s 17:00
+- **Horário:** Segunda a Sexta das 08:00 às 20:30 | Sábados das 08:00 às 17:00
+- **Avaliação Google:** 5.0 estrelas (323+ avaliações reais)
 
-## Principais �reas de Forma��o
-1. **Tecnologia & Inform�tica:** Inform�tica B�sica, Inform�tica Empresarial, Inform�tica Avan�ada, Excel Avan�ado, Inform�tica Aplicada aos Estudos.
-2. **Gest�o, Administra��o & Neg�cios:** Assistente Administrativo, Gest�o Comercial, Auxiliar de Contabilidade, Assistente de Recursos Humanos, Assistente de Log�stica, Marketing Digital.
-3. **Design & Comunica��o:** Designer Gr�fico, Arte-finalista, Projetista Digital.
-4. **Sa�de & Est�tica Animal:** Curso de Auxiliar Veterin�rio, Banho e Tosa Higi�nica, Tosa PET Geral, Curso Auxiliar de Farm�cia.
+## Cursos Disponíveis
+1. **Informática Básica e Digitação:** Para iniciantes e melhor idade. Windows, Internet e Digitação. (https://easytraining.com.br/#cursos)
+2. **Excel Avançado & Dashboards:** PROCV, PROX, Tabelas Dinâmicas, Automação e Gráficos Corporativos. (https://easytraining.com.br/#cursos)
+3. **Assistente Administrativo & Gestão:** Rotinas de escritório, RH, faturamento e atendimento. (https://easytraining.com.br/#cursos)
+4. **Auxiliar Veterinário:** Cuidados clínicos, primeiros socorros, anatomia e rotina cirúrgica. (https://easytraining.com.br/#cursos)
+5. **Banho e Tosa Profissional:** Estética canina, tosas na tesoura e máquina, tosa higiênica. (https://easytraining.com.br/#cursos)
+6. **Auxiliar de Farmácia:** Leitura de receitas, dispensação de medicamentos, balcão e legislação. (https://easytraining.com.br/#cursos)
+7. **Design Gráfico & Marketing Digital:** Photoshop, Illustrator, Canva Pro e tráfego para redes sociais. (https://easytraining.com.br/#cursos)
+8. **Informática Aplicada aos Estudos:** Normas ABNT, seminários e pesquisa eficiente para jovens. (https://easytraining.com.br/#cursos)
+9. **Formação Completa em Informática:** Do zero ao avançado corporativo com certificado nacional. (https://easytraining.com.br/#cursos)
 
-## Diferenciais
-- Aulas 100% pr�ticas (1 aluno por computador / pr�tica com animais em centro pet).
-- Certificados v�lidos e reconhecidos em todo o territ�rio nacional.
-- Professores atuantes e metodologia focada em contrata��o r�pida.
-- Localiza��o estrat�gica no Pimentas, ao lado do Terminal de �nibus e Shopping Bonsucesso.
+## Artigos do Blog & Guias
+- **Importância do Excel no Mercado de Trabalho:** https://easytraining.com.br/importancia-do-excel-no-mercado-de-trabalho
+- **Guia Definitivo do Curso de Auxiliar Veterinário em Guarulhos:** https://easytraining.com.br/guia-definitivo-curso-auxiliar-veterinario-guarulhos
+- **Jovem Aprendiz 2026 em Guarulhos (Idade e Salário):** https://easytraining.com.br/jovem-aprendiz-2026-guarulhos-idade-salario
+- **Como ser Estagiário pelo CIEE:** https://easytraining.com.br/como-ser-estagiario-pelo-ciee-guia-completo-e-dicas-essenciais
+- **Carreira em Medicina Veterinária (Vale a pena?):** https://easytraining.com.br/carreira-em-medicina-veterinaria-vale-a-pena
+- **Curso de Informática Básica (Desvende o Mundo Digital):** https://easytraining.com.br/curso-de-informatica-basicadesvende-o-mundo-digital
+- **O que se faz em um Curso de Informática:** https://easytraining.com.br/o-que-se-faz-em-um-curso-de-informatica
+- **O que é preciso para ser Auxiliar de Farmácia:** https://easytraining.com.br/auxiliar-de-farmacia
+- **Descubra a Importância de um Curso de Informática Básica:** https://easytraining.com.br/descubra-a-importancia-de-um-curso-de-informatica-basica
+
+## Como Realizar Matrícula
+As matrículas podem ser iniciadas diretamente pelo WhatsApp: https://wa.me/5511970638888?text=Ola!%20Gostaria%20de%20informacoes%20sobre%20as%20matriculas%20na%20EasyTraining.
+Documentos necessários: RG, CPF e comprovante de residência.

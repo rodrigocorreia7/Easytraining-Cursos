@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     description: 'Transforme seu futuro profissional com cursos 100% práticos e certificados reconhecidos em Guarulhos.',
     images: [
       {
-        url: '/images/logos/logo-easytraining.png',
+        url: '/images/logos/logo-easytraining.webp',
         width: 1200,
         height: 630,
         alt: 'EasyTraining - Cursos Profissionalizantes'
@@ -63,7 +63,7 @@ export default function RootLayout({
     '@type': 'EducationalOrganization',
     name: 'EasyTraining - Cursos Profissionalizantes',
     url: 'https://easytraining.com.br',
-    logo: 'https://easytraining.com.br/images/logos/logo-easytraining.png',
+    logo: 'https://easytraining.com.br/images/logos/logo-easytraining.webp',
     address: {
       '@type': 'PostalAddress',
       streetAddress: 'Estrada do Sacramento, 1250',
@@ -96,6 +96,11 @@ export default function RootLayout({
         <meta name="theme-color" content="#052e7f" />
         <link rel="dns-prefetch" href="https://wa.me" />
         <link rel="dns-prefetch" href="https://api.whatsapp.com" />
+        <link rel="preload" as="image" href="/images/robot/image-hero.webp" type="image/webp" />
+        {/* Agentic Navigation & LLM discovery */}
+        <link rel="llms" href="/llms.txt" />
+        <link rel="llms-txt" href="/llms.txt" />
+        <link rel="alternate" type="text/markdown" href="/llms.txt" title="LLMs Context" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

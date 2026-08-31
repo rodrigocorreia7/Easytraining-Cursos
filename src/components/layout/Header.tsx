@@ -57,7 +57,7 @@ export const Header: React.FC<HeaderProps> = () => {
           aria-label="EasyTraining - Formação Profissional"
         >
           <img
-            src="/images/logos/logo-easytraining.png"
+            src="/images/logos/logo-easytraining.webp"
             alt="EasyTraining Formação Profissional"
             className="h-8 sm:h-10 w-auto object-contain"
           />

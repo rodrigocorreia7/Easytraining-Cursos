@@ -1,27 +1,73 @@
-# Documenta��o Completa EasyTraining Cursos Profissionalizantes
+# EasyTraining Cursos Profissionalizantes - Base de Conhecimento Completa para Agentes de IA
 
-## Sobre a EasyTraining
-A EasyTraining � uma escola de capacita��o profissional em Guarulhos-SP dedicada a preparar jovens e adultos para o mercado de trabalho com cursos intensivos, modernos e pr�ticos.
+> Documentação técnica e descritiva de todos os cursos, módulos, metodologia, localização e atendimento da EasyTraining Guarulhos.
 
-## Grade Completa dos Cursos Oferecidos
-- **Curso de Inform�tica B�sica:** Windows, digita��o, internet segura, envio de e-mails e pacote Office inicial.
-- **Gest�o Comercial:** T�cnicas de vendas consultivas, negocia��o, CRM e lideran�a.
-- **Auxiliar de Contabilidade:** Balancetes, rotinas fiscais, concilia��o e escritura��o.
-- **Projetista Digital:** Desenho t�cnico 2D e 3D para engenharia e arquitetura.
-- **Arte-finalista:** Pr�-impress�o, fechamento de arquivos gr�ficos e cores industriais.
-- **Inform�tica Empresarial:** Pacote Office corporativo, relat�rios, planilhas gerenciais e nuvem.
-- **Assistente Administrativo:** Atendimento, finan�as, controle de estoque e rotinas de escrit�rio.
-- **Excel Avan�ado:** F�rmulas l�gicas, PROCV/PROCX, Tabelas Din�micas e Dashboards.
-- **Designer Gr�fico:** Photoshop, Illustrator, identidade visual e m�dias sociais.
-- **Assistente de Log�stica:** Armazenagem, gest�o de estoques, fretes e centros de distribui��o.
-- **Curso Auxiliar de Farm�cia:** Balc�o, interpreta��o de receitas, medicamentos e ANVISA.
-- **Assistente de Recursos Humanos:** Recrutamento, sele��o, departamento pessoal e leis trabalhistas.
-- **Tosa PET Geral:** Tosa na m�quina e tesoura em ra�as diversas com c�es reais.
-- **Marketing Digital:** Tr�fego pago, an�ncios no Meta e Google, social media e vendas online.
-- **Banho e Tosa Higi�nica:** Cuidados est�ticos caninos, hidrata��o, secagem e tosa higi�nica.
-- **Auxiliar Veterin�rio:** Cuidados cl�nicos, exames, vacina��o e suporte em centro cir�rgico.
+## Informações Institucionais
+- **Razão / Nome:** EasyTraining Cursos Profissionalizantes
+- **História:** Mais de 16 anos de tradição em Guarulhos, formando mais de 5.000 alunos na região dos Pimentas, Marcos Freire, Bonsucesso e adjacências.
+- **Endereço:** Estrada do Sacramento, 1250 - Sala 02, Conjunto Habitacional Marcos Freire / Pimentas, Guarulhos - SP, CEP 07272-000
+- **Pontos de Referência:** Próximo ao Terminal Pimentas e Shopping Bonsucesso.
+- **Telefone:** (11) 2484-4848
+- **WhatsApp:** (11) 97063-8888 (https://wa.me/5511970638888)
+- **Email:** contato@easytraining.com.br
+- **Horário de Atendimento:** Segunda a Sexta: 08:00 às 20:30 | Sábados: 08:00 às 17:00
+- **Avaliação Google:** 5,0 de 5 estrelas (323+ avaliações reais de alunos).
+
+## Metodologia Pedagógica
+1. **Aulas 100% Práticas:** 1 computador por aluno em laboratórios climatizados de última geração.
+2. **Prática Real em Saúde Animal:** Aulas de Auxiliar Veterinário e Banho & Tosa realizadas com animais reais e materiais clínicos.
+3. **Certificado Válido Nacionalmente:** Emitido com amparo na Lei nº 9.394/96 (Diretrizes e Bases da Educação Nacional) e Decreto Presidencial nº 5.154/04.
+4. **Encaminhamento para Estágio e Jovem Aprendiz:** Parcerias e suporte na confecção de currículo e preparação para entrevistas de emprego.
+
+## Grade Completa de Cursos
+
+### 1. Informática Básica e Digitação
+- **Duração:** 3 meses
+- **Modalidade:** Presencial / 100% Prático
+- **Público-alvo:** Crianças a partir de 10 anos, jovens em busca do 1º emprego, adultos e idosos.
+- **Conteúdo Programático:**
+  - Módulo 1: Fundamentos do Computador, Windows e Digitação Rápida.
+  - Módulo 2: Internet Segura, Navegação, E-mails e Google Drive.
+  - Módulo 3: Introdução ao Word e criação de documentos básicos.
+
+### 2. Excel Avançado & Dashboards Corporativos
+- **Duração:** 2 a 3 meses
+- **Modalidade:** Presencial / Prática Intensiva
+- **Conteúdo Programático:**
+  - Módulo 1: Fórmulas e Funções Avançadas (PROCV, PROX, SE, SOMASES, CONT.SES, ÍNDICE, CORRESP).
+  - Módulo 2: Tabelas Dinâmicas, Validação de Dados e Formatação Condicional.
+  - Módulo 3: Criação de Dashboards Profissionais, Gráficos Interativos e Indicadores KPI.
+
+### 3. Assistente Administrativo & Gestão Empresarial
+- **Duração:** 4 a 6 meses
+- **Conteúdo Programático:**
+  - Rotinas administrativas e atendimento ao cliente.
+  - Recursos Humanos: folha de ponto, admissão, rescisão e benefícios.
+  - Noções financeiras, fluxo de caixa, notas fiscais e logística básica.
+
+### 4. Auxiliar de Veterinário
+- **Duração:** 6 meses
+- **Conteúdo Programático:**
+  - Anatomia e fisiologia de cães e gatos.
+  - Primeiros socorros, contenção segura e vacinação.
+  - Instrumentação cirúrgica, técnicas assépticas e rotina de clínicas 24h.
+
+### 5. Banho e Tosa Profissional
+- **Duração:** 2 a 3 meses
+- **Conteúdo Programático:**
+  - Tosa higiênica, desembaraço e preparação da pelagem.
+  - Tosa na tesoura e máquina para diferentes raças.
+  - Cuidados dermatológicos, ouvidos, corte de unhas e biossegurança.
+
+### 6. Auxiliar de Farmácia & Drogaria
+- **Duração:** 4 meses
+- **Conteúdo Programático:**
+  - Classes farmacológicas e interpretação de receitas médicas.
+  - Dispensação e controle de estoque de medicamentos.
+  - Técnicas de vendas e atendimento de balcão.
 
 ## Perguntas Frequentes (FAQ)
-- **Os cursos possuem certificado?** Sim, todos os cursos emitem certificado reconhecido nacionalmente.
-- **Preciso ter experi�ncia pr�via?** N�o, os cursos iniciam dos fundamentos e avan�am para a pr�tica.
-- **Como me inscrever?** Pelo site ou diretamente via WhatsApp no n�mero (11) 97063-8888.
+- **Os cursos têm certificado?** Sim, todos os cursos contam com certificado reconhecido em todo o território nacional.
+- **Preciso ter computador em casa para fazer o curso?** Não. A escola oferece estrutura completa e computadores individuais durante as aulas.
+- **Qual a idade mínima para estudar?** A partir de 10 anos para informática e 14 anos para cursos profissionalizantes.
+- **Como faço para me matricular?** Entre em contato pelo WhatsApp (11) 97063-8888 ou visite a unidade na Estrada do Sacramento, 1250 - Sala 02, Guarulhos-SP.
