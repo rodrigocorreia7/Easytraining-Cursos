@@ -94,7 +94,7 @@ export const Hero: React.FC = () => {
     <section
       id="home"
       ref={heroRef}
-      className="relative bg-white pt-24 sm:pt-28 lg:pt-32 pb-12 lg:pb-20 overflow-hidden min-h-[600px] lg:min-h-[680px] xl:min-h-[740px] 2xl:min-h-[800px] flex items-center"
+      className="relative bg-[#F6F9F8] pt-24 sm:pt-28 lg:pt-32 pb-12 lg:pb-20 overflow-hidden min-h-[600px] lg:min-h-[680px] xl:min-h-[740px] 2xl:min-h-[800px] flex items-center"
     >
       {/* ========================================================= */}
       {/* 1. MOBILE LAYOUT (lg:hidden) */}
@@ -243,7 +243,7 @@ export const Hero: React.FC = () => {
               ref={canvasRef}
               width={1280}
               height={720}
-              className="h-full w-full max-h-[92%] 2xl:max-h-[95%] object-contain object-bottom-right scale-110 lg:scale-120 xl:scale-125 2xl:scale-130 origin-bottom-right select-none mix-blend-multiply"
+              className="h-full w-full max-h-[92%] 2xl:max-h-[95%] object-contain object-bottom-right scale-110 lg:scale-120 xl:scale-125 2xl:scale-130 origin-bottom-right select-none"
             />
           </div>
         </div>
