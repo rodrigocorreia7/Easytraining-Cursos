@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Star, Sparkles, ExternalLink, MessageCircle, CheckCircle2, Quote } from 'lucide-react';
+import { Star, ExternalLink, MessageCircle, CheckCircle2, Quote } from 'lucide-react';
 import { siteConfig } from '../../data/siteConfig';
 
 export const Testimonials: React.FC = () => {
@@ -59,7 +59,7 @@ export const Testimonials: React.FC = () => {
         {/* Section Header with Google Score Badge */}
         <div className="max-w-3xl mx-auto text-center mb-14 sm:mb-16 space-y-4">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white text-xs font-bold text-[#052e7f] shadow-xs border border-slate-200/80">
-            <Sparkles className="w-3.5 h-3.5 text-[#FFB800]" />
+            <Star className="w-3.5 h-3.5 fill-[#D97706] text-[#D97706]" />
             <span>Avaliações Reais de Alunos no Google</span>
           </div>
 

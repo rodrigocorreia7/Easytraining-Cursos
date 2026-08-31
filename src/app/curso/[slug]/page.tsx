@@ -10,7 +10,7 @@ import {
   CheckCircle2, 
   Clock, 
   Award, 
-  Sparkles, 
+  GraduationCap, 
   ChevronRight, 
   ArrowLeft, 
   MessageCircle, 
@@ -203,8 +203,8 @@ export default async function CourseDetailPage({
               
               {/* Left Column: Details & CTAs */}
               <div className="lg:col-span-7 space-y-6">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 text-[#00B060] text-xs font-bold border border-emerald-100">
-                  <Sparkles className="w-3.5 h-3.5 text-[#FFB800]" />
+                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 text-[#00874A] text-xs font-bold border border-emerald-100">
+                  <GraduationCap className="w-4 h-4 text-[#00874A]" />
                   <span>{course.category} • Matrículas Abertas</span>
                 </div>
 

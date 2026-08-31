@@ -6,7 +6,7 @@ import {
   Briefcase,
   Award,
   Clock,
-  Sparkles,
+  CheckCircle2,
   Laptop,
   FileSpreadsheet,
   Building2,
@@ -223,7 +223,7 @@ export const Methodology: React.FC = () => {
         {/* 2. METHODOLOGY HEADLINE & BADGE */}
         <div className="max-w-3xl mx-auto text-center mb-16 space-y-3">
           <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/10 text-emerald-300 text-xs font-bold">
-            <Sparkles className="w-3.5 h-3.5 text-[#FFB800]" />
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#00874A]" />
             <span>Por que escolher a EasyTraining?</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight">

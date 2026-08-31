@@ -6,7 +6,7 @@ import { Footer } from '../../components/layout/Footer';
 import { WhatsAppFloatingButton } from '../../components/layout/WhatsAppButton';
 import { realBlogPosts } from '../../data/blogPostsReal';
 import { BlogCard } from '../../components/blog/BlogCard';
-import { Search, Sparkles, BookOpen, Filter } from 'lucide-react';
+import { Search, Newspaper, BookOpen, Filter, Award } from 'lucide-react';
 
 export default function BlogArchivePage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -42,8 +42,8 @@ export default function BlogArchivePage() {
           
           {/* Header Banner */}
           <div className="max-w-3xl mx-auto text-center mb-12 sm:mb-16 space-y-4">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 text-[#00B060] font-bold text-xs uppercase tracking-wider border border-emerald-100">
-              <Sparkles className="w-4 h-4 text-[#FFB800]" />
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 text-[#00874A] font-bold text-xs uppercase tracking-wider border border-emerald-100">
+              <Newspaper className="w-4 h-4 text-[#00874A]" />
               <span>Conhecimento que Transforma Carreiras</span>
             </div>
 
@@ -107,8 +107,8 @@ export default function BlogArchivePage() {
               {/* Featured Post on Top */}
               {featuredPost && (
                 <div>
-                  <div className="flex items-center gap-2 mb-4 text-xs font-bold text-[#00B060] uppercase tracking-wider">
-                    <Sparkles className="w-4 h-4 text-[#FFB800]" />
+                  <div className="flex items-center gap-2 mb-4 text-xs font-bold text-[#00874A] uppercase tracking-wider">
+                    <Award className="w-4 h-4 text-[#00874A]" />
                     <span>Artigo em Destaque</span>
                   </div>
                   <BlogCard post={featuredPost} featured={true} />

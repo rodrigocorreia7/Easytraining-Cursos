@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Lock, Mail, ArrowRight, ShieldCheck, AlertCircle, Sparkles } from 'lucide-react';
+import { Lock, Mail, ArrowRight, ShieldCheck, AlertCircle, Key } from 'lucide-react';
 import { AuthService } from '../../../services/authService';
 
 export default function AdminLoginPage() {
@@ -114,7 +114,7 @@ export default function AdminLoginPage() {
         </form>
 
         <div className="mt-8 p-3 rounded-2xl bg-amber-50 border border-amber-200/80 text-[11px] text-amber-800 flex items-start gap-2">
-          <Sparkles className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+          <Key className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
           <div>
             <strong>Modo Mock (Ambiente de Prévia):</strong>
             <br />

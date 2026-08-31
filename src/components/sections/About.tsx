@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Award, Users, CheckCircle2, ShieldCheck, Sparkles, MapPin } from 'lucide-react';
+import { Award, Users, CheckCircle2, ShieldCheck, MapPin } from 'lucide-react';
 import { siteConfig } from '../../data/siteConfig';
 import Aurora from '../ui/Aurora';
 
@@ -28,7 +28,7 @@ export const About: React.FC = () => {
         {/* Header Title */}
         <div className="max-w-2xl mx-auto text-center mb-16 space-y-3">
           <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/90 backdrop-blur-md text-xs font-bold text-[#052e7f] shadow-sm">
-            <Sparkles className="w-3.5 h-3.5 text-[#FFB800]" />
+            <Award className="w-4 h-4 text-[#D97706]" />
             <span>Tradição em Qualificação Profissional</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight drop-shadow-md">

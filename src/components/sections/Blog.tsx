@@ -1,6 +1,6 @@
 import React from 'react';
 import { realBlogPosts } from '../../data/blogPostsReal';
-import { Calendar, Clock, ArrowRight, Sparkles, BookOpen } from 'lucide-react';
+import { Calendar, Clock, ArrowRight, Newspaper, BookOpen } from 'lucide-react';
 
 export const BlogSection: React.FC = () => {
   // Show top 3 recent real posts on landing page
@@ -11,8 +11,8 @@ export const BlogSection: React.FC = () => {
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="max-w-3xl mx-auto text-center mb-16 space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-50 text-xs font-bold text-[#00B060]">
-            <Sparkles className="w-3.5 h-3.5 text-[#FFB800]" />
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-50 text-xs font-bold text-[#00874A]">
+            <Newspaper className="w-3.5 h-3.5 text-[#00874A]" />
             <span>Blog Oficial EasyTraining</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-black text-[#052e7f] tracking-tight">
