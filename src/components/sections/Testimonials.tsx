@@ -3,6 +3,7 @@
 import React from 'react';
 import { Star, ExternalLink, MessageCircle, CheckCircle2, Quote } from 'lucide-react';
 import { siteConfig } from '../../data/siteConfig';
+import SplitText from '../ui/SplitText';
 
 export const Testimonials: React.FC = () => {
   const reviews = [
@@ -64,7 +65,19 @@ export const Testimonials: React.FC = () => {
           </div>
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#052e7f] tracking-tight leading-tight">
-            Nota 5.0 no Google com mais de 320 alunos satisfeitos
+            <SplitText
+              text="Nota 5.0 no Google com mais de 320 alunos satisfeitos"
+              className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#052e7f] tracking-tight leading-tight"
+              delay={28}
+              duration={0.9}
+              ease="power3.out"
+              splitType="words, chars"
+              from={{ opacity: 0, y: 35 }}
+              to={{ opacity: 1, y: 0 }}
+              threshold={0.15}
+              tag="span"
+              textAlign="center"
+            />
           </h2>
 
           <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl mx-auto">
