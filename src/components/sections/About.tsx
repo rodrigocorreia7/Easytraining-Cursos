@@ -4,6 +4,7 @@ import React from 'react';
 import { Award, Users, CheckCircle2, ShieldCheck, MapPin } from 'lucide-react';
 import { siteConfig } from '../../data/siteConfig';
 import Aurora from '../ui/Aurora';
+import SplitText from '../ui/SplitText';
 
 export const About: React.FC = () => {
   return (
@@ -32,7 +33,19 @@ export const About: React.FC = () => {
             <span>Tradição em Qualificação Profissional</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight drop-shadow-md">
-            Mais que uma escola, o caminho para o seu sucesso profissional
+            <SplitText
+              text="Mais que uma escola, o caminho para o seu sucesso profissional"
+              className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight drop-shadow-md"
+              delay={28}
+              duration={0.9}
+              ease="power3.out"
+              splitType="words, chars"
+              from={{ opacity: 0, y: 35 }}
+              to={{ opacity: 1, y: 0 }}
+              threshold={0.15}
+              tag="span"
+              textAlign="center"
+            />
           </h2>
           <p className="text-sm sm:text-base text-slate-200 leading-relaxed drop-shadow">
             Localizada no coração dos Pimentas em Guarulhos, a EasyTraining nasceu com a missão de oferecer capacitação prática de alto nível com preços acessíveis e professores dedicados.

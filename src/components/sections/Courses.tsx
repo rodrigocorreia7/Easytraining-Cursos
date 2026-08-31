@@ -16,6 +16,7 @@ import {
 import { CourseModal } from '../ui/Modal';
 import { FloatingDock, FloatingDockItem } from '../ui/floating-dock';
 import BorderGlow from '../ui/BorderGlow';
+import SplitText from '../ui/SplitText';
 
 interface CoursesSectionProps {
   initialCategory?: string;
@@ -99,7 +100,19 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ initialCategory 
             <span>Grade Completa de Cursos</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#052e7f] tracking-tight">
-            Escolha o curso que vai transformar o seu futuro
+            <SplitText
+              text="Escolha o curso que vai transformar o seu futuro"
+              className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#052e7f] tracking-tight"
+              delay={28}
+              duration={0.9}
+              ease="power3.out"
+              splitType="words, chars"
+              from={{ opacity: 0, y: 35 }}
+              to={{ opacity: 1, y: 0 }}
+              threshold={0.15}
+              tag="span"
+              textAlign="center"
+            />
           </h2>
           <p className="text-sm sm:text-base text-slate-600">
             Formações completas e práticas com matrículas abertas. Selecione uma área na dock abaixo para filtrar:

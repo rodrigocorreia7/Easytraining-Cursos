@@ -1,6 +1,7 @@
 import React from 'react';
 import { realBlogPosts } from '../../data/blogPostsReal';
 import { Calendar, Clock, ArrowRight, Newspaper, BookOpen } from 'lucide-react';
+import SplitText from '../ui/SplitText';
 
 export const BlogSection: React.FC = () => {
   // Show top 3 recent real posts on landing page
@@ -16,7 +17,19 @@ export const BlogSection: React.FC = () => {
             <span>Blog Oficial EasyTraining</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-black text-[#052e7f] tracking-tight">
-            Conteúdo para acelerar o seu crescimento
+            <SplitText
+              text="Conteúdo para acelerar o seu crescimento"
+              className="text-3xl sm:text-4xl font-black text-[#052e7f] tracking-tight"
+              delay={28}
+              duration={0.9}
+              ease="power3.out"
+              splitType="words, chars"
+              from={{ opacity: 0, y: 35 }}
+              to={{ opacity: 1, y: 0 }}
+              threshold={0.15}
+              tag="span"
+              textAlign="center"
+            />
           </h2>
           <p className="text-sm sm:text-base text-slate-600">
             Artigos, guias práticos e dicas sobre o mercado de trabalho em Guarulhos e qualificação profissional.

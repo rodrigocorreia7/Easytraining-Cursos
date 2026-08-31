@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { ChevronDown, HelpCircle, MessageCircle } from 'lucide-react';
 import { siteConfig } from '../../data/siteConfig';
 import { TextRollButton } from '../ui/TextRollButton';
+import SplitText from '../ui/SplitText';
 
 export const FAQSection: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -61,7 +62,19 @@ export const FAQSection: React.FC = () => {
             <span>Tire Suas Dúvidas</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#052e7f] tracking-tight">
-            Perguntas Frequentes
+            <SplitText
+              text="Perguntas Frequentes"
+              className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#052e7f] tracking-tight"
+              delay={28}
+              duration={0.9}
+              ease="power3.out"
+              splitType="words, chars"
+              from={{ opacity: 0, y: 35 }}
+              to={{ opacity: 1, y: 0 }}
+              threshold={0.15}
+              tag="span"
+              textAlign="center"
+            />
           </h2>
           <p className="text-sm sm:text-base text-slate-600 max-w-xl mx-auto">
             Confira as principais dúvidas sobre os cursos, matrículas, certificados e estrutura da EasyTraining em Guarulhos.

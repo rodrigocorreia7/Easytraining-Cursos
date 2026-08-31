@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { MapPin, MessageCircle, MessageSquare, Clock, Send } from 'lucide-react';
 import { siteConfig } from '../../data/siteConfig';
 import { TextRollButton } from '../ui/TextRollButton';
+import SplitText from '../ui/SplitText';
 
 export const ContactSection: React.FC = () => {
   const [name, setName] = useState('');
@@ -27,7 +28,19 @@ export const ContactSection: React.FC = () => {
             <span>Fale com a EasyTraining</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#052e7f] tracking-tight">
-            Venha nos visitar ou tire dúvidas agora mesmo
+            <SplitText
+              text="Venha nos visitar ou tire dúvidas agora mesmo"
+              className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#052e7f] tracking-tight"
+              delay={28}
+              duration={0.9}
+              ease="power3.out"
+              splitType="words, chars"
+              from={{ opacity: 0, y: 35 }}
+              to={{ opacity: 1, y: 0 }}
+              threshold={0.15}
+              tag="span"
+              textAlign="center"
+            />
           </h2>
           <p className="text-sm sm:text-base text-slate-600">
             Nossa equipe está pronta para te atender e te ajudar a escolher a melhor formação.

@@ -23,6 +23,7 @@ import {
   Layers,
 } from 'lucide-react';
 import { LogoLoop, LogoItem } from '../ui/LogoLoop';
+import SplitText from '../ui/SplitText';
 
 export const Methodology: React.FC = () => {
   const steps = [
@@ -227,7 +228,19 @@ export const Methodology: React.FC = () => {
             <span>Por que escolher a EasyTraining?</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight">
-            Metodologia pensada para a sua contratação
+            <SplitText
+              text="Metodologia pensada para a sua contratação"
+              className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight"
+              delay={28}
+              duration={0.9}
+              ease="power3.out"
+              splitType="words, chars"
+              from={{ opacity: 0, y: 35 }}
+              to={{ opacity: 1, y: 0 }}
+              threshold={0.15}
+              tag="span"
+              textAlign="center"
+            />
           </h2>
           <p className="text-sm sm:text-base text-slate-300">
             Descubra por que centenas de alunos escolhem a EasyTraining todos os anos em Guarulhos.
