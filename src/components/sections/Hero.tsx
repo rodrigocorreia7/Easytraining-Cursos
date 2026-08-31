@@ -102,15 +102,15 @@ export const Hero: React.FC = () => {
       <div className="lg:hidden w-full max-w-[480px] mx-auto px-4 sm:px-6 flex flex-col items-center text-left space-y-4 relative z-20">
         
         {/* 1.1 Matrículas Pill */}
-        <div className="self-start inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white shadow-xs border border-emerald-100 text-[11px] font-bold text-emerald-800">
-          <span className="w-2 h-2 rounded-full bg-[#00B060] animate-pulse" />
+        <div className="self-start inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white shadow-xs border border-emerald-200 text-[11px] font-bold text-[#052e7f]">
+          <span className="w-2 h-2 rounded-full bg-[#00874A] animate-pulse" />
           <span>Matrículas Abertas • Guarulhos (Pimentas)</span>
         </div>
 
         {/* 1.2 Main Headline H1 */}
         <h1 className="text-[28px] sm:text-[32px] font-black tracking-tight leading-[1.12] text-left w-full">
           <span className="text-[#052e7f]">Easytraining - </span>
-          <span className="text-[#00B060]">Cursos de Informática e Profissionalizantes em Guarulhos-SP</span>
+          <span className="text-[#00874A]">Cursos de Informática e Profissionalizantes em Guarulhos-SP</span>
         </h1>
 
         {/* 1.3 Centered Hero Robot */}
@@ -131,28 +131,28 @@ export const Hero: React.FC = () => {
         <div className="grid grid-cols-3 gap-2.5 w-full text-center">
           <div className="p-3 bg-white rounded-2xl border border-slate-200/90 shadow-xs">
             <p className="text-lg sm:text-xl font-black text-[#052e7f]">19+</p>
-            <p className="text-[10px] sm:text-[11px] text-slate-600 font-semibold mt-0.5">Cursos Práticos</p>
+            <p className="text-[10px] sm:text-[11px] text-slate-700 font-semibold mt-0.5">Cursos Práticos</p>
           </div>
           <div className="p-3 bg-white rounded-2xl border border-slate-200/90 shadow-xs">
-            <p className="text-lg sm:text-xl font-black text-[#FFB800]">★ 5.0</p>
-            <p className="text-[10px] sm:text-[11px] text-slate-600 font-semibold mt-0.5">Nota no Google</p>
+            <p className="text-lg sm:text-xl font-black text-[#D97706]">★ 5.0</p>
+            <p className="text-[10px] sm:text-[11px] text-slate-700 font-semibold mt-0.5">Nota no Google</p>
           </div>
           <div className="p-3 bg-white rounded-2xl border border-slate-200/90 shadow-xs">
-            <p className="text-lg sm:text-xl font-black text-[#00B060]">100%</p>
-            <p className="text-[10px] sm:text-[11px] text-slate-600 font-semibold mt-0.5">Com Certificado</p>
+            <p className="text-lg sm:text-xl font-black text-[#00874A]">100%</p>
+            <p className="text-[10px] sm:text-[11px] text-slate-700 font-semibold mt-0.5">Com Certificado</p>
           </div>
         </div>
 
         {/* 1.5 Subtitle Description */}
-        <p className="text-xs sm:text-sm text-slate-600 font-normal leading-relaxed text-left w-full pt-1">
-          Mais de <strong>5.000 alunos</strong> já transformaram suas carreiras. Venha para a <strong>Easytraining</strong> e faça parte deste time! Formação 100% presencial e prática com certificado reconhecido.
+        <p className="text-xs sm:text-sm text-slate-700 font-normal leading-relaxed text-left w-full pt-1">
+          Mais de <strong className="text-slate-900">5.000 alunos</strong> já transformaram suas carreiras. Venha para a <strong className="text-[#052e7f]">Easytraining</strong> e faça parte deste time! Formação 100% presencial e prática com certificado reconhecido.
         </p>
 
         {/* 1.6 Action CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-2.5 w-full pt-1">
           <button
             onClick={scrollToCourses}
-            className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-[#00B060] hover:bg-[#009652] text-white text-xs sm:text-sm font-bold rounded-full transition-all shadow-md active:scale-95 cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-[#00874A] hover:bg-[#00703C] text-white text-xs sm:text-sm font-bold rounded-full transition-all shadow-md active:scale-95 cursor-pointer"
           >
             <span>Explorar Cursos</span>
             <ArrowRight className="w-4 h-4" />
@@ -161,7 +161,7 @@ export const Hero: React.FC = () => {
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-emerald-50 hover:bg-emerald-100 text-[#00B060] border border-emerald-200 text-xs sm:text-sm font-bold rounded-full transition-all active:scale-95"
+            className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-emerald-50 hover:bg-emerald-100 text-[#00874A] border border-emerald-300 text-xs sm:text-sm font-bold rounded-full transition-all active:scale-95"
           >
             <MessageCircle className="w-4 h-4" />
             <span>Falar no WhatsApp</span>
@@ -179,15 +179,15 @@ export const Hero: React.FC = () => {
         <div className="max-w-xl xl:max-w-2xl 2xl:max-w-3xl space-y-6 text-left relative z-30 py-4">
           
           {/* Tag Pill */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-50/90 backdrop-blur-md border border-slate-200/80 text-xs font-bold text-slate-800 shadow-xs">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#00B060] animate-pulse" />
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-50/90 backdrop-blur-md border border-slate-200/80 text-xs font-bold text-[#052e7f] shadow-xs">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#00874A] animate-pulse" />
             <span>Matrículas Abertas 2026 • Guarulhos (Pimentas)</span>
           </div>
 
           {/* Main Headline H1 */}
           <h1 className="text-4xl lg:text-[46px] xl:text-[54px] 2xl:text-[60px] font-black tracking-tight text-slate-900 leading-[1.12]">
             <span className="text-[#052e7f]">Easytraining - </span>
-            <span className="text-[#00B060]">Cursos de Informática e Profissionalizantes</span>
+            <span className="text-[#00874A]">Cursos de Informática e Profissionalizantes</span>
             <span className="text-slate-800 block text-3xl lg:text-4xl 2xl:text-5xl mt-1 font-extrabold">
               em Guarulhos-SP
             </span>
@@ -202,7 +202,7 @@ export const Hero: React.FC = () => {
           <div className="flex flex-wrap items-center gap-4 pt-2">
             <button
               onClick={scrollToCourses}
-              className="flex items-center gap-2 px-7 py-3.5 bg-[#00B060] hover:bg-[#009652] text-white text-sm 2xl:text-base font-bold rounded-full transition-all shadow-lg shadow-emerald-500/20 active:scale-95 cursor-pointer"
+              className="flex items-center gap-2 px-7 py-3.5 bg-[#00874A] hover:bg-[#00703C] text-white text-sm 2xl:text-base font-bold rounded-full transition-all shadow-lg shadow-emerald-500/20 active:scale-95 cursor-pointer"
             >
               <span>Conhecer os Cursos</span>
               <ArrowRight className="w-4 h-4" />
@@ -211,9 +211,9 @@ export const Hero: React.FC = () => {
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 px-6 py-3.5 bg-white/90 backdrop-blur-md hover:bg-white text-[#052e7f] border border-slate-200 text-sm 2xl:text-base font-bold rounded-full transition-all shadow-xs hover:border-[#00B060] active:scale-95"
+              className="flex items-center gap-2 px-6 py-3.5 bg-white/90 backdrop-blur-md hover:bg-white text-[#052e7f] border border-slate-200 text-sm 2xl:text-base font-bold rounded-full transition-all shadow-xs hover:border-[#00874A] active:scale-95"
             >
-              <MessageCircle className="w-4 h-4 text-[#00B060]" />
+              <MessageCircle className="w-4 h-4 text-[#00874A]" />
               <span>Falar no WhatsApp</span>
             </a>
           </div>
@@ -222,15 +222,15 @@ export const Hero: React.FC = () => {
           <div className="grid grid-cols-3 gap-3 sm:gap-4 max-w-lg 2xl:max-w-xl pt-3 text-center">
             <div className="p-3.5 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 shadow-xs hover:border-[#052e7f]/30 transition-colors">
               <p className="text-xl sm:text-2xl 2xl:text-3xl font-black text-[#052e7f]">19+</p>
-              <p className="text-[11px] sm:text-xs 2xl:text-sm text-slate-600 font-semibold mt-0.5">Cursos Práticos</p>
+              <p className="text-[11px] sm:text-xs 2xl:text-sm text-slate-700 font-semibold mt-0.5">Cursos Práticos</p>
             </div>
-            <div className="p-3.5 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 shadow-xs hover:border-[#FFB800]/40 transition-colors">
-              <p className="text-xl sm:text-2xl 2xl:text-3xl font-black text-[#FFB800]">★ 5.0</p>
-              <p className="text-[11px] sm:text-xs 2xl:text-sm text-slate-600 font-semibold mt-0.5">Nota no Google</p>
+            <div className="p-3.5 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 shadow-xs hover:border-[#D97706]/40 transition-colors">
+              <p className="text-xl sm:text-2xl 2xl:text-3xl font-black text-[#D97706]">★ 5.0</p>
+              <p className="text-[11px] sm:text-xs 2xl:text-sm text-slate-700 font-semibold mt-0.5">Nota no Google</p>
             </div>
-            <div className="p-3.5 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 shadow-xs hover:border-[#00B060]/40 transition-colors">
-              <p className="text-xl sm:text-2xl 2xl:text-3xl font-black text-[#00B060]">100%</p>
-              <p className="text-[11px] sm:text-xs 2xl:text-sm text-slate-600 font-semibold mt-0.5">Com Certificado</p>
+            <div className="p-3.5 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 shadow-xs hover:border-[#00874A]/40 transition-colors">
+              <p className="text-xl sm:text-2xl 2xl:text-3xl font-black text-[#00874A]">100%</p>
+              <p className="text-[11px] sm:text-xs 2xl:text-sm text-slate-700 font-semibold mt-0.5">Com Certificado</p>
             </div>
           </div>
 

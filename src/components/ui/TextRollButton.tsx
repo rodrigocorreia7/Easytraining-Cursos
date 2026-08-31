@@ -42,7 +42,7 @@ export const TextRollButton: React.FC<TextRollButtonProps> = ({
         return 'bg-white hover:bg-slate-50 text-slate-800 shadow-md font-bold';
       case 'green':
       default:
-        return 'bg-[#00B060] hover:bg-[#009652] text-white font-bold';
+        return 'bg-[#00874A] hover:bg-[#00703C] text-white font-bold';
     }
   };
 
@@ -51,13 +51,13 @@ export const TextRollButton: React.FC<TextRollButtonProps> = ({
       case 'whatsapp':
         return 'bg-white text-[#075E54]';
       case 'yellow':
-        return 'bg-slate-800 text-[#FFB800]';
+        return 'bg-slate-800 text-[#D97706]';
       case 'blue':
         return 'bg-white text-[#0B4F9C]';
       case 'dark':
         return 'bg-white text-slate-800';
       case 'white':
-        return 'bg-[#00B060] text-white';
+        return 'bg-[#00874A] text-white';
       case 'green':
       default:
         return 'bg-white text-[#00B060]';

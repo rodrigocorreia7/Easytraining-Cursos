@@ -12,8 +12,10 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [spTime, setSpTime] = useState('');
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const updateTime = () => {
       const formatted = new Intl.DateTimeFormat('pt-BR', {
         timeZone: 'America/Sao_Paulo',
@@ -156,8 +158,8 @@ export const Header: React.FC<HeaderProps> = () => {
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Live Clock Guarulhos */}
           <div className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 text-[12px] text-slate-700 font-medium">
-            <Clock className="w-3.5 h-3.5 text-[#00B060]" />
-            <span>Guarulhos {spTime}</span>
+            <Clock className="w-3.5 h-3.5 text-[#00874A]" />
+            <span suppressHydrationWarning>{mounted && spTime ? `Guarulhos ${spTime}` : 'Guarulhos'}</span>
           </div>
 
           {/* CTA WhatsApp Button */}

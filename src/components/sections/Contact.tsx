@@ -92,35 +92,42 @@ export const ContactSection: React.FC = () => {
             
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">Seu Nome Completo</label>
+                <label htmlFor="nome-completo" className="block text-xs font-bold text-slate-700 uppercase mb-1.5">Seu Nome Completo</label>
                 <input
+                  id="nome-completo"
+                  name="nome-completo"
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Ex: Maria Silva"
-                  className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:border-[#00B060] focus:bg-white transition-all text-slate-800"
+                  className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:border-[#00874A] focus:bg-white transition-all text-slate-800"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">Telefone / WhatsApp</label>
+                  <label htmlFor="telefone-whatsapp" className="block text-xs font-bold text-slate-700 uppercase mb-1.5">Telefone / WhatsApp</label>
                   <input
+                    id="telefone-whatsapp"
+                    name="telefone-whatsapp"
                     type="tel"
                     required
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="(11) 99999-9999"
-                    className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:border-[#00B060] focus:bg-white transition-all text-slate-800"
+                    className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:border-[#00874A] focus:bg-white transition-all text-slate-800"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">Curso de Interesse</label>
+                  <label htmlFor="curso-interesse" className="block text-xs font-bold text-slate-700 uppercase mb-1.5">Curso de Interesse</label>
                   <select
+                    id="curso-interesse"
+                    name="curso-interesse"
+                    aria-label="Curso de Interesse"
                     value={course}
                     onChange={(e) => setCourse(e.target.value)}
-                    className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:border-[#00B060] focus:bg-white transition-all text-slate-800"
+                    className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:border-[#00874A] focus:bg-white transition-all text-slate-800"
                   >
                     <option value="Informática Básica">Informática Básica</option>
                     <option value="Excel Avançado">Excel Avançado</option>
@@ -137,19 +144,21 @@ export const ContactSection: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">Mensagem ou Dúvida (Opcional)</label>
+                <label htmlFor="mensagem-duvida" className="block text-xs font-bold text-slate-700 uppercase mb-1.5">Mensagem ou Dúvida (Opcional)</label>
                 <textarea
+                  id="mensagem-duvida"
+                  name="mensagem-duvida"
                   rows={3}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Gostaria de saber o valor das mensalidades e dias de aula..."
-                  className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:border-[#00B060] focus:bg-white transition-all text-slate-800"
+                  className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:border-[#00874A] focus:bg-white transition-all text-slate-800"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full py-3.5 bg-[#00B060] hover:bg-[#009652] text-white font-bold text-sm rounded-full transition-all shadow-md active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+                className="w-full py-3.5 bg-[#00874A] hover:bg-[#00703C] text-white font-bold text-sm rounded-full transition-all shadow-md active:scale-98 cursor-pointer flex items-center justify-center gap-2"
               >
                 <Send className="w-4 h-4" /> Solicitar Informações e Valores
               </button>
