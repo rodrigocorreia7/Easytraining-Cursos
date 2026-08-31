@@ -16,7 +16,6 @@ export const Hero: React.FC = () => {
 
   useEffect(() => {
     // Only initialize the 71-frame interactive canvas on Desktop screens (>= 1024px)
-    // This saves bandwidth on mobile and drops mobile LCP from 13s to under 1.5s!
     if (typeof window === 'undefined' || window.innerWidth < 1024) {
       return;
     }
@@ -95,10 +94,10 @@ export const Hero: React.FC = () => {
     <section
       id="home"
       ref={heroRef}
-      className="relative bg-white pt-24 sm:pt-28 pb-12 overflow-hidden"
+      className="relative bg-white pt-24 sm:pt-28 lg:pt-32 pb-12 lg:pb-16 overflow-hidden"
     >
       {/* ========================================================= */}
-      {/* 1. MOBILE LAYOUT (lg:hidden) - EXACT PIXEL PERFECT */}
+      {/* 1. MOBILE LAYOUT (lg:hidden) */}
       {/* ========================================================= */}
       <div className="lg:hidden w-full max-w-[480px] mx-auto px-4 sm:px-6 flex flex-col items-center text-left space-y-4">
         
@@ -108,13 +107,13 @@ export const Hero: React.FC = () => {
           <span>Matrículas Abertas • Guarulhos (Pimentas)</span>
         </div>
 
-        {/* 1.2 Main Headline H1 (SEO Semantic text) */}
+        {/* 1.2 Main Headline H1 */}
         <h1 className="text-[28px] sm:text-[32px] font-black tracking-tight leading-[1.12] text-left w-full">
           <span className="text-[#052e7f]">Easytraining - </span>
           <span className="text-[#00B060]">Cursos de Informática e Profissionalizantes em Guarulhos-SP</span>
         </h1>
 
-        {/* 1.3 Centered Hero Robot (image-hero.webp) - High Priority LCP Element */}
+        {/* 1.3 Centered Hero Robot */}
         <div className="w-full flex justify-center items-center py-0 my-0">
           <img
             src="/images/robot/image-hero.webp"
@@ -144,7 +143,7 @@ export const Hero: React.FC = () => {
           </div>
         </div>
 
-        {/* 1.5 Subtitle Description with 5000+ students */}
+        {/* 1.5 Subtitle Description */}
         <p className="text-xs sm:text-sm text-slate-600 font-normal leading-relaxed text-left w-full pt-1">
           Mais de <strong>5.000 alunos</strong> já transformaram suas carreiras. Venha para a <strong>Easytraining</strong> e faça parte deste time! Formação 100% presencial e prática com certificado reconhecido.
         </p>
@@ -172,12 +171,12 @@ export const Hero: React.FC = () => {
       </div>
 
       {/* ========================================================= */}
-      {/* 2. DESKTOP LAYOUT (hidden lg:grid) - EXACT PIXEL PERFECT */}
+      {/* 2. DESKTOP LAYOUT (hidden lg:grid) - 100% RESPONSIVE NO-OVERLAP */}
       {/* ========================================================= */}
-      <div className="hidden lg:grid max-w-[1440px] mx-auto px-6 lg:px-8 xl:px-12 grid-cols-12 gap-8 items-center min-h-[580px] relative z-20">
+      <div className="hidden lg:grid max-w-[1440px] mx-auto px-6 lg:px-8 xl:px-12 grid-cols-12 gap-8 xl:gap-12 items-center min-h-[580px] lg:min-h-[620px] relative z-20">
         
-        {/* Left Column Content */}
-        <div className="col-span-12 lg:col-span-7 xl:col-span-6 space-y-6 text-left">
+        {/* Left Column Content (Occupies columns 1-7) */}
+        <div className="col-span-12 lg:col-span-7 xl:col-span-6 space-y-6 text-left relative z-30">
           
           {/* Tag Pill */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-200/80 text-xs font-bold text-slate-800 shadow-xs">
@@ -186,7 +185,7 @@ export const Hero: React.FC = () => {
           </div>
 
           {/* Main Headline H1 */}
-          <h1 className="text-4xl lg:text-5xl xl:text-[54px] font-black tracking-tight text-slate-900 leading-[1.12]">
+          <h1 className="text-4xl lg:text-[44px] xl:text-[52px] font-black tracking-tight text-slate-900 leading-[1.12]">
             <span className="text-[#052e7f]">Easytraining - </span>
             <span className="text-[#00B060]">Cursos de Informática e Profissionalizantes</span>
             <span className="text-slate-800 block text-3xl lg:text-4xl mt-1 font-extrabold">
@@ -237,18 +236,18 @@ export const Hero: React.FC = () => {
 
         </div>
 
-      </div>
-
-      {/* DESKTOP ZERO-STUTTER CANVAS ROBOT */}
-      <div className="hidden lg:flex absolute right-[-10%] sm:right-[-4%] lg:right-[0%] xl:right-[2%] bottom-0 top-12 sm:top-10 lg:top-4 w-[85%] sm:w-[75%] lg:w-[65%] xl:w-[62%] h-full items-end justify-end pointer-events-none z-10 select-none">
-        <div className="relative w-full h-full flex items-end justify-end overflow-visible">
-          <canvas
-            ref={canvasRef}
-            width={1280}
-            height={720}
-            className="h-full w-full max-h-[96vh] lg:max-h-[105vh] xl:max-h-[110vh] object-contain object-bottom-right scale-110 sm:scale-120 lg:scale-135 xl:scale-140 origin-bottom-right select-none mix-blend-multiply"
-          />
+        {/* Right Column: Responsive Dedicated Space for Robot Canvas (Occupies columns 8-12) */}
+        <div className="col-span-12 lg:col-span-5 xl:col-span-6 flex items-center justify-end relative select-none pointer-events-none min-h-[480px] lg:min-h-[560px]">
+          <div className="relative w-full max-w-[540px] xl:max-w-[620px] 2xl:max-w-[680px] h-[480px] lg:h-[560px] xl:h-[600px] flex items-center justify-end">
+            <canvas
+              ref={canvasRef}
+              width={1280}
+              height={720}
+              className="w-full h-full object-contain object-right-bottom scale-110 lg:scale-120 xl:scale-125 origin-right-bottom select-none mix-blend-multiply"
+            />
+          </div>
         </div>
+
       </div>
 
     </section>
