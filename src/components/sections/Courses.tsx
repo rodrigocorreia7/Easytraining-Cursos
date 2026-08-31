@@ -117,13 +117,13 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ initialCategory 
             <BorderGlow
               key={course.id}
               edgeSensitivity={18}
-              glowColor="220 85 40"
+              glowColor="150 85 55"
               backgroundColor="#ffffff"
               borderRadius={24}
               glowRadius={40}
               glowIntensity={1.3}
               coneSpread={35}
-              colors={['#052e7f', '#FFB800']}
+              colors={['#00C569', '#FFB800']}
               fillOpacity={0.3}
               className="group cursor-pointer hover:-translate-y-1 transition-transform duration-300 shadow-sm hover:shadow-xl"
             >
