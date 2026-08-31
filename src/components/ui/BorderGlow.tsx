@@ -19,7 +19,7 @@ export interface BorderGlowProps {
 
 function parseHSL(hslStr: string): { h: number; s: number; l: number } {
   const match = hslStr.match(/([\d.]+)\s*([\d.]+)%?\s*([\d.]+)%?/);
-  if (!match) return { h: 152, s: 80, l: 45 };
+  if (!match) return { h: 45, s: 95, l: 52 };
   return { h: parseFloat(match[1]), s: parseFloat(match[2]), l: parseFloat(match[3]) };
 }
 
@@ -60,7 +60,7 @@ function animateValue({ start = 0, end = 100, duration = 1000, delay = 0, ease =
 }
 
 const GRADIENT_POSITIONS = ['80% 55%', '69% 34%', '8% 6%', '41% 38%', '86% 85%', '82% 18%', '51% 4%'];
-const COLOR_MAP = [0, 1, 2, 0, 1, 2, 1];
+const COLOR_MAP = [0, 0, 1, 0, 2, 0, 1];
 
 function buildMeshGradients(colors: string[]): string[] {
   const gradients: string[] = [];
@@ -86,14 +86,14 @@ export const BorderGlow: React.FC<BorderGlowProps> = ({
   children,
   className = '',
   edgeSensitivity = 20,
-  glowColor = '150 85 55',
+  glowColor = '45 98 52',
   backgroundColor = '#ffffff',
   borderRadius = 24,
   glowRadius = 35,
   glowIntensity = 1.1,
   coneSpread = 30,
   animated = false,
-  colors = ['#00C569', '#FFB800'],
+  colors = ['#FFB800', '#F59E0B', '#4ADE80'],
   fillOpacity = 0.35,
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
