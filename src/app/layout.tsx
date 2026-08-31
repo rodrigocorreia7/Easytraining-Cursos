@@ -80,8 +80,8 @@ export default function RootLayout({
     telephone: '+55 11 2303-7983',
     aggregateRating: {
       '@type': 'AggregateRating',
-      ratingValue: '4.9',
-      reviewCount: '150'
+      ratingValue: '5.0',
+      reviewCount: '323'
     },
     sameAs: [
       'https://www.facebook.com/easytrainingcursosprofissionalizantes',
@@ -93,6 +93,9 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <head>
+        <meta name="theme-color" content="#052e7f" />
+        <link rel="dns-prefetch" href="https://wa.me" />
+        <link rel="dns-prefetch" href="https://api.whatsapp.com" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

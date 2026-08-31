@@ -28,7 +28,7 @@ export const Footer: React.FC = () => {
               </div>
               <div className="flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4 text-[#00B060]" />
-                <span>Nota 4.9 no Google</span>
+                <span>Nota 5.0 no Google (320+ avaliações)</span>
               </div>
             </div>
           </div>

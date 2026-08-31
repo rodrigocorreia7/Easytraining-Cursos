@@ -212,7 +212,7 @@ export const Hero: React.FC = () => {
               <p className="text-[11px] sm:text-xs text-slate-600 font-semibold mt-0.5">Cursos Práticos</p>
             </div>
             <div className="p-3.5 bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:border-[#FFB800]/40 transition-colors">
-              <p className="text-xl sm:text-2xl font-black text-[#FFB800]">★ 4.9</p>
+              <p className="text-xl sm:text-2xl font-black text-[#FFB800]">★ 5.0</p>
               <p className="text-[11px] sm:text-xs text-slate-600 font-semibold mt-0.5">Nota no Google</p>
             </div>
             <div className="p-3.5 bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:border-[#00B060]/40 transition-colors">
