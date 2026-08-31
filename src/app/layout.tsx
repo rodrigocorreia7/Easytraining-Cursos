@@ -57,6 +57,7 @@ export const metadata: Metadata = {
 };
 
 import { CookieConsent } from '../components/layout/CookieConsent';
+import { ScrollToTop } from '../components/ui/ScrollToTop';
 
 export default function RootLayout({
   children,
@@ -112,6 +113,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased bg-[#F8FAFC] text-slate-800 selection:bg-[#00874A] selection:text-white">
         {children}
+        <ScrollToTop />
         <CookieConsent />
       </body>
     </html>
