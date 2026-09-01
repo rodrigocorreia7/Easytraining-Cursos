@@ -4,7 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { SiteConfigService, SiteConfig } from '../../../services/siteConfigService';
 import { 
   Settings, Save, RefreshCw, CheckCircle2, AlertCircle, 
-  Phone, MessageCircle, Mail, MapPin, Clock, Star, Share2, Globe 
+  Phone, MessageCircle, Mail, MapPin, Clock, Star, Share2, Globe,
+  BarChart3, Activity
 } from 'lucide-react';
 
 export default function AdminConfigPage() {
@@ -426,6 +427,63 @@ export default function AdminConfigPage() {
                 placeholder="Sábados: 08:00 às 17:00"
                 className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:border-[#00B060]"
               />
+            </div>
+          </div>
+        </div>
+
+        {/* Monitoramento & Tags do Google */}
+        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4 md:col-span-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+                <BarChart3 className="w-5 h-5 text-amber-600" />
+              </div>
+              <div>
+                <h2 className="text-base font-black text-slate-900">
+                  Monitoramento, Google Analytics & Tags
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Cole seu ID do Google Analytics 4 ou Google Tag Manager para rastrear acessos, cliques no WhatsApp e métricas de tráfego.
+                </p>
+              </div>
+            </div>
+            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-[#00874A] text-xs font-bold border border-emerald-100">
+              <Activity className="w-3.5 h-3.5" />
+              <span>{config.googleAnalyticsId || config.googleTagManagerId ? 'Tag Ativa' : 'Sem Tag'}</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                ID do Google Analytics 4 (GA4)
+              </label>
+              <input
+                type="text"
+                value={config.googleAnalyticsId || ''}
+                onChange={(e) => setConfig({ ...config, googleAnalyticsId: e.target.value.trim() })}
+                placeholder="G-XXXXXXXXXX"
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm font-mono text-slate-900 focus:outline-hidden focus:border-[#00B060]"
+              />
+              <span className="text-[11px] text-slate-400 mt-1 block">
+                Exemplo: <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-600">G-1A2B3C4D5E</code> (Fluxo de dados da web no GA4).
+              </span>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                ID do Google Tag Manager (GTM - Opcional)
+              </label>
+              <input
+                type="text"
+                value={config.googleTagManagerId || ''}
+                onChange={(e) => setConfig({ ...config, googleTagManagerId: e.target.value.trim() })}
+                placeholder="GTM-XXXXXXX"
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm font-mono text-slate-900 focus:outline-hidden focus:border-[#00B060]"
+              />
+              <span className="text-[11px] text-slate-400 mt-1 block">
+                Exemplo: <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-600">GTM-M4R7X9Q</code> (Contêiner do Tag Manager).
+              </span>
             </div>
           </div>
         </div>

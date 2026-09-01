@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import './globals.css';
-import { siteConfig } from '../data/siteConfig';
+import { getStoredSiteConfig } from '../lib/db';
+import { siteConfig as defaultSiteConfig } from '../data/siteConfig';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://easytraining.com.br'),
@@ -64,6 +66,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const config = getStoredSiteConfig();
+  const gaId = config?.googleAnalyticsId || defaultSiteConfig.googleAnalyticsId;
+  const gtmId = config?.googleTagManagerId || defaultSiteConfig.googleTagManagerId;
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'EducationalOrganization',
@@ -74,22 +80,22 @@ export default function RootLayout({
     image: 'https://easytraining.com.br/images/robot/image-hero.webp',
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'Estrada do Sacramento, 1250 - Sala 02',
-      addressLocality: 'Guarulhos',
-      addressRegion: 'SP',
-      postalCode: '07272-000',
+      streetAddress: config?.address?.street || 'Estrada do Sacramento, 1250 - Sala 02',
+      addressLocality: config?.address?.city || 'Guarulhos',
+      addressRegion: config?.address?.state || 'SP',
+      postalCode: config?.address?.zipCode || '07272-000',
       addressCountry: 'BR'
     },
-    telephone: '+55 11 2303-7983',
+    telephone: config?.phone || '+55 11 2303-7983',
     aggregateRating: {
       '@type': 'AggregateRating',
-      ratingValue: '5.0',
-      reviewCount: '323'
+      ratingValue: String(config?.rating?.score || '5.0'),
+      reviewCount: String(config?.rating?.reviewsCount || '323')
     },
     sameAs: [
-      'https://www.facebook.com/easytrainingcursosprofissionalizantes',
-      'https://www.instagram.com/easytraining1/',
-      'https://www.youtube.com/@easytrainingprofissionalizante'
+      config?.social?.facebook || 'https://www.facebook.com/easytrainingcursosprofissionalizantes',
+      config?.social?.instagram || 'https://www.instagram.com/easytraining1/',
+      config?.social?.youtube || 'https://www.youtube.com/@easytrainingprofissionalizante'
     ]
   };
 
@@ -106,12 +112,64 @@ export default function RootLayout({
         <link rel="llms" href="/llms.txt" />
         <link rel="llms-txt" href="/llms.txt" />
         <link rel="alternate" type="text/markdown" href="/llms.txt" title="LLMs Context" />
+
+        {/* Google Analytics 4 (GA4) - Inserção Dinâmica */}
+        {gaId && (
+          <>
+            <Script
+              strategy="afterInteractive"
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+            />
+            <Script
+              id="google-analytics-init"
+              strategy="afterInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', '${gaId}', {
+                    page_path: window.location.pathname,
+                  });
+                `,
+              }}
+            />
+          </>
+        )}
+
+        {/* Google Tag Manager (GTM) - Inserção Dinâmica */}
+        {gtmId && (
+          <Script
+            id="google-tag-manager"
+            strategy="afterInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `
+                (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+                new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+                j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+                'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+                })(window,document,'script','dataLayer','${gtmId}');
+              `,
+            }}
+          />
+        )}
+
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
       <body className="antialiased bg-[#F8FAFC] text-slate-800 selection:bg-[#00874A] selection:text-white">
+        {gtmId && (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+              height="0"
+              width="0"
+              style={{ display: 'none', visibility: 'hidden' }}
+            />
+          </noscript>
+        )}
         {children}
         <ScrollToTop />
         <CookieConsent />
