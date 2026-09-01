@@ -9,7 +9,7 @@ export const siteConfig = {
   whatsapp: "(11) 97063-8888",
   whatsappClean: "5511970638888",
   email: "contato@easytraining.com.br",
-  googleAnalyticsId: "",
+  googleAnalyticsId: "G-MQQYFMPM3F",
   googleTagManagerId: "",
   address: {
     street: "Estrada do Sacramento, 1250 - Sala 02",
