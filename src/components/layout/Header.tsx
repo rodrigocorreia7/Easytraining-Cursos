@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Clock } from 'lucide-react';
-import { siteConfig } from '../../data/siteConfig';
+import { siteConfig as defaultSiteConfig } from '../../data/siteConfig';
+import { SiteConfigService } from '../../services/siteConfigService';
 import { TextRollButton } from '../ui/TextRollButton';
 import { PillNav, PillNavItem } from '../ui/PillNav';
 
@@ -13,6 +14,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = () => {
   const [spTime, setSpTime] = useState('');
   const [mounted, setMounted] = useState(false);
+  const [config, setConfig] = useState(defaultSiteConfig);
 
   useEffect(() => {
     setMounted(true);
@@ -28,6 +30,11 @@ export const Header: React.FC<HeaderProps> = () => {
 
     updateTime();
     const interval = setInterval(updateTime, 1000);
+
+    SiteConfigService.getConfig().then((data) => {
+      if (data) setConfig(data);
+    }).catch(console.error);
+
     return () => clearInterval(interval);
   }, []);
 
@@ -62,7 +69,7 @@ export const Header: React.FC<HeaderProps> = () => {
           {/* Social Icons right after Contato (Desktop) */}
           <div className="hidden xl:flex items-center gap-1.5 pl-2 border-l border-slate-200">
             <a
-              href={siteConfig.social.facebook}
+              href={config.social.facebook}
               target="_blank"
               rel="noopener noreferrer"
               className="w-8 h-8 rounded-full bg-slate-50 hover:bg-blue-50 flex items-center justify-center transition-all group shadow-2xs border border-slate-100"
@@ -75,7 +82,7 @@ export const Header: React.FC<HeaderProps> = () => {
             </a>
 
             <a
-              href={siteConfig.social.linkedin}
+              href={config.social.linkedin}
               target="_blank"
               rel="noopener noreferrer"
               className="w-8 h-8 rounded-full bg-slate-50 hover:bg-blue-50 flex items-center justify-center transition-all group shadow-2xs border border-slate-100"
@@ -88,7 +95,7 @@ export const Header: React.FC<HeaderProps> = () => {
             </a>
 
             <a
-              href={siteConfig.social.youtube}
+              href={config.social.youtube}
               target="_blank"
               rel="noopener noreferrer"
               className="w-8 h-8 rounded-full bg-slate-50 hover:bg-red-50 flex items-center justify-center transition-all group shadow-2xs border border-slate-100"
@@ -101,7 +108,7 @@ export const Header: React.FC<HeaderProps> = () => {
             </a>
 
             <a
-              href={siteConfig.social.instagram}
+              href={config.social.instagram}
               target="_blank"
               rel="noopener noreferrer"
               className="w-8 h-8 rounded-full bg-slate-50 hover:bg-pink-50 flex items-center justify-center transition-all group shadow-2xs border border-slate-100"
@@ -125,7 +132,7 @@ export const Header: React.FC<HeaderProps> = () => {
           <TextRollButton
             text="Matrículas Abertas"
             variant="green"
-            href={`https://wa.me/${siteConfig.whatsappClean}?text=${encodeURIComponent('Olá! Acessei o site da EasyTraining e gostaria de informações sobre os cursos.')}`}
+            href={`https://wa.me/${config.whatsappClean}?text=${encodeURIComponent('Olá! Acessei o site da EasyTraining e gostaria de informações sobre os cursos.')}`}
             target="_blank"
             rel="noopener noreferrer"
             size="sm"

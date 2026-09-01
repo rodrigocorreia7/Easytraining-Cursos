@@ -1,21 +1,29 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, MessageCircle, MessageSquare, Clock, Send } from 'lucide-react';
-import { siteConfig } from '../../data/siteConfig';
+import { siteConfig as defaultSiteConfig } from '../../data/siteConfig';
+import { SiteConfigService } from '../../services/siteConfigService';
 import { TextRollButton } from '../ui/TextRollButton';
 import SplitText from '../ui/SplitText';
 
 export const ContactSection: React.FC = () => {
+  const [config, setConfig] = useState(defaultSiteConfig);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [course, setCourse] = useState('Informática Básica');
   const [message, setMessage] = useState('');
 
+  useEffect(() => {
+    SiteConfigService.getConfig().then((data) => {
+      if (data) setConfig(data);
+    }).catch(console.error);
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const text = `Olá! Meu nome é ${name}, telefone ${phone}. Tenho interesse no curso de ${course}. ${message}`;
-    window.open(`https://wa.me/${siteConfig.whatsappClean}?text=${encodeURIComponent(text)}`, '_blank');
+    window.open(`https://wa.me/${config.whatsappClean}?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   return (
@@ -59,9 +67,9 @@ export const ContactSection: React.FC = () => {
                 </div>
                 <div>
                   <p className="font-bold text-[#052e7f]">Endereço:</p>
-                  <p>{siteConfig.address.street}</p>
-                  <p>{siteConfig.address.neighborhood} - {siteConfig.address.city}/{siteConfig.address.state}</p>
-                  <p className="text-xs text-slate-500 mt-1">{siteConfig.address.reference}</p>
+                  <p>{config.address.street}</p>
+                  <p>{config.address.neighborhood} - {config.address.city}/{config.address.state}</p>
+                  <p className="text-xs text-slate-500 mt-1">{config.address.reference}</p>
                 </div>
               </div>
 
@@ -71,7 +79,7 @@ export const ContactSection: React.FC = () => {
                 </div>
                 <div>
                   <p className="font-bold text-[#052e7f]">WhatsApp de Atendimento:</p>
-                  <p className="font-bold text-[#00B060]">{siteConfig.whatsapp}</p>
+                  <p className="font-bold text-[#00B060]">{config.whatsapp}</p>
                 </div>
               </div>
 
@@ -81,8 +89,8 @@ export const ContactSection: React.FC = () => {
                 </div>
                 <div>
                   <p className="font-bold text-[#052e7f]">Horário de Funcionamento:</p>
-                  <p>{siteConfig.openingHours.weekdays}</p>
-                  <p>{siteConfig.openingHours.saturday}</p>
+                  <p>{config.openingHours.weekdays}</p>
+                  <p>{config.openingHours.saturday}</p>
                 </div>
               </div>
             </div>
@@ -91,7 +99,7 @@ export const ContactSection: React.FC = () => {
               <TextRollButton
                 text="Conversar no WhatsApp"
                 variant="whatsapp"
-                href={`https://wa.me/${siteConfig.whatsappClean}?text=${encodeURIComponent('Olá! Gostaria de falar com o atendimento da EasyTraining Guarulhos.')}`}
+                href={`https://wa.me/${config.whatsappClean}?text=${encodeURIComponent('Olá! Gostaria de falar com o atendimento da EasyTraining Guarulhos.')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full justify-center"
@@ -114,7 +122,7 @@ export const ContactSection: React.FC = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Ex: Maria Silva"
-                  className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:border-[#00874A] focus:bg-white transition-all text-slate-800"
+                  className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-hidden focus:border-[#00874A] focus:bg-white transition-all text-slate-800"
                 />
               </div>
 
@@ -129,7 +137,7 @@ export const ContactSection: React.FC = () => {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="(11) 99999-9999"
-                    className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:border-[#00874A] focus:bg-white transition-all text-slate-800"
+                    className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-hidden focus:border-[#00874A] focus:bg-white transition-all text-slate-800"
                   />
                 </div>
                 <div>
@@ -140,7 +148,7 @@ export const ContactSection: React.FC = () => {
                     aria-label="Curso de Interesse"
                     value={course}
                     onChange={(e) => setCourse(e.target.value)}
-                    className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:border-[#00874A] focus:bg-white transition-all text-slate-800"
+                    className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-hidden focus:border-[#00874A] focus:bg-white transition-all text-slate-800"
                   >
                     <option value="Informática Básica">Informática Básica</option>
                     <option value="Excel Avançado">Excel Avançado</option>
@@ -165,7 +173,7 @@ export const ContactSection: React.FC = () => {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Gostaria de saber o valor das mensalidades e dias de aula..."
-                  className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:border-[#00874A] focus:bg-white transition-all text-slate-800"
+                  className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-hidden focus:border-[#00874A] focus:bg-white transition-all text-slate-800"
                 />
               </div>
 
@@ -176,7 +184,7 @@ export const ContactSection: React.FC = () => {
                   name="lgpd-consent"
                   defaultChecked
                   required
-                  className="mt-0.5 rounded border-slate-300 text-[#00874A] focus:ring-[#00874A] cursor-pointer"
+                  className="mt-0.5 rounded-sm border-slate-300 text-[#00874A] focus:ring-[#00874A] cursor-pointer"
                 />
                 <label htmlFor="lgpd-consent" className="text-[11px] text-slate-600 leading-snug cursor-pointer">
                   Concordo com a <a href="/politica-de-privacidade" target="_blank" className="text-[#00874A] font-semibold underline">Política de Privacidade</a> e autorizo o contato da EasyTraining para informações pedagógicas e valores.

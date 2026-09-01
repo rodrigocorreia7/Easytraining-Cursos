@@ -1,23 +1,18 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { BlogService } from '../../services/blogService';
+import { getStoredPosts } from '../../lib/db';
 import { PostDetailView } from '../../components/blog/PostDetailView';
-import { realBlogPosts } from '../../data/blogPostsReal';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateStaticParams() {
-  return realBlogPosts.map((post) => ({
-    slug: post.slug,
-  }));
-}
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = await BlogService.getPostBySlug(slug);
+  const posts = getStoredPosts();
+  const cleanSlug = slug.replace(/^\/|\/$/g, '').toLowerCase();
+  const post = posts.find(p => p.slug.toLowerCase() === cleanSlug);
 
   if (!post) {
     return {
@@ -50,13 +45,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function RootSlugPageRoute({ params }: PageProps) {
   const { slug } = await params;
-  const post = await BlogService.getPostBySlug(slug);
+  const posts = getStoredPosts();
+  const cleanSlug = slug.replace(/^\/|\/$/g, '').toLowerCase();
+  const post = posts.find(p => p.slug.toLowerCase() === cleanSlug);
 
   if (!post) {
     notFound();
   }
 
-  const related = await BlogService.getRelatedPosts(post.slug, 3);
+  const related = posts
+    .filter(p => p.slug.toLowerCase() !== cleanSlug && (!post.category || p.category === post.category))
+    .slice(0, 3);
 
   return <PostDetailView post={post} relatedPosts={related} />;
 }

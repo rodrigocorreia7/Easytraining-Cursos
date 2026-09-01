@@ -1,3 +1,8 @@
+export interface CourseModule {
+  title: string;
+  topics: string[];
+}
+
 export interface Course {
   id: number;
   title: string;
@@ -11,10 +16,7 @@ export interface Course {
   certificate: boolean;
   image: string;
   featured?: boolean;
-  modules: {
-    title: string;
-    topics: string[];
-  }[];
+  modules: CourseModule[];
   targetAudience: string;
   careerOpportunities: string[];
   whatsappMessage: string;

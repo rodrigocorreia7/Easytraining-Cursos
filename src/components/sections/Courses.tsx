@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { courses } from '../../data/coursesData';
+import React, { useState, useEffect, useMemo } from 'react';
+import { courses as defaultCourses } from '../../data/coursesData';
 import { Course } from '../../types';
+import { CourseService } from '../../services/courseService';
 import {
   Clock,
   ArrowRight,
@@ -23,19 +24,34 @@ interface CoursesSectionProps {
 }
 
 export const CoursesSection: React.FC<CoursesSectionProps> = ({ initialCategory = 'todos' }) => {
+  const [coursesList, setCoursesList] = useState<Course[]>(defaultCourses);
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
   const [searchFilter, setSearchFilter] = useState('');
   const [activeCourse, setActiveCourse] = useState<Course | null>(null);
 
+  useEffect(() => {
+    async function loadDynamicCourses() {
+      try {
+        const data = await CourseService.getAllCourses();
+        if (data && data.length > 0) {
+          setCoursesList(data);
+        }
+      } catch (err) {
+        console.error('Erro ao carregar cursos dinâmicos:', err);
+      }
+    }
+    loadDynamicCourses();
+  }, []);
+
   const categoryCounts = useMemo(() => {
     return {
-      todos: courses.length,
-      tecnologia: courses.filter((c) => c.categorySlug === 'tecnologia').length,
-      gestao: courses.filter((c) => c.categorySlug === 'gestao').length,
-      design: courses.filter((c) => c.categorySlug === 'design').length,
-      'saude-pet': courses.filter((c) => c.categorySlug === 'saude-pet').length,
+      todos: coursesList.length,
+      tecnologia: coursesList.filter((c) => c.categorySlug === 'tecnologia' || c.category?.toLowerCase().includes('tecnologia') || c.category?.toLowerCase().includes('informática')).length,
+      gestao: coursesList.filter((c) => c.categorySlug === 'gestao' || c.category?.toLowerCase().includes('gestão') || c.category?.toLowerCase().includes('negócios')).length,
+      design: coursesList.filter((c) => c.categorySlug === 'design' || c.category?.toLowerCase().includes('design') || c.category?.toLowerCase().includes('criatividade')).length,
+      'saude-pet': coursesList.filter((c) => c.categorySlug === 'saude-pet' || c.category?.toLowerCase().includes('saúde') || c.category?.toLowerCase().includes('pet') || c.category?.toLowerCase().includes('farmácia')).length,
     };
-  }, []);
+  }, [coursesList]);
 
   const dockItems: FloatingDockItem[] = [
     {
@@ -81,14 +97,20 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ initialCategory 
   ];
 
   const filteredCourses = useMemo(() => {
-    return courses.filter((c) => {
-      const matchCat = selectedCategory === 'todos' || c.categorySlug === selectedCategory;
+    return coursesList.filter((c) => {
+      const matchCat = selectedCategory === 'todos' || 
+        c.categorySlug === selectedCategory ||
+        (selectedCategory === 'tecnologia' && (c.category?.toLowerCase().includes('tecnologia') || c.category?.toLowerCase().includes('informática'))) ||
+        (selectedCategory === 'gestao' && (c.category?.toLowerCase().includes('gestão') || c.category?.toLowerCase().includes('negócios'))) ||
+        (selectedCategory === 'design' && (c.category?.toLowerCase().includes('design') || c.category?.toLowerCase().includes('criatividade'))) ||
+        (selectedCategory === 'saude-pet' && (c.category?.toLowerCase().includes('saúde') || c.category?.toLowerCase().includes('pet') || c.category?.toLowerCase().includes('farmácia')));
+        
       const matchSearch =
         c.title.toLowerCase().includes(searchFilter.toLowerCase()) ||
-        c.shortDescription.toLowerCase().includes(searchFilter.toLowerCase());
+        (c.shortDescription && c.shortDescription.toLowerCase().includes(searchFilter.toLowerCase()));
       return matchCat && matchSearch;
     });
-  }, [selectedCategory, searchFilter]);
+  }, [coursesList, selectedCategory, searchFilter]);
 
   return (
     <section id="cursos" className="py-20 sm:py-28 bg-white relative">
@@ -119,7 +141,7 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ initialCategory 
           </p>
         </div>
 
-        {/* FLOATING DOCK ACETERNITY UI */}
+        {/* FLOATING DOCK */}
         <div className="mb-12 flex justify-center">
           <FloatingDock items={dockItems} />
         </div>
@@ -147,7 +169,7 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ initialCategory 
                 <div>
                   <div className="relative h-44 sm:h-48 rounded-2xl overflow-hidden mb-4 bg-slate-200">
                     <img
-                      src={course.image}
+                      src={course.image || '/images/default-course.webp'}
                       alt={course.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"

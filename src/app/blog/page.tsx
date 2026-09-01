@@ -1,34 +1,51 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Header } from '../../components/layout/Header';
 import { Footer } from '../../components/layout/Footer';
 import { WhatsAppFloatingButton } from '../../components/layout/WhatsAppButton';
-import { realBlogPosts } from '../../data/blogPostsReal';
+import { realBlogPosts as defaultPosts } from '../../data/blogPostsReal';
+import { BlogPost } from '../../types';
+import { BlogService } from '../../services/blogService';
 import { BlogCard } from '../../components/blog/BlogCard';
 import { Search, Newspaper, BookOpen, Filter, Award } from 'lucide-react';
 
 export default function BlogArchivePage() {
+  const [posts, setPosts] = useState<BlogPost[]>(defaultPosts);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Todos');
 
-  const categories = useMemo(() => {
-    const cats = ['Todos', ...Array.from(new Set(realBlogPosts.map(p => p.category)))];
-    return cats;
+  useEffect(() => {
+    async function loadDynamicPosts() {
+      try {
+        const data = await BlogService.getAllPosts();
+        if (data && data.length > 0) {
+          setPosts(data);
+        }
+      } catch (err) {
+        console.error('Erro ao carregar posts dinâmicos:', err);
+      }
+    }
+    loadDynamicPosts();
   }, []);
 
+  const categories = useMemo(() => {
+    const cats = ['Todos', ...Array.from(new Set(posts.map(p => p.category)))];
+    return cats;
+  }, [posts]);
+
   const filteredPosts = useMemo(() => {
-    return realBlogPosts.filter(post => {
+    return posts.filter(post => {
       const matchQuery = !searchTerm || 
         post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.tags.some(t => t.toLowerCase().includes(searchTerm.toLowerCase()));
+        (post.tags && post.tags.some(t => t.toLowerCase().includes(searchTerm.toLowerCase())));
       
       const matchCat = selectedCategory === 'Todos' || post.category === selectedCategory;
 
       return matchQuery && matchCat;
     });
-  }, [searchTerm, selectedCategory]);
+  }, [posts, searchTerm, selectedCategory]);
 
   const featuredPost = filteredPosts[0];
   const regularPosts = filteredPosts.slice(1);

@@ -1,9 +1,19 @@
-import React from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import { MapPin, Phone, MessageCircle, Clock, Award, ShieldCheck } from 'lucide-react';
-import { siteConfig } from '../../data/siteConfig';
+import { siteConfig as defaultSiteConfig } from '../../data/siteConfig';
+import { SiteConfigService } from '../../services/siteConfigService';
 
 export const Footer: React.FC = () => {
+  const [config, setConfig] = useState(defaultSiteConfig);
   const currentYear = new Date().getFullYear();
+
+  useEffect(() => {
+    SiteConfigService.getConfig().then((data) => {
+      if (data) setConfig(data);
+    }).catch(console.error);
+  }, []);
 
   return (
     <footer className="relative bg-[#0A2540] text-white pt-16 sm:pt-20 pb-12 overflow-hidden border-t border-slate-800">
@@ -28,7 +38,7 @@ export const Footer: React.FC = () => {
               </div>
               <div className="flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4 text-[#00B060]" />
-                <span>Nota 5.0 no Google (320+ avaliações)</span>
+                <span>Nota {config.rating?.score?.toFixed(1) || '5.0'} no Google ({config.rating?.reviewsCount || '320'}+ avaliações)</span>
               </div>
             </div>
           </div>
@@ -51,26 +61,26 @@ export const Footer: React.FC = () => {
             <div className="space-y-2.5 text-sm text-slate-300">
               <p className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-[#FFB800] mt-0.5 shrink-0" />
-                <span>{siteConfig.address.street}, {siteConfig.address.neighborhood} - {siteConfig.address.city}/{siteConfig.address.state}</span>
+                <span>{config.address.street}, {config.address.neighborhood} - {config.address.city}/{config.address.state}</span>
               </p>
               <p className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-[#00B060] shrink-0" />
-                <span>{siteConfig.phone}</span>
+                <span>{config.phone}</span>
               </p>
               <p className="flex items-center gap-2.5">
                 <MessageCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>WhatsApp: {siteConfig.whatsapp}</span>
+                <span>WhatsApp: {config.whatsapp}</span>
               </p>
               <p className="flex items-center gap-2.5">
                 <Clock className="w-4 h-4 text-[#FFB800] shrink-0" />
-                <span>{siteConfig.openingHours.weekdays}</span>
+                <span>{config.openingHours.weekdays}</span>
               </p>
             </div>
           </div>
         </div>
 
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
-          <p>© {currentYear} {siteConfig.name}. Todos os direitos reservados.</p>
+          <p>© {currentYear} {config.name}. Todos os direitos reservados.</p>
           <div className="flex flex-wrap items-center gap-3 sm:gap-4">
             <a href="/politica-de-privacidade" className="hover:text-emerald-400 transition-colors">Política de Privacidade (LGPD)</a>
             <span>•</span>

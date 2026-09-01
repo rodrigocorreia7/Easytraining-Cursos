@@ -1,11 +1,20 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { MessageCircle } from 'lucide-react';
-import { siteConfig } from '../../data/siteConfig';
+import { siteConfig as defaultSiteConfig } from '../../data/siteConfig';
+import { SiteConfigService } from '../../services/siteConfigService';
 
 export const WhatsAppFloatingButton: React.FC = () => {
-  const whatsappUrl = `https://wa.me/${siteConfig.whatsappClean}?text=${encodeURIComponent('Olá! Acessei o site da EasyTraining e gostaria de tirar dúvidas sobre os cursos.')}`;
+  const [config, setConfig] = useState(defaultSiteConfig);
+
+  useEffect(() => {
+    SiteConfigService.getConfig().then((data) => {
+      if (data) setConfig(data);
+    }).catch(console.error);
+  }, []);
+
+  const whatsappUrl = `https://wa.me/${config.whatsappClean}?text=${encodeURIComponent('Olá! Acessei o site da EasyTraining e gostaria de tirar dúvidas sobre os cursos.')}`;
 
   return (
     <aside aria-label="Atendimento via WhatsApp" className="fixed bottom-6 right-6 z-40">

@@ -1,101 +1,146 @@
 import { BlogPost } from '../types';
-import { realBlogPosts } from '../data/blogPostsReal';
-
-// Armazenamento em memória / local para simular banco de dados antes da conexão com Firestore
-let inMemoryPosts: BlogPost[] = [...realBlogPosts];
 
 export const BlogService = {
   /**
    * Retorna todos os posts do blog ordenados por data decrescente
    */
   async getAllPosts(): Promise<BlogPost[]> {
-    return [...inMemoryPosts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    try {
+      const res = await fetch('/api/posts', { cache: 'no-store' });
+      if (!res.ok) throw new Error('Falha ao buscar posts');
+      return await res.json();
+    } catch (error) {
+      console.error('BlogService.getAllPosts error:', error);
+      return [];
+    }
   },
 
   /**
    * Busca um post específico pelo seu slug exato
    */
   async getPostBySlug(slug: string): Promise<BlogPost | null> {
-    const cleanSlug = slug.replace(/^\/|\/$/g, '').toLowerCase();
-    const found = inMemoryPosts.find(p => p.slug.toLowerCase() === cleanSlug);
-    return found || null;
+    try {
+      const cleanSlug = slug.replace(/^\/|\/$/g, '').toLowerCase();
+      const res = await fetch(`/api/posts?slug=${encodeURIComponent(cleanSlug)}`, { cache: 'no-store' });
+      if (!res.ok) return null;
+      return await res.json();
+    } catch (error) {
+      console.error('BlogService.getPostBySlug error:', error);
+      return null;
+    }
   },
 
   /**
    * Busca um post pelo seu ID numérico ou string
    */
   async getPostById(id: number | string): Promise<BlogPost | null> {
-    const found = inMemoryPosts.find(p => String(p.id) === String(id));
-    return found || null;
+    try {
+      const res = await fetch(`/api/posts/${id}`, { cache: 'no-store' });
+      if (!res.ok) return null;
+      return await res.json();
+    } catch (error) {
+      console.error('BlogService.getPostById error:', error);
+      return null;
+    }
   },
 
   /**
    * Retorna posts relacionados com base na categoria
    */
   async getRelatedPosts(currentSlug: string, limit = 3): Promise<BlogPost[]> {
-    const current = await this.getPostBySlug(currentSlug);
-    return inMemoryPosts
-      .filter(p => p.slug !== currentSlug && (!current || p.category === current.category))
-      .slice(0, limit);
+    try {
+      const all = await this.getAllPosts();
+      const current = all.find(p => p.slug.toLowerCase() === currentSlug.replace(/^\/|\/$/g, '').toLowerCase());
+      return all
+        .filter(p => p.slug !== currentSlug && (!current || p.category === current.category))
+        .slice(0, limit);
+    } catch (error) {
+      console.error('BlogService.getRelatedPosts error:', error);
+      return [];
+    }
   },
 
   /**
    * Busca posts por termo de texto e categoria
    */
   async searchPosts(query: string, category?: string): Promise<BlogPost[]> {
-    const q = query.toLowerCase().trim();
-    return inMemoryPosts.filter(post => {
-      const matchQuery = !q || 
-        post.title.toLowerCase().includes(q) || 
-        post.excerpt.toLowerCase().includes(q) ||
-        (post.tags && post.tags.some(t => t.toLowerCase().includes(q)));
+    try {
+      const params = new URLSearchParams();
+      if (query) params.set('q', query);
+      if (category && category !== 'Todos') params.set('category', category);
       
-      const matchCat = !category || category === 'Todos' || post.category === category;
-      return matchQuery && matchCat;
-    });
+      const res = await fetch(`/api/posts?${params.toString()}`, { cache: 'no-store' });
+      if (!res.ok) throw new Error('Falha na busca de posts');
+      return await res.json();
+    } catch (error) {
+      console.error('BlogService.searchPosts error:', error);
+      return [];
+    }
   },
 
   /**
-   * Cria um novo post (Mock -> Firestore addDoc ready)
+   * Cria um novo post (Mock JSON -> Firestore addDoc ready)
    */
-  async createPost(postData: Omit<BlogPost, 'id'>): Promise<BlogPost> {
-    const newId = Date.now();
-    const newPost: BlogPost = {
-      ...postData,
-      id: newId,
-      slug: postData.slug || postData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
-      date: postData.date || new Date().toISOString().split('T')[0],
-      readTime: postData.readTime || '4 min',
-      author: postData.author || 'EasyTraining Admin',
-      authorRole: postData.authorRole || 'Redação EasyTraining',
-      views: 0
-    };
-
-    inMemoryPosts.unshift(newPost);
-    return newPost;
+  async createPost(postData: Omit<BlogPost, 'id'>): Promise<BlogPost | null> {
+    try {
+      const res = await fetch('/api/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(postData)
+      });
+      if (!res.ok) throw new Error('Falha ao criar post');
+      return await res.json();
+    } catch (error) {
+      console.error('BlogService.createPost error:', error);
+      return null;
+    }
   },
 
   /**
-   * Atualiza um post existente (Mock -> Firestore updateDoc ready)
+   * Atualiza um post existente (Mock JSON -> Firestore updateDoc ready)
    */
   async updatePost(id: number | string, postData: Partial<BlogPost>): Promise<BlogPost | null> {
-    const index = inMemoryPosts.findIndex(p => String(p.id) === String(id));
-    if (index === -1) return null;
-
-    inMemoryPosts[index] = {
-      ...inMemoryPosts[index],
-      ...postData
-    };
-
-    return inMemoryPosts[index];
+    try {
+      const res = await fetch(`/api/posts/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(postData)
+      });
+      if (!res.ok) throw new Error('Falha ao atualizar post');
+      return await res.json();
+    } catch (error) {
+      console.error('BlogService.updatePost error:', error);
+      return null;
+    }
   },
 
   /**
-   * Exclui um post (Mock -> Firestore deleteDoc ready)
+   * Exclui um post (Mock JSON -> Firestore deleteDoc ready)
    */
   async deletePost(id: number | string): Promise<boolean> {
-    const initialLen = inMemoryPosts.length;
-    inMemoryPosts = inMemoryPosts.filter(p => String(p.id) !== String(id));
-    return inMemoryPosts.length < initialLen;
+    try {
+      const res = await fetch(`/api/posts/${id}`, { method: 'DELETE' });
+      return res.ok;
+    } catch (error) {
+      console.error('BlogService.deletePost error:', error);
+      return false;
+    }
+  },
+
+  /**
+   * Restaura a lista de posts original
+   */
+  async resetPosts(): Promise<boolean> {
+    try {
+      const res = await fetch('/api/reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ target: 'posts' })
+      });
+      return res.ok;
+    } catch (error) {
+      console.error('BlogService.resetPosts error:', error);
+      return false;
+    }
   }
 };

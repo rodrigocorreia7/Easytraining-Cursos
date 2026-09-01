@@ -1,11 +1,10 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { courses } from '../../../data/coursesData';
+import { getStoredCourses, getStoredSiteConfig } from '../../../lib/db';
 import { Header } from '../../../components/layout/Header';
 import { Footer } from '../../../components/layout/Footer';
 import { WhatsAppFloatingButton } from '../../../components/layout/WhatsAppButton';
-import { siteConfig } from '../../../data/siteConfig';
 import { 
   CheckCircle2, 
   Clock, 
@@ -16,8 +15,6 @@ import {
   MessageCircle, 
   Briefcase, 
   BookOpen, 
-  Users, 
-  Share2,
   Star
 } from 'lucide-react';
 
@@ -60,16 +57,10 @@ const slugAliases: Record<string, string> = {
 };
 
 function findCourseBySlug(slug: string) {
+  const courses = getStoredCourses();
   const normalized = slug.toLowerCase().replace(/\/$/, '');
   const targetSlug = slugAliases[normalized] || normalized;
-  return courses.find(c => c.slug === targetSlug || c.slug === normalized);
-}
-
-export async function generateStaticParams() {
-  const allSlugs = new Set<string>();
-  courses.forEach(c => allSlugs.add(c.slug));
-  Object.keys(slugAliases).forEach(alias => allSlugs.add(alias));
-  return Array.from(allSlugs).map(slug => ({ slug }));
+  return courses.find(c => c.slug.toLowerCase() === targetSlug || c.slug.toLowerCase() === normalized);
 }
 
 export async function generateMetadata({
@@ -125,12 +116,14 @@ export default async function CourseDetailPage({
 }) {
   const { slug } = await params;
   const course = findCourseBySlug(slug);
+  const siteConfig = getStoredSiteConfig();
+  const allCourses = getStoredCourses();
 
   if (!course) {
     notFound();
   }
 
-  const relatedCourses = courses
+  const relatedCourses = allCourses
     .filter(c => c.id !== course.id && (c.categorySlug === course.categorySlug || c.featured))
     .slice(0, 3);
 
@@ -146,8 +139,8 @@ export default async function CourseDetailPage({
     description: course.fullDescription,
     provider: {
       '@type': 'EducationalOrganization',
-      name: 'EasyTraining Cursos Profissionalizantes',
-      sameAs: 'https://easytraining.com.br',
+      name: siteConfig.name,
+      sameAs: siteConfig.url,
       address: {
         '@type': 'PostalAddress',
         streetAddress: siteConfig.address.street,
@@ -163,7 +156,7 @@ export default async function CourseDetailPage({
     hasCourseInstance: {
       '@type': 'CourseInstance',
       courseMode: 'Blended',
-      location: 'Guarulhos - SP (Pimentas)',
+      location: `${siteConfig.address.city} - ${siteConfig.address.state} (${siteConfig.address.neighborhood})`,
       instructor: {
         '@type': 'Person',
         name: 'Corpo Docente Especialista EasyTraining'
@@ -171,8 +164,8 @@ export default async function CourseDetailPage({
     },
     aggregateRating: {
       '@type': 'AggregateRating',
-      ratingValue: '5.0',
-      reviewCount: '323'
+      ratingValue: String(siteConfig.rating.score),
+      reviewCount: String(siteConfig.rating.reviewsCount)
     }
   };
 
@@ -275,7 +268,7 @@ export default async function CourseDetailPage({
                   />
                   <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-md shadow-md text-xs font-bold text-[#052e7f] flex items-center gap-1.5">
                     <Star className="w-4 h-4 fill-[#FFB800] text-[#FFB800]" />
-                    <span>5.0 (323+ avaliações)</span>
+                    <span>{siteConfig.rating.score.toFixed(1)} ({siteConfig.rating.reviewsCount}+ avaliações)</span>
                   </div>
                 </div>
               </div>
@@ -361,7 +354,7 @@ export default async function CourseDetailPage({
             <div className="lg:col-span-4 space-y-6">
               
               {/* WhatsApp Registration Sticky Box */}
-              <div className="bg-gradient-to-br from-[#052e7f] to-[#0a46b8] text-white rounded-3xl p-6 sm:p-8 shadow-xl space-y-5">
+              <div className="bg-linear-to-br from-[#052e7f] to-[#0a46b8] text-white rounded-3xl p-6 sm:p-8 shadow-xl space-y-5">
                 <span className="inline-block px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-bold text-emerald-300">
                   Matrículas Abertas
                 </span>
@@ -385,8 +378,8 @@ export default async function CourseDetailPage({
                 </a>
 
                 <div className="pt-3 border-t border-white/10 text-[11px] text-slate-300 space-y-1.5">
-                  <p>📍 Estrada do Sacramento, 1250 - Pimentas, Guarulhos</p>
-                  <p>📞 (11) 2484-4848</p>
+                  <p>📍 {siteConfig.address.street} - {siteConfig.address.neighborhood}, {siteConfig.address.city}</p>
+                  <p>📞 {siteConfig.phone}</p>
                 </div>
               </div>
 

@@ -1,11 +1,31 @@
-import React from 'react';
-import { realBlogPosts } from '../../data/blogPostsReal';
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { realBlogPosts as defaultPosts } from '../../data/blogPostsReal';
+import { BlogPost } from '../../types';
+import { BlogService } from '../../services/blogService';
 import { Calendar, Clock, ArrowRight, Newspaper, BookOpen } from 'lucide-react';
 import SplitText from '../ui/SplitText';
 
 export const BlogSection: React.FC = () => {
-  // Show top 3 recent real posts on landing page
-  const featuredPosts = realBlogPosts.slice(0, 3);
+  const [posts, setPosts] = useState<BlogPost[]>(defaultPosts);
+
+  useEffect(() => {
+    async function loadDynamicPosts() {
+      try {
+        const data = await BlogService.getAllPosts();
+        if (data && data.length > 0) {
+          setPosts(data);
+        }
+      } catch (err) {
+        console.error('Erro ao carregar posts para BlogSection:', err);
+      }
+    }
+    loadDynamicPosts();
+  }, []);
+
+  // Show top 3 recent posts on landing page
+  const featuredPosts = posts.slice(0, 3);
 
   return (
     <section id="blog" className="py-20 sm:py-28 bg-white">
@@ -52,7 +72,7 @@ export const BlogSection: React.FC = () => {
                 <div>
                   <div className="relative h-48 rounded-2xl overflow-hidden mb-5 bg-slate-200">
                     <img
-                      src={post.image}
+                      src={post.image || '/images/default-blog.webp'}
                       alt={post.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"
@@ -107,7 +127,7 @@ export const BlogSection: React.FC = () => {
             className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-[#052e7f] hover:bg-[#04215c] text-white font-bold text-sm sm:text-base shadow-lg transition-all transform hover:-translate-y-0.5"
           >
             <BookOpen className="w-5 h-5 text-[#FFB800]" />
-            <span>Ver Todos os Artigos do Blog ({realBlogPosts.length})</span>
+            <span>Ver Todos os Artigos do Blog ({posts.length})</span>
             <ArrowRight className="w-4 h-4" />
           </a>
         </div>

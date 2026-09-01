@@ -3,7 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { AuthService } from '../../services/authService';
-import { LayoutDashboard, PlusCircle, Globe, LogOut, ShieldCheck, User } from 'lucide-react';
+import { 
+  LayoutDashboard, BookOpen, FileText, Settings, 
+  PlusCircle, Globe, LogOut, ShieldCheck, User 
+} from 'lucide-react';
 import { AdminUser } from '../../types';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -45,6 +48,37 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
+  const navItems = [
+    {
+      name: 'Visão Geral',
+      href: '/admin',
+      active: pathname === '/admin',
+      icon: LayoutDashboard,
+      color: 'text-[#00B060]'
+    },
+    {
+      name: 'Cursos',
+      href: '/admin/courses',
+      active: pathname.startsWith('/admin/courses'),
+      icon: BookOpen,
+      color: 'text-sky-400'
+    },
+    {
+      name: 'Artigos do Blog',
+      href: '/admin/posts',
+      active: pathname.startsWith('/admin/posts'),
+      icon: FileText,
+      color: 'text-amber-400'
+    },
+    {
+      name: 'Configurações & Links',
+      href: '/admin/config',
+      active: pathname.startsWith('/admin/config'),
+      icon: Settings,
+      color: 'text-emerald-400'
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 flex flex-col">
       {/* Admin Header */}
@@ -54,45 +88,39 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="flex items-center gap-6">
             <a href="/admin" className="flex items-center gap-2 font-black text-lg">
               <span className="text-[#00B060]">EasyTraining</span>
-              <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full font-normal">Admin</span>
+              <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full font-normal">Admin CMS</span>
             </a>
 
-            <nav className="hidden md:flex items-center gap-2">
-              <a
-                href="/admin"
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                  pathname === '/admin'
-                    ? 'bg-white/15 text-white'
-                    : 'text-slate-300 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <LayoutDashboard className="w-4 h-4 text-[#00B060]" />
-                <span>Dashboard</span>
-              </a>
-
-              <a
-                href="/admin/posts/novo"
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                  pathname === '/admin/posts/novo'
-                    ? 'bg-white/15 text-white'
-                    : 'text-slate-300 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <PlusCircle className="w-4 h-4 text-[#FFB800]" />
-                <span>Novo Artigo</span>
-              </a>
+            <nav className="hidden md:flex items-center gap-1.5">
+              {navItems.map(item => {
+                const Icon = item.icon;
+                return (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                      item.active
+                        ? 'bg-white/15 text-white shadow-xs'
+                        : 'text-slate-300 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    <Icon className={`w-4 h-4 ${item.color}`} />
+                    <span>{item.name}</span>
+                  </a>
+                );
+              })}
             </nav>
           </div>
 
           <div className="flex items-center gap-4">
             <a
-              href="/blog"
+              href="/"
               target="_blank"
               rel="noopener noreferrer"
               className="hidden sm:flex items-center gap-1.5 text-xs text-slate-300 hover:text-white transition-colors"
             >
               <Globe className="w-3.5 h-3.5 text-[#00B060]" />
-              <span>Ver Blog Público</span>
+              <span>Ver Site Público</span>
             </a>
 
             <div className="h-4 w-px bg-white/20 hidden sm:block" />
@@ -100,7 +128,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="flex items-center gap-3">
               <div className="hidden lg:flex flex-col items-end">
                 <span className="text-xs font-bold leading-tight">{currentUser?.name}</span>
-                <span className="text-[10px] text-slate-300 leading-tight">Sessão Mock Ativa</span>
+                <span className="text-[10px] text-slate-300 leading-tight">Mock DB Ativo (JSON)</span>
               </div>
 
               <button
@@ -116,6 +144,27 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
 
         </div>
+
+        {/* Mobile Navigation bar */}
+        <div className="md:hidden flex items-center justify-around border-t border-white/10 px-2 py-2 overflow-x-auto bg-[#032261]">
+          {navItems.map(item => {
+            const Icon = item.icon;
+            return (
+              <a
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold whitespace-nowrap ${
+                  item.active
+                    ? 'bg-white/20 text-white'
+                    : 'text-slate-300 hover:text-white'
+                }`}
+              >
+                <Icon className={`w-3.5 h-3.5 ${item.color}`} />
+                <span>{item.name}</span>
+              </a>
+            );
+          })}
+        </div>
       </header>
 
       {/* Main Container */}
@@ -125,7 +174,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Admin Footer */}
       <footer className="bg-slate-200 text-slate-500 text-xs py-4 px-4 text-center border-t border-slate-300">
-        EasyTraining Admin Suite • Pronto para integração com Firebase Firestore & Storage
+        EasyTraining Admin CMS • Persistência Local Ativa • Pronto para Firebase / Firestore
       </footer>
     </div>
   );
