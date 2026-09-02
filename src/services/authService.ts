@@ -1,6 +1,6 @@
 import { AdminUser } from '../types';
 import { auth } from '../lib/firebase';
-import { signInWithEmailAndPassword, signOut as fbSignOut } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut as fbSignOut, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
 const ADMIN_STORAGE_KEY = 'easytraining_admin_session';
 const LOGIN_ATTEMPTS_KEY = 'easytraining_login_attempts';
@@ -177,6 +177,55 @@ export const AuthService = {
         success: false,
         error: errorMsg
       };
+    }
+  },
+
+  /**
+   * Realiza login administrativo com a Conta Google (OAuth)
+   */
+  async loginWithGoogle(): Promise<{ success: boolean; user?: AdminUser; error?: string }> {
+    try {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      const result = await signInWithPopup(auth, provider);
+      const fbUser = result.user;
+      const emailLower = (fbUser.email || '').toLowerCase();
+
+      if (!ALLOWED_ADMIN_EMAILS.includes(emailLower)) {
+        await fbSignOut(auth);
+        return {
+          success: false,
+          error: `O e-mail Google (${emailLower}) não possui permissão de administrador no sistema.`
+        };
+      }
+
+      const adminUser: AdminUser = {
+        id: fbUser.uid,
+        email: emailLower,
+        name: fbUser.displayName || (emailLower.includes('rac') ? 'Rodrigo Correia' : 'Administrador EasyTraining'),
+        role: 'admin'
+      };
+
+      this.resetLoginAttempts();
+
+      if (typeof window !== 'undefined') {
+        const sessionData: StoredSession = {
+          user: adminUser,
+          lastActive: Date.now()
+        };
+        localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(sessionData));
+
+        const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
+        document.cookie = `admin_token=valid_session_token; path=/; max-age=7200; SameSite=Strict${secureFlag}`;
+      }
+
+      return { success: true, user: adminUser };
+    } catch (error: any) {
+      console.error('Erro no login com Google:', error);
+      if (error?.code === 'auth/popup-closed-by-user') {
+        return { success: false, error: 'Janela do Google fechada antes de concluir o login.' };
+      }
+      return { success: false, error: error?.message || 'Falha ao autenticar com a conta Google.' };
     }
   },
 
