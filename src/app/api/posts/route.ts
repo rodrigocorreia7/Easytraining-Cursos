@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getPostsFromFirestore, savePostToFirestore } from '@/lib/firestoreDb';
 import { getStoredPosts, saveStoredPosts } from '@/lib/db';
 import { BlogPost } from '@/types';
 
@@ -9,7 +10,7 @@ export async function GET(request: NextRequest) {
     const slug = searchParams.get('slug');
     const query = searchParams.get('q')?.toLowerCase();
 
-    let posts = getStoredPosts();
+    let posts = await getPostsFromFirestore();
 
     if (slug) {
       const cleanSlug = slug.replace(/^\/|\/$/g, '').toLowerCase();
@@ -45,7 +46,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const posts = getStoredPosts();
+    const posts = await getPostsFromFirestore();
 
     const maxId = posts.reduce((max, p) => (typeof p.id === 'number' && p.id > max ? p.id : max), 0);
     const newId = maxId + 1;
@@ -61,6 +62,10 @@ export async function POST(request: NextRequest) {
       views: 0
     };
 
+    // Salva no Firestore
+    await savePostToFirestore(newPost);
+
+    // Sincroniza cache local
     posts.unshift(newPost);
     saveStoredPosts(posts);
 

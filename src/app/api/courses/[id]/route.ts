@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getCoursesFromFirestore, saveCourseToFirestore, deleteCourseFromFirestore } from '@/lib/firestoreDb';
 import { getStoredCourses, saveStoredCourses } from '@/lib/db';
 import { Course } from '@/types';
 
@@ -8,7 +9,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const courses = getStoredCourses();
+    const courses = await getCoursesFromFirestore();
     const course = courses.find(c => String(c.id) === String(id));
 
     if (!course) {
@@ -29,7 +30,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const courses = getStoredCourses();
+    const courses = await getCoursesFromFirestore();
 
     const index = courses.findIndex(c => String(c.id) === String(id));
     if (index === -1) {
@@ -43,6 +44,10 @@ export async function PUT(
       categorySlug: body.categorySlug || (body.category ? body.category.toLowerCase().replace(/[^a-z0-9]+/g, '-') : courses[index].categorySlug)
     };
 
+    // Salva no Firestore
+    await saveCourseToFirestore(updatedCourse);
+
+    // Sincroniza cache local
     courses[index] = updatedCourse;
     saveStoredCourses(courses);
 
@@ -59,13 +64,17 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const courses = getStoredCourses();
+    const courses = await getCoursesFromFirestore();
 
     const filtered = courses.filter(c => String(c.id) !== String(id));
     if (filtered.length === courses.length) {
       return NextResponse.json({ error: 'Curso não encontrado' }, { status: 404 });
     }
 
+    // Deleta do Firestore
+    await deleteCourseFromFirestore(id);
+
+    // Sincroniza cache local
     saveStoredCourses(filtered);
     return NextResponse.json({ success: true, message: 'Curso excluído com sucesso' });
   } catch (error) {

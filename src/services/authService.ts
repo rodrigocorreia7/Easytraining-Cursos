@@ -1,4 +1,6 @@
 import { AdminUser } from '../types';
+import { auth } from '../lib/firebase';
+import { signInWithEmailAndPassword, signOut as fbSignOut } from 'firebase/auth';
 
 const ADMIN_STORAGE_KEY = 'easytraining_admin_session';
 const LOGIN_ATTEMPTS_KEY = 'easytraining_login_attempts';
@@ -15,6 +17,12 @@ interface StoredSession {
   user: AdminUser;
   lastActive: number;
 }
+
+export const ALLOWED_ADMIN_EMAILS = [
+  'raccorreia@gmail.com',
+  'rac2digital@gmail.com',
+  'admin@easytraining.com.br'
+];
 
 const MOCK_ADMIN: AdminUser = {
   id: 'admin-01',
@@ -96,42 +104,80 @@ export const AuthService = {
       };
     }
 
-    // Simula delay de rede contra ataques de temporização (timing attacks)
-    await new Promise(r => setTimeout(r, 600));
-
     const normalizedEmail = email.trim().toLowerCase();
 
-    // 2. Credenciais de Administrador (Mock -> Firebase Auth ready)
-    if (normalizedEmail === 'admin@easytraining.com.br' && (pass === 'admin123' || pass === 'easytraining2026')) {
+    if (!ALLOWED_ADMIN_EMAILS.includes(normalizedEmail)) {
+      return {
+        success: false,
+        error: 'Este e-mail não possui permissão de administrador no sistema.'
+      };
+    }
+
+    // 2. Tenta autenticação real com Firebase Authentication
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, normalizedEmail, pass);
+      const fbUser = userCredential.user;
+
+      const adminUser: AdminUser = {
+        id: fbUser.uid,
+        email: fbUser.email || normalizedEmail,
+        name: fbUser.displayName || (normalizedEmail.includes('rac') ? 'Rodrigo Correia' : 'Administrador EasyTraining'),
+        role: 'admin'
+      };
+
       this.resetLoginAttempts();
 
       if (typeof window !== 'undefined') {
         const sessionData: StoredSession = {
-          user: MOCK_ADMIN,
+          user: adminUser,
           lastActive: Date.now()
         };
         localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(sessionData));
-        
-        // Cookie seguro para proteção de transporte
+
         const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
         document.cookie = `admin_token=valid_session_token; path=/; max-age=7200; SameSite=Strict${secureFlag}`;
       }
-      return { success: true, user: MOCK_ADMIN };
-    }
 
-    // 3. Falha na autenticação -> registra tentativa
-    const failureStatus = this.registerFailedAttempt();
-    if (failureStatus.locked) {
+      return { success: true, user: adminUser };
+    } catch (fbErr: any) {
+      // 3. Fallback de contingência para o superusuário local se ainda não cadastrado no Firebase
+      if (normalizedEmail === 'admin@easytraining.com.br' && (pass === 'admin123' || pass === 'easytraining2026')) {
+        this.resetLoginAttempts();
+
+        if (typeof window !== 'undefined') {
+          const sessionData: StoredSession = {
+            user: MOCK_ADMIN,
+            lastActive: Date.now()
+          };
+          localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(sessionData));
+
+          const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
+          document.cookie = `admin_token=valid_session_token; path=/; max-age=7200; SameSite=Strict${secureFlag}`;
+        }
+        return { success: true, user: MOCK_ADMIN };
+      }
+
+      // 4. Falha na autenticação -> registra tentativa de rate limiting
+      const failureStatus = this.registerFailedAttempt();
+      if (failureStatus.locked) {
+        return {
+          success: false,
+          error: 'Limite de 5 tentativas atingido. Acesso bloqueado por 15 minutos por segurança.'
+        };
+      }
+
+      let errorMsg = `Credenciais inválidas. Restam ${failureStatus.remaining} tentativa(s) antes do bloqueio temporário.`;
+      if (fbErr?.code === 'auth/user-not-found' || fbErr?.code === 'auth/wrong-password' || fbErr?.code === 'auth/invalid-credential') {
+        errorMsg = `E-mail ou senha incorretos no Firebase. Restam ${failureStatus.remaining} tentativa(s).`;
+      } else if (fbErr?.code === 'auth/too-many-requests') {
+        errorMsg = 'Acesso temporariamente bloqueado pelo Firebase por excesso de requisições.';
+      }
+
       return {
         success: false,
-        error: 'Limite de 5 tentativas atingido. Acesso bloqueado por 15 minutos por segurança.'
+        error: errorMsg
       };
     }
-
-    return { 
-      success: false, 
-      error: `Credenciais inválidas. Restam ${failureStatus.remaining} tentativa(s) antes do bloqueio temporário.` 
-    };
   },
 
   /**
@@ -174,6 +220,9 @@ export const AuthService = {
    */
   logout(): void {
     if (typeof window !== 'undefined') {
+      try {
+        fbSignOut(auth).catch(() => {});
+      } catch (_) {}
       localStorage.removeItem(ADMIN_STORAGE_KEY);
       sessionStorage.clear();
       document.cookie = 'admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict';

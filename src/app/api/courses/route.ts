@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getCoursesFromFirestore, saveCourseToFirestore } from '@/lib/firestoreDb';
 import { getStoredCourses, saveStoredCourses } from '@/lib/db';
 import { Course } from '@/types';
 
@@ -8,7 +9,7 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category');
     const slug = searchParams.get('slug');
 
-    let courses = getStoredCourses();
+    let courses = await getCoursesFromFirestore();
 
     if (slug) {
       const cleanSlug = slug.replace(/^\/|\/$/g, '').toLowerCase();
@@ -33,7 +34,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const courses = getStoredCourses();
+    const courses = await getCoursesFromFirestore();
 
     const maxId = courses.reduce((max, c) => (typeof c.id === 'number' && c.id > max ? c.id : max), 0);
     const newId = maxId + 1;
@@ -48,6 +49,10 @@ export async function POST(request: NextRequest) {
       whatsappMessage: body.whatsappMessage || `Olá! Gostaria de saber mais sobre o ${body.title}.`
     };
 
+    // Salva no Firestore
+    await saveCourseToFirestore(newCourse);
+
+    // Sincroniza cache local
     courses.push(newCourse);
     saveStoredCourses(courses);
 

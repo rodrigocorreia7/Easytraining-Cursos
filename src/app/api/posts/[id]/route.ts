@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getPostsFromFirestore, savePostToFirestore, deletePostFromFirestore } from '@/lib/firestoreDb';
 import { getStoredPosts, saveStoredPosts } from '@/lib/db';
 import { BlogPost } from '@/types';
 
@@ -8,7 +9,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const posts = getStoredPosts();
+    const posts = await getPostsFromFirestore();
     const post = posts.find(p => String(p.id) === String(id));
 
     if (!post) {
@@ -29,7 +30,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const posts = getStoredPosts();
+    const posts = await getPostsFromFirestore();
 
     const index = posts.findIndex(p => String(p.id) === String(id));
     if (index === -1) {
@@ -42,6 +43,10 @@ export async function PUT(
       id: posts[index].id // preserva ID original
     };
 
+    // Salva no Firestore
+    await savePostToFirestore(updatedPost);
+
+    // Sincroniza cache local
     posts[index] = updatedPost;
     saveStoredPosts(posts);
 
@@ -58,13 +63,17 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const posts = getStoredPosts();
+    const posts = await getPostsFromFirestore();
 
     const filtered = posts.filter(p => String(p.id) !== String(id));
     if (filtered.length === posts.length) {
       return NextResponse.json({ error: 'Post não encontrado' }, { status: 404 });
     }
 
+    // Deleta do Firestore
+    await deletePostFromFirestore(id);
+
+    // Sincroniza cache local
     saveStoredPosts(filtered);
     return NextResponse.json({ success: true, message: 'Post excluído com sucesso' });
   } catch (error) {
