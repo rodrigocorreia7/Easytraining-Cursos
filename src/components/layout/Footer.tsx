@@ -85,10 +85,6 @@ export const Footer: React.FC = () => {
             <a href="/politica-de-privacidade" className="hover:text-emerald-400 transition-colors">Política de Privacidade (LGPD)</a>
             <span>•</span>
             <a href="/termos-de-uso" className="hover:text-white transition-colors">Termos de Uso</a>
-            <span>•</span>
-            <a href="/llms.txt" className="hover:text-white transition-colors" title="Indexação para IAs">llms.txt</a>
-            <span>•</span>
-            <a href="/sitemap.xml" className="hover:text-white transition-colors">Sitemap</a>
           </div>
         </div>
       </div>

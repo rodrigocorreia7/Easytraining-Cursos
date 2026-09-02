@@ -51,9 +51,9 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/logo1.svg', type: 'image/svg+xml' },
-      { url: '/favicon.ico' }
+      { url: '/logo1.svg', type: 'image/svg+xml' }
     ],
+    shortcut: '/logo1.svg',
     apple: '/logo1.png'
   }
 };
@@ -103,7 +103,8 @@ export default function RootLayout({
     <html lang="pt-BR">
       <head>
         <meta name="theme-color" content="#052e7f" />
-        <link rel="icon" href="/logo1.svg" type="image/svg+xml" />
+        <link rel="icon" href="/logo1.svg" type="image/svg+xml" sizes="any" />
+        <link rel="shortcut icon" href="/logo1.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/logo1.png" />
         <link rel="dns-prefetch" href="https://wa.me" />
         <link rel="dns-prefetch" href="https://api.whatsapp.com" />
