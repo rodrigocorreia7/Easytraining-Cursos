@@ -6,7 +6,8 @@ import { BlogPost } from '../../types';
 import { BlogService } from '../../services/blogService';
 import { 
   Save, Eye, ArrowLeft, Image as ImageIcon, BookOpen, 
-  Link as LinkIcon, GraduationCap, CheckCircle2, AlertCircle, Upload 
+  Link as LinkIcon, GraduationCap, CheckCircle2, AlertCircle, Upload,
+  Bot, Wand2, X
 } from 'lucide-react';
 import { PostDetailView } from '../blog/PostDetailView';
 import { sanitizeSlug, sanitizeInput } from '../../utils/security';
@@ -47,6 +48,41 @@ export const PostEditorForm: React.FC<PostEditorFormProps> = ({ initialPost, isE
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [showAiModal, setShowAiModal] = useState(false);
+  const [aiTopic, setAiTopic] = useState('');
+  const [aiGenerating, setAiGenerating] = useState(false);
+
+  // AI Blog Post Generator
+  const handleGenerateWithAi = async () => {
+    if (!aiTopic.trim()) return;
+    setAiGenerating(true);
+    setMessage(null);
+
+    try {
+      const res = await fetch('/api/ai/generate-post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic: aiTopic.trim(), category })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erro ao gerar conteúdo');
+
+      if (data.title) setTitle(data.title);
+      if (data.slug) setSlug(data.slug);
+      if (data.excerpt) setExcerpt(data.excerpt);
+      if (data.category) setCategory(data.category);
+      if (data.contentHtml) setContentHtml(data.contentHtml);
+
+      setShowAiModal(false);
+      setAiTopic('');
+      setMessage({ type: 'success', text: 'Artigo gerado com sucesso pela IA! Revise e clique em Publicar.' });
+    } catch (err: any) {
+      setMessage({ type: 'error', text: err?.message || 'Falha ao gerar artigo com a IA.' });
+    } finally {
+      setAiGenerating(false);
+    }
+  };
 
   // Auto-generate slug from title
   const handleTitleChange = (val: string) => {
@@ -203,6 +239,16 @@ export const PostEditorForm: React.FC<PostEditorFormProps> = ({ initialPost, isE
               <span>Pré-visualização</span>
             </button>
           </div>
+
+          <button
+            type="button"
+            onClick={() => setShowAiModal(true)}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white text-xs font-bold shadow-md transition-all cursor-pointer"
+            title="Escrever artigo completo usando IA Gemini"
+          >
+            <Bot className="w-4 h-4" />
+            <span>Gerar com IA</span>
+          </button>
 
           <button
             onClick={handleSubmit}
@@ -423,6 +469,102 @@ export const PostEditorForm: React.FC<PostEditorFormProps> = ({ initialPost, isE
           </div>
 
         </form>
+      )}
+
+      {/* AI Post Generator Modal */}
+      {showAiModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95">
+            
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-linear-to-r from-blue-600 to-indigo-700 text-white flex items-center justify-center shadow-md">
+                  <Bot className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-[#052e7f]">Escrever Artigo com IA</h3>
+                  <p className="text-xs text-slate-500">Google Gemini configurado para a EasyTraining</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAiModal(false)}
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="mt-5 space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  Qual o tema ou ideia do artigo?
+                </label>
+                <textarea
+                  rows={3}
+                  value={aiTopic}
+                  onChange={(e) => setAiTopic(e.target.value)}
+                  placeholder="Ex: Como se preparar para o primeiro emprego em Guarulhos mesmo sem experiência prévia"
+                  className="w-full p-3 rounded-2xl bg-slate-50 border border-slate-200 text-slate-800 text-xs focus:outline-hidden focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  Sugestões rápidas de temas:
+                </label>
+                <div className="flex flex-wrap gap-1.5 text-[11px]">
+                  {[
+                    'Excel para o primeiro emprego',
+                    'O que faz um Auxiliar Veterinário?',
+                    'Como trabalhar em Farmácia',
+                    'Profissões mais buscadas em Guarulhos'
+                  ].map((sug, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setAiTopic(sug)}
+                      className="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-600 transition-colors cursor-pointer"
+                    >
+                      {sug}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowAiModal(false)}
+                  disabled={aiGenerating}
+                  className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 transition-colors cursor-pointer"
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleGenerateWithAi}
+                  disabled={aiGenerating || !aiTopic.trim()}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white text-xs font-bold shadow-lg shadow-indigo-600/20 transition-all cursor-pointer disabled:opacity-50"
+                >
+                  {aiGenerating ? (
+                    <>
+                      <Bot className="w-4 h-4 animate-bounce" />
+                      <span>Escrevendo artigo completo...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Wand2 className="w-4 h-4" />
+                      <span>Gerar Artigo Completo</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
       )}
 
     </div>

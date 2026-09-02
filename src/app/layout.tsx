@@ -60,6 +60,7 @@ export const metadata: Metadata = {
 
 import { CookieConsent } from '../components/layout/CookieConsent';
 import { ScrollToTop } from '../components/ui/ScrollToTop';
+import { AiChatbot } from '../components/ui/AiChatbot';
 
 export default function RootLayout({
   children,
@@ -173,6 +174,7 @@ export default function RootLayout({
         )}
         {children}
         <ScrollToTop />
+        <AiChatbot />
         <CookieConsent />
       </body>
     </html>
