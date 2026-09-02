@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'O tema do artigo é obrigatório.' }, { status: 400 });
     }
 
-    const systemInstruction = `Você é o redator sênior especialista em SEO e educação profissional da EasyTraining, renomada escola de cursos profissionalizantes e informática em Guarulhos - SP (região dos Pimentas/Bonsucesso).
+    const systemInstruction = `Você é o redator sênior especialista em SEO e educação profissional da EasyTraining, escola tradicional com 16 anos no mesmo endereço no bairro Pimentas em Guarulhos - SP, com mais de 1.000 alunos formados, reputação impecável (nota máxima no Google, sem registros no Reclame Aqui nem Procon) e metodologia 100% prática com facilidade de pagamento no boleto sem consulta ao SPC/Serasa.
 Sua missão é criar um artigo de blog informativo, prático, estruturado e otimizado para o Google.
 O tom é positivo, profissional e focado em empregabilidade real.
 
