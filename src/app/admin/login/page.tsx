@@ -2,13 +2,13 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Lock, Mail, ArrowRight, ShieldCheck, AlertCircle, Key } from 'lucide-react';
+import { Lock, Mail, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
 import { AuthService } from '../../../services/authService';
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('admin@easytraining.com.br');
-  const [password, setPassword] = useState('admin123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -172,15 +172,6 @@ export default function AdminLoginPage() {
             </>
           )}
         </button>
-
-        <div className="mt-8 p-3 rounded-2xl bg-amber-50 border border-amber-200/80 text-[11px] text-amber-800 flex items-start gap-2">
-          <Key className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-          <div>
-            <strong>Modo Mock (Ambiente de Prévia):</strong>
-            <br />
-            Credenciais padrão: <code className="bg-amber-100 px-1 rounded">admin@easytraining.com.br</code> / senha: <code className="bg-amber-100 px-1 rounded">admin123</code>. (Pronto para Firestore/Firebase Auth).
-          </div>
-        </div>
 
         <div className="text-center mt-6">
           <a href="/" className="text-xs font-semibold text-slate-500 hover:text-[#052e7f] transition-colors">
