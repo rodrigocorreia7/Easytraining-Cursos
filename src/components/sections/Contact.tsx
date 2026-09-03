@@ -22,6 +22,20 @@ export const ContactSection: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (name.trim() && phone.trim()) {
+      fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name.trim(),
+          phone: phone.trim(),
+          courseInterest: course,
+          preferredShift: 'A combinar',
+          notes: message ? message.trim() : 'Enviado pelo formulário de contato do site',
+          source: 'Formulário Contato (Site)'
+        })
+      }).catch(err => console.warn('Aviso ao registrar lead de contato:', err));
+    }
     const text = `Olá! Meu nome é ${name}, telefone ${phone}. Tenho interesse no curso de ${course}. ${message}`;
     window.open(`https://wa.me/${config.whatsappClean}?text=${encodeURIComponent(text)}`, '_blank');
   };

@@ -71,6 +71,7 @@ A Izzy é a consultora virtual oficial da EasyTraining integrada no canto inferi
 - **Integração N8N**: Configuração dinâmica de webhook para disparo de leads em tempo real para o Telegram.
   - **Workflow N8N Ativo**: `EasyTraining - Notificação de Novos Leads (Telegram & WhatsApp)` (ID: `Ne2MUiRDtBj3gcix`).
   - **Endpoint de Produção**: `https://n8n.eterion.online/webhook/easytraining-leads` (Método: `POST`).
+  - **Canal Telegram**: Supergrupo **Easytraining Leads** (Chat ID: `-1003808355395`) com o bot `@EasytrainingLead_bot` como Administrador, permitindo que toda a equipe comercial receba as notificações simultaneamente.
   - **Ações do Fluxo**: Sanitização de payload, normalização de telefone brasileiro com DDI 55, geração de link direto de conversa no WhatsApp, notificação HTML no Telegram com Inline Keyboard (botões: *Chamar no WhatsApp* e *Abrir CRM Kanban*), e resposta HTTP 200 resiliente (`onError: continueRegularOutput`).
 - **Resiliência Serverless (Vercel)**: As operações de gravação local em `leadsDb.ts` e `db.ts` contam com blindagem `try/catch` para impedir que o sistema de arquivos somente-leitura da Vercel interrompa o fluxo de cadastro. O lead é enviado com sucesso para o Firestore e Webhooks.
 

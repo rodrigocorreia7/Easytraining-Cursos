@@ -102,14 +102,15 @@ export async function createLead(leadData: Omit<Lead, 'id' | 'createdAt' | 'stat
     const config = getStoredSiteConfig();
     const webhookUrl = (config as any)?.n8nWebhookUrl || process.env.N8N_WEBHOOK_URL || 'https://n8n.eterion.online/webhook/easytraining-leads';
     if (webhookUrl && webhookUrl.startsWith('http')) {
-      fetch(webhookUrl, {
+      await fetch(webhookUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           event: 'novo_lead',
           timestamp: new Date().toISOString(),
           lead: newLead
-        })
+        }),
+        signal: AbortSignal.timeout(5000)
       }).catch(e => console.warn('Erro ao disparar Webhook N8N:', e.message));
     }
   } catch (e) {}
