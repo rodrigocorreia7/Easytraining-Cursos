@@ -278,7 +278,7 @@ export default function AdminLeadsPage() {
           mensagem: 'Disparo de teste bem-sucedido! Integração ativa.',
           leadExemplo: {
             nome: 'Aluno Teste',
-            whatsapp: '(11) 97063-8888',
+            whatsapp: '(11) 2303-7983',
             curso: 'Auxiliar Veterinário',
             turno: 'Segunda a Sexta - Noite'
           }

@@ -168,7 +168,7 @@ export default function AdminOverviewDashboard() {
           </div>
           <span className="text-xs text-slate-500 font-medium">WhatsApp Principal</span>
           <div className="text-xs font-bold text-slate-800 mt-1 truncate">
-            {loading ? '...' : (config?.whatsapp || '(11) 97063-8888')}
+            {loading ? '...' : (config?.whatsapp || '(11) 2303-7983')}
           </div>
         </a>
 
@@ -444,7 +444,7 @@ export default function AdminOverviewDashboard() {
             <MessageCircle className="w-4 h-4 text-[#00B060] shrink-0 mt-0.5" />
             <div>
               <div className="font-bold text-slate-700">WhatsApp Oficial</div>
-              <div className="text-slate-500">{config?.whatsapp || '(11) 97063-8888'}</div>
+              <div className="text-slate-500">{config?.whatsapp || '(11) 2303-7983'}</div>
             </div>
           </div>
 

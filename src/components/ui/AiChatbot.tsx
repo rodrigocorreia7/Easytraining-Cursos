@@ -116,7 +116,7 @@ export const AiChatbot: React.FC = () => {
         setLeadSuccess(true);
         setShowLeadForm(false);
 
-        const directWhatsapp = `https://wa.me/5511970638888?text=${encodeURIComponent(
+        const directWhatsapp = `https://wa.me/551123037983?text=${encodeURIComponent(
           `Olá! Meu nome é ${leadName.trim()}. Acabei de preencher o formulário no site com a Izzy para o curso de ${leadCourse} (${leadShift}) e gostaria de garantir minha condição especial.`
         )}`;
 
@@ -326,7 +326,7 @@ export const AiChatbot: React.FC = () => {
                   {m.role === 'assistant' && m.id !== 'welcome' && (
                     <div className="mt-2.5 pt-2 border-t border-slate-700/60">
                       <a
-                        href={`https://wa.me/5511970638888?text=${encodeURIComponent('Olá! Estive conversando com a Izzy no site e gostaria de falar com a equipe da EasyTraining.')}`}
+                        href={`https://wa.me/551123037983?text=${encodeURIComponent('Olá! Estive conversando com a Izzy no site e gostaria de falar com a equipe da EasyTraining.')}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#00874A] hover:bg-[#00703c] text-white font-bold text-[11px] transition-all shadow-md"

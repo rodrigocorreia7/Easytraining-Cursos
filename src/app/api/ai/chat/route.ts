@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { 
           reply: 'Você enviou várias mensagens em sequência. Por favor, aguarde alguns segundos antes de fazer uma nova pergunta ou fale direto com a nossa secretaria no WhatsApp.',
-          whatsappUrl: 'https://wa.me/5511970638888'
+          whatsappUrl: 'https://wa.me/551123037983'
         }, 
         { status: 429 }
       );
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         reply: 'Olá! Sou a Izzy, consultora educacional da EasyTraining. Meu foco é exclusivamente ajudar você a tirar dúvidas sobre os cursos presenciais, horários e certificados da nossa escola em Guarulhos. Em qual formação você gostaria de se especializar hoje?',
         category: 'Geral & Outros',
-        whatsappUrl: 'https://wa.me/5511970638888'
+        whatsappUrl: 'https://wa.me/551123037983'
       });
     }
 
@@ -140,7 +140,7 @@ DIRETRIZES DE RESPOSTA:
     recordChatMessage(cleanMessage, detectedCategory);
 
     // Gera link de WhatsApp contextualizado
-    const cleanPhone = (config.whatsapp || '11970638888').replace(/\D/g, '');
+    const cleanPhone = (config.whatsapp || '1123037983').replace(/\D/g, '');
     const encodedText = encodeURIComponent(`Olá! Estive conversando com a Izzy no site sobre "${cleanMessage.slice(0, 60)}" e gostaria de falar com a equipe pedagógica.`);
     const whatsappUrl = `https://wa.me/55${cleanPhone}?text=${encodedText}`;
 
@@ -155,7 +155,7 @@ DIRETRIZES DE RESPOSTA:
     return NextResponse.json({
       reply: 'No momento estou com uma oscilação momentânea, mas você pode falar diretamente com nossa equipe no WhatsApp da escola!',
       category: 'Geral & Outros',
-      whatsappUrl: 'https://wa.me/5511970638888'
+      whatsappUrl: 'https://wa.me/551123037983'
     });
   }
 }

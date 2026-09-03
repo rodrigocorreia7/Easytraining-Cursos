@@ -147,7 +147,7 @@ export default function AdminConfigPage() {
               type="text"
               value={config.whatsapp}
               onChange={(e) => setConfig({ ...config, whatsapp: e.target.value })}
-              placeholder="(11) 97063-8888"
+              placeholder="(11) 2303-7983"
               className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 focus:outline-hidden focus:border-[#00B060]"
             />
           </div>
