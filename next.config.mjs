@@ -24,7 +24,7 @@ const nextConfig = {
           },
         ],
       },
-      // 2. Global OWASP Top 10 Security Headers (Canonico Segurança.md)
+      // 2. Global OWASP Top 10 Security Headers (Enterprise Standard)
       {
         source: '/:path*',
         headers: [
@@ -51,6 +51,10 @@ const nextConfig = {
           {
             key: 'X-DNS-Prefetch-Control',
             value: 'on',
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://www.googletagmanager.com https://identitytoolkit.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.google-analytics.com https://*.analytics.google.com https://wa.me; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';",
           },
         ],
       },

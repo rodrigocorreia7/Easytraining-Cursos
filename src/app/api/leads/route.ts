@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getLeadsFromDb, createLead, emptyTrash } from '@/lib/leadsDb';
+import { sanitizeString, sanitizePhone, checkRateLimit, getClientIp } from '@/lib/security';
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,34 +9,58 @@ export async function GET(request: NextRequest) {
 
     const leads = await getLeadsFromDb(isTrash);
     return NextResponse.json(leads);
-  } catch (error: any) {
-    console.error('Erro ao buscar leads:', error);
-    return NextResponse.json({ error: 'Erro ao listar leads' }, { status: 500 });
+  } catch (error) {
+    console.error('Erro seguro ao buscar leads:', error);
+    return NextResponse.json({ error: 'Falha ao consultar contatos.' }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
+    // 1. Rate Limiting Anti-Spam (Máximo de 5 envios a cada 10 minutos por IP)
+    const clientIp = getClientIp(request);
+    const rateCheck = checkRateLimit(`lead_submit:${clientIp}`, 5, 10 * 60 * 1000);
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        { error: 'Muitas tentativas em sequência. Por favor, aguarde alguns minutos ou fale direto no WhatsApp da escola.' },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
-    if (!body.name || !body.phone) {
-      return NextResponse.json({ error: 'Nome e WhatsApp são obrigatórios' }, { status: 400 });
+
+    // 2. Sanitização Rigorosa de Entrada (Anti-XSS & Anti-Injection)
+    const rawName = sanitizeString(body.name, 100);
+    const rawPhone = sanitizePhone(body.phone);
+    const rawCourse = sanitizeString(body.courseInterest, 100) || 'Interesse Geral';
+    const rawShift = sanitizeString(body.preferredShift, 50) || 'Segunda a Sexta - Noite';
+    const rawNotes = sanitizeString(body.notes, 500);
+    const rawSource = sanitizeString(body.source, 50) || 'Chatbot Izzy';
+
+    if (!rawName || rawName.length < 2) {
+      return NextResponse.json({ error: 'Por favor, informe seu nome completo.' }, { status: 400 });
+    }
+
+    const digitsOnly = rawPhone.replace(/\D/g, '');
+    if (digitsOnly.length < 10 || digitsOnly.length > 13) {
+      return NextResponse.json({ error: 'Por favor, informe um número de WhatsApp válido com DDD.' }, { status: 400 });
     }
 
     const lead = await createLead({
-      name: body.name,
-      phone: body.phone,
-      email: body.email || '',
-      courseInterest: body.courseInterest || 'Interesse Geral',
-      preferredShift: body.preferredShift || 'Qualquer',
+      name: rawName,
+      phone: rawPhone,
+      email: sanitizeString(body.email, 120),
+      courseInterest: rawCourse,
+      preferredShift: rawShift,
       status: 'novo',
-      source: body.source || 'Chatbot Izzy',
-      notes: body.notes || ''
+      source: rawSource,
+      notes: rawNotes
     });
 
     return NextResponse.json(lead, { status: 201 });
-  } catch (error: any) {
-    console.error('Erro ao criar lead:', error);
-    return NextResponse.json({ error: 'Erro ao registrar contato' }, { status: 500 });
+  } catch (error) {
+    console.error('Erro seguro ao criar lead:', error);
+    return NextResponse.json({ error: 'Não foi possível registrar seu contato no momento.' }, { status: 500 });
   }
 }
 
@@ -44,10 +69,11 @@ export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     if (searchParams.get('emptyTrash') === 'true') {
       await emptyTrash();
-      return NextResponse.json({ success: true, message: 'Lixeira esvaziada com sucesso' });
+      return NextResponse.json({ success: true, message: 'Lixeira esvaziada com sucesso.' });
     }
-    return NextResponse.json({ error: 'Operação não permitida' }, { status: 400 });
-  } catch (error: any) {
-    return NextResponse.json({ error: 'Erro ao esvaziar lixeira' }, { status: 500 });
+    return NextResponse.json({ error: 'Operação não permitida.' }, { status: 400 });
+  } catch (error) {
+    console.error('Erro seguro ao esvaziar lixeira:', error);
+    return NextResponse.json({ error: 'Erro ao esvaziar lixeira.' }, { status: 500 });
   }
 }
