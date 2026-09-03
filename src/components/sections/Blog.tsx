@@ -106,10 +106,10 @@ export const BlogSection: React.FC = () => {
                 <div className="pt-5 mt-5 border-t border-slate-200/80 flex items-center justify-between">
                   <a
                     href={`/${post.slug}`}
-                    className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#00874A] group-hover:text-[#052e7f] transition-colors"
+                    className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#052e7f] group-hover:text-[#00874A] transition-colors"
                   >
                     <span>Ler Artigo Completo</span>
-                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform text-[#00874A]" />
                   </a>
                 </div>
               </article>

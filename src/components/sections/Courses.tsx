@@ -114,8 +114,8 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ initialCategory 
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="max-w-3xl mx-auto text-center mb-10 space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-50 text-xs font-bold text-[#00B060]">
-            <BookOpen className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-50 text-xs font-bold text-[#065F46]">
+            <BookOpen className="w-3.5 h-3.5 text-[#065F46]" />
             <span>Grade Completa de Cursos</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#052e7f] tracking-tight leading-normal pb-1">

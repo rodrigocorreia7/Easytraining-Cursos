@@ -3,6 +3,9 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'gsap'],
+  },
   images: {
     unoptimized: true,
     remotePatterns: [

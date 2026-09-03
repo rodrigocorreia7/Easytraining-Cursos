@@ -54,7 +54,7 @@ export const CookieConsent: React.FC = () => {
       <div className="text-[11px] text-slate-500 mb-4 pl-11 flex flex-wrap gap-2">
         <a
           href="/politica-de-privacidade"
-          className="text-[#00874A] font-bold hover:underline"
+          className="text-[#052e7f] font-bold hover:underline"
         >
           Política de Privacidade
         </a>
@@ -70,13 +70,13 @@ export const CookieConsent: React.FC = () => {
       <div className="flex items-center gap-2 pl-11">
         <button
           onClick={() => handleAccept('all')}
-          className="flex-1 px-4 py-2.5 rounded-full bg-[#00874A] hover:bg-[#00703C] text-white font-bold text-xs shadow-sm transition-all active:scale-95 cursor-pointer text-center"
+          className="flex-1 px-4 py-2.5 rounded-full bg-[#052e7f] hover:bg-[#042464] text-white font-bold text-xs shadow-sm transition-all active:scale-95 cursor-pointer text-center"
         >
           Aceitar Todos
         </button>
         <button
           onClick={() => handleAccept('necessary')}
-          className="px-3.5 py-2.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-all cursor-pointer"
+          className="px-3.5 py-2.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition-all cursor-pointer"
         >
           Necessários
         </button>

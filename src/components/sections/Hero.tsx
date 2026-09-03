@@ -191,9 +191,9 @@ export const Hero: React.FC = () => {
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-emerald-50 hover:bg-emerald-100 text-[#00874A] border border-emerald-300 text-xs sm:text-sm font-bold rounded-full transition-all active:scale-95"
+            className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-white hover:bg-slate-50 text-[#052e7f] border border-slate-300 text-xs sm:text-sm font-bold rounded-full transition-all active:scale-95 shadow-xs"
           >
-            <MessageCircle className="w-4 h-4" />
+            <MessageCircle className="w-4 h-4 text-[#00874A]" />
             <span>Falar no WhatsApp</span>
           </a>
         </div>

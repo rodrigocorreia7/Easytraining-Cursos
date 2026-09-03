@@ -62,9 +62,7 @@ export const metadata: Metadata = {
   }
 };
 
-import { CookieConsent } from '../components/layout/CookieConsent';
-import { ScrollToTop } from '../components/ui/ScrollToTop';
-import { AiChatbot } from '../components/ui/AiChatbot';
+import { ClientWidgets } from '../components/layout/ClientWidgets';
 
 export default function RootLayout({
   children,
@@ -144,16 +142,16 @@ export default function RootLayout({
           }}
         />
 
-        {/* Google Analytics 4 (GA4) - Inserção Dinâmica */}
+        {/* Google Analytics 4 (GA4) - Inserção Dinâmica Otimizada */}
         {gaId && (
           <>
             <Script
-              strategy="afterInteractive"
+              strategy="lazyOnload"
               src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
             />
             <Script
               id="google-analytics-init"
-              strategy="afterInteractive"
+              strategy="lazyOnload"
               dangerouslySetInnerHTML={{
                 __html: `
                   window.dataLayer = window.dataLayer || [];
@@ -168,11 +166,11 @@ export default function RootLayout({
           </>
         )}
 
-        {/* Google Tag Manager (GTM) - Inserção Dinâmica */}
+        {/* Google Tag Manager (GTM) - Inserção Dinâmica Otimizada */}
         {gtmId && (
           <Script
             id="google-tag-manager"
-            strategy="afterInteractive"
+            strategy="lazyOnload"
             dangerouslySetInnerHTML={{
               __html: `
                 (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -190,7 +188,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="antialiased bg-[#F8FAFC] text-slate-800 selection:bg-[#00874A] selection:text-white">
+      <body suppressHydrationWarning className="antialiased bg-[#F8FAFC] text-slate-800 selection:bg-[#00874A] selection:text-white">
         {gtmId && (
           <noscript>
             <iframe
@@ -202,9 +200,7 @@ export default function RootLayout({
           </noscript>
         )}
         {children}
-        <ScrollToTop />
-        <AiChatbot />
-        <CookieConsent />
+        <ClientWidgets />
       </body>
     </html>
   );
