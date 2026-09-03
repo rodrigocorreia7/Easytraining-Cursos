@@ -11,27 +11,27 @@ import { CoursesSection } from '../components/sections/Courses';
 
 // Dynamic imports for below-the-fold components to reduce initial JS payload on Mobile
 const About = dynamic(() => import('../components/sections/About').then(m => m.About), {
-  ssr: true,
+  ssr: false,
   loading: () => <div className="min-h-[500px] bg-slate-900 animate-pulse" />
 });
 
 const Testimonials = dynamic(() => import('../components/sections/Testimonials').then(m => m.Testimonials), {
-  ssr: true,
+  ssr: false,
   loading: () => <div className="min-h-[400px] bg-slate-50 animate-pulse" />
 });
 
 const BlogSection = dynamic(() => import('../components/sections/Blog').then(m => m.BlogSection), {
-  ssr: true,
+  ssr: false,
   loading: () => <div className="min-h-[400px] bg-white animate-pulse" />
 });
 
 const FAQSection = dynamic(() => import('../components/sections/FAQ').then(m => m.FAQSection), {
-  ssr: true,
+  ssr: false,
   loading: () => <div className="min-h-[400px] bg-slate-50 animate-pulse" />
 });
 
 const ContactSection = dynamic(() => import('../components/sections/Contact').then(m => m.ContactSection), {
-  ssr: true,
+  ssr: false,
   loading: () => <div className="min-h-[500px] bg-white animate-pulse" />
 });
 
