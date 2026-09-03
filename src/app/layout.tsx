@@ -112,6 +112,9 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/logo1.png" />
         <link rel="dns-prefetch" href="https://wa.me" />
         <link rel="dns-prefetch" href="https://api.whatsapp.com" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
         <link rel="preload" as="image" href="/images/robot/image-hero.webp" type="image/webp" fetchPriority="high" />
         {/* Agentic Navigation & LLM discovery */}
         <link rel="llms" href="/llms.txt" />
