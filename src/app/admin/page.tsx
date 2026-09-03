@@ -8,12 +8,13 @@ import { Course, BlogPost } from '../../types';
 import { 
   BookOpen, FileText, Settings, Plus, ExternalLink, 
   CheckCircle2, TrendingUp, Bot, MessageCircle, 
-  Phone, MapPin, RefreshCw, ArrowUpRight, HelpCircle, Activity, BrainCircuit
+  Phone, MapPin, RefreshCw, ArrowUpRight, HelpCircle, Activity, BrainCircuit, Users
 } from 'lucide-react';
 
 export default function AdminOverviewDashboard() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [leadsCount, setLeadsCount] = useState(0);
   const [config, setConfig] = useState<SiteConfig | null>(null);
   const [aiMetrics, setAiMetrics] = useState<{
     articlesGenerated: number;
@@ -28,16 +29,19 @@ export default function AdminOverviewDashboard() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [coursesData, postsData, configData, metricsRes] = await Promise.all([
+      const [coursesData, postsData, configData, metricsRes, leadsRes] = await Promise.all([
         CourseService.getAllCourses(),
         BlogService.getAllPosts(),
         SiteConfigService.getConfig(),
-        fetch('/api/ai/metrics').then(r => r.json()).catch(() => null)
+        fetch('/api/ai/metrics').then(r => r.json()).catch(() => null),
+        fetch('/api/leads').then(r => r.json()).catch(() => [])
       ]);
+
       setCourses(coursesData);
       setPosts(postsData);
       setConfig(configData);
       if (metricsRes) setAiMetrics(metricsRes);
+      if (Array.isArray(leadsRes)) setLeadsCount(leadsRes.length);
     } catch (err) {
       console.error('Erro ao carregar dados do dashboard:', err);
     } finally {
@@ -168,17 +172,20 @@ export default function AdminOverviewDashboard() {
           </div>
         </a>
 
-        {/* Status */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+        {/* Leads (CRM) */}
+        <a 
+          href="/admin/leads"
+          className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:border-purple-300 hover:shadow-md transition-all group"
+        >
           <div className="flex items-center justify-between mb-3">
-            <div className="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
-              <TrendingUp className="w-5 h-5" />
+            <div className="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <Users className="w-5 h-5" />
             </div>
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+            <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-purple-600 transition-colors" />
           </div>
-          <span className="text-xs text-slate-500 font-medium">Categorias Únicas</span>
-          <div className="text-2xl font-black text-slate-900 mt-1">{loading ? '...' : totalCategories}</div>
-        </div>
+          <span className="text-xs text-slate-500 font-medium">Pipeline de Leads (CRM)</span>
+          <div className="text-2xl font-black text-slate-900 mt-1">{loading ? '...' : leadsCount}</div>
+        </a>
 
       </div>
 

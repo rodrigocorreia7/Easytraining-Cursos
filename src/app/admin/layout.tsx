@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { AuthService } from '../../services/authService';
 import { 
   LayoutDashboard, BookOpen, FileText, Settings, 
-  PlusCircle, Globe, LogOut, ShieldCheck, User 
+  PlusCircle, Globe, LogOut, ShieldCheck, User, Users 
 } from 'lucide-react';
 import { AdminUser } from '../../types';
 
@@ -69,6 +69,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       active: pathname.startsWith('/admin/posts'),
       icon: FileText,
       color: 'text-amber-400'
+    },
+    {
+      name: 'Leads (CRM)',
+      href: '/admin/leads',
+      active: pathname.startsWith('/admin/leads'),
+      icon: Users,
+      color: 'text-purple-400'
     },
     {
       name: 'Configurações & Links',
