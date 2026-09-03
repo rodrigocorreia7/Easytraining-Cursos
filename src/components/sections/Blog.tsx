@@ -29,8 +29,8 @@ export const BlogSection: React.FC = () => {
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="max-w-3xl mx-auto text-center mb-16 space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-50 text-xs font-bold text-[#00874A]">
-            <Newspaper className="w-3.5 h-3.5 text-[#00874A]" />
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-50 text-xs font-bold text-[#065F46]">
+            <Newspaper className="w-3.5 h-3.5 text-[#065F46]" />
             <span>Blog Oficial EasyTraining</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-black text-[#052e7f] tracking-tight leading-normal pb-1">

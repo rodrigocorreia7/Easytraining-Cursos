@@ -157,7 +157,7 @@ export const Testimonials: React.FC = () => {
                       <Star key={i} className="w-4 h-4 fill-[#FFB800] text-[#FFB800]" />
                     ))}
                   </div>
-                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-[#00874A] text-[11px] font-bold">
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-[#065F46] text-[11px] font-bold">
                     {r.course}
                   </span>
                 </div>
