@@ -37,10 +37,10 @@ const ContactSection = dynamic(() => import('../components/sections/Contact').th
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-800 selection:bg-[#00B060] selection:text-white font-sans antialiased">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-800 selection:bg-[#00874A] selection:text-white font-sans antialiased overflow-x-hidden w-full max-w-full relative">
       <Header />
       
-      <main id="main-content">
+      <main id="main-content" className="overflow-x-hidden w-full max-w-full">
         <Hero />
         <Methodology />
         <CoursesSection />

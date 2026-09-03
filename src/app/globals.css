@@ -27,6 +27,9 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+  width: 100% !important;
 }
 
 body {
@@ -35,7 +38,12 @@ body {
   color: #334155;
   background-color: #F8FAFC;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  overflow-x: hidden;
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+  width: 100% !important;
+  position: relative;
+  touch-action: pan-y !important;
+  -webkit-overflow-scrolling: touch;
 }
 
 ::selection {
@@ -58,24 +66,22 @@ body {
   font-size: 1.65rem;
   font-weight: 700;
   color: #052e7f;
-  margin-top: 2.5rem;
+  margin-top: 2.2rem;
   margin-bottom: 1rem;
   line-height: 1.3;
 }
 
 .prose-article h3 {
   font-size: 1.3rem;
-  font-weight: 700;
-  color: #0A2540;
-  margin-top: 2rem;
-  margin-bottom: 0.75rem;
+  font-weight: 600;
+  color: #00874A;
+  margin-top: 1.8rem;
+  margin-bottom: 0.8rem;
 }
 
 .prose-article ul, .prose-article ol {
-  margin-top: 1rem;
   margin-bottom: 1.5rem;
   padding-left: 1.5rem;
-  list-style-type: disc;
 }
 
 .prose-article li {
@@ -83,84 +89,54 @@ body {
 }
 
 .prose-article strong {
-  font-weight: 700;
   color: #0f172a;
-}
-
-.prose-article a {
-  color: #00B060;
-  text-decoration: underline;
-  text-underline-offset: 3px;
   font-weight: 600;
-  transition: color 0.2s;
 }
 
-.prose-article a:hover {
-  color: #0477BF;
+.prose-article blockquote {
+  border-left: 4px solid #00B060;
+  padding-left: 1.25rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: #475569;
+  background: #f0fdf4;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-radius: 0 0.5rem 0.5rem 0;
 }
 
-.prose-article figure {
-  margin: 2rem 0;
+/* Base custom animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.prose-article img {
-  border-radius: 1rem;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  margin-left: auto;
-  margin-right: auto;
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.03); }
 }
 
-/* GPU Accelerated Fluid Aurora Animations for Mobile & Desktop */
-@keyframes aurora-blob-1 {
-  0%, 100% {
-    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
-  }
-  33% {
-    transform: translate3d(40px, -60px, 0) scale(1.25) rotate(45deg);
-  }
-  66% {
-    transform: translate3d(-30px, 30px, 0) scale(0.9) rotate(-30deg);
-  }
+.animate-pulse-glow {
+  animation: pulseGlow 4s infinite ease-in-out;
 }
 
-@keyframes aurora-blob-2 {
-  0%, 100% {
-    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
-  }
-  33% {
-    transform: translate3d(-50px, 45px, 0) scale(1.2) rotate(-45deg);
-  }
-  66% {
-    transform: translate3d(35px, -35px, 0) scale(0.85) rotate(30deg);
-  }
+/* Marquee / LogoLoop Keyframes */
+@keyframes logoLoopTrack {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
 }
 
-@keyframes aurora-blob-3 {
-  0%, 100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  50% {
-    transform: translate3d(45px, 35px, 0) scale(1.35);
-  }
-}
-
-.animate-aurora-1 {
-  animation: aurora-blob-1 12s infinite ease-in-out alternate;
-  will-change: transform;
-}
-.animate-aurora-2 {
-  animation: aurora-blob-2 16s infinite ease-in-out alternate;
-  will-change: transform;
-}
-.animate-aurora-3 {
-  animation: aurora-blob-3 10s infinite ease-in-out alternate;
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: logoLoopTrack var(--marquee-duration, 35s) linear infinite;
   will-change: transform;
 }
 
+.animate-marquee:hover {
+  animation-play-state: paused;
+}

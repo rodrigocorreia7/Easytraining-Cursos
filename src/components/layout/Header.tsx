@@ -66,8 +66,8 @@ export const Header: React.FC<HeaderProps> = () => {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-40 w-full max-w-[1440px] mx-auto p-2 sm:p-3 pointer-events-none">
-        <div className="bg-white/95 backdrop-blur-md rounded-full pl-2.5 pr-2.5 sm:px-4 py-1.5 sm:py-2 flex items-center justify-between shadow-[0_4px_25px_rgba(11,79,156,0.08)] border border-white/80 pointer-events-auto transition-all">
+      <header className="fixed top-0 inset-x-0 z-40 w-full max-w-[1440px] mx-auto px-2.5 py-2 sm:px-4 sm:py-3 pointer-events-none box-border">
+        <div className="bg-white/95 backdrop-blur-md rounded-full px-3 sm:px-4 py-1.5 sm:py-2 flex items-center justify-between shadow-[0_4px_25px_rgba(11,79,156,0.08)] border border-white/80 pointer-events-auto transition-all w-full max-w-full box-border">
           
           {/* ========================================================= */}
           {/* 1. DESKTOP NAVIGATION (PillNav + Socials) */}
