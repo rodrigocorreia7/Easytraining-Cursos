@@ -61,6 +61,13 @@ A Izzy é a consultora virtual oficial da EasyTraining integrada no canto inferi
 - **Backend (`/api/chat`)**: Utiliza `streamText` da biblioteca `ai` com o provider `@ai-sdk/google` (`gemini-2.5-flash`), retornando `toDataStreamResponse()`.
 - **Frontend (`AiChatbot.tsx`)**: Utiliza o hook `useChat` de `ai/react`, garantindo renderização reativa com efeito de digitação suave, feedback animado enquanto digita e preservação do histórico da conversa.
 
+### 3.4. Design em Modo Escuro de Alto Contraste (Dark Mode)
+- **Janela e Fundo**: Azul-noite profundo (`#0A1628` e `#071324`) com bordas `border-slate-700/80` e sombra de profundidade (`shadow-[0_20px_60px_rgba(0,0,0,0.6)]`), eliminando reflexos e proporcionando 100% de contraste e legibilidade no celular e no desktop.
+- **Balões de Mensagem**:
+  - Usuário: Verde esmeralda oficial da escola (`#00874A`) com texto em branco puro.
+  - Izzy (IA): Azul escuro de destaque (`#112240`) com borda suave e texto `text-slate-100`.
+- **Inputs e Formulário**: Campos escuros com texto branco, foco em verde e botões com máxima visibilidade.
+
 ---
 
 ## 4. Pipeline de Leads & Mini-CRM Kanban (`/admin/leads`)
