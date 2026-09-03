@@ -96,6 +96,27 @@ export async function seedCoursesToFirestore(coursesList: Course[]): Promise<voi
 // 2. BLOG POSTS
 // ============================================================================
 
+function sanitizePostMedia(p: BlogPost): BlogPost {
+  if (!p) return p;
+  let image = p.image || '';
+  if (image.includes('wp-content/uploads/')) {
+    const filename = image.split('/').pop() || '';
+    image = `/images/courses/${filename}`;
+  }
+  let contentHtml = p.contentHtml || '';
+  if (contentHtml.includes('wp-content/uploads/')) {
+    contentHtml = contentHtml.replace(/https:\/\/easytraining\.com\.br\/wp-content\/uploads\/[^\s"'>]+/g, (m) => {
+      const fn = m.split('/').pop() || '';
+      return `/images/courses/${fn}`;
+    });
+  }
+  return {
+    ...p,
+    image: image || '/images/courses/Curso-de-informatica-basica-em-guarulhos.png',
+    contentHtml
+  };
+}
+
 export async function getPostsFromFirestore(): Promise<BlogPost[]> {
   const localPosts = getStoredPosts();
 
@@ -107,17 +128,17 @@ export async function getPostsFromFirestore(): Promise<BlogPost[]> {
 
     if (snapshot.empty) {
       seedPostsToFirestore(localPosts).catch(() => {});
-      return localPosts;
+      return localPosts.map(sanitizePostMedia);
     }
 
     const postsMap = new Map<string, BlogPost>();
     // 1. Base prévia local
-    localPosts.forEach((p) => postsMap.set(String(p.slug).toLowerCase(), p));
+    localPosts.forEach((p) => postsMap.set(String(p.slug).toLowerCase(), sanitizePostMedia(p)));
     // 2. Mescla e prioriza novos posts e edições vindos do Firestore
     snapshot.forEach((d) => {
       const data = d.data() as BlogPost;
       if (data && data.slug) {
-        postsMap.set(String(data.slug).toLowerCase(), data);
+        postsMap.set(String(data.slug).toLowerCase(), sanitizePostMedia(data));
       }
     });
 
@@ -126,7 +147,7 @@ export async function getPostsFromFirestore(): Promise<BlogPost[]> {
     return posts;
   } catch (error: any) {
     console.warn('Fallback para posts locais devido a erro no Firestore:', error?.message);
-    return localPosts;
+    return localPosts.map(sanitizePostMedia);
   }
 }
 

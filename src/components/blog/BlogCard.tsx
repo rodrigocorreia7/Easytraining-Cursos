@@ -27,10 +27,17 @@ export const BlogCard: React.FC<BlogCardProps> = ({ post, featured = false }) =>
         }`}
       >
         <img
-          src={post.image}
+          src={post.image?.includes('wp-content/uploads/') 
+            ? `/images/courses/${post.image.split('/').pop()}` 
+            : (post.image || '/images/courses/Curso-de-informatica-basica-em-guarulhos.png')}
           alt={post.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
+          onError={(e) => {
+            const target = e.currentTarget;
+            target.onerror = null;
+            target.src = '/images/courses/Curso-de-informatica-basica-em-guarulhos.png';
+          }}
         />
         <div className="absolute top-4 left-4">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-white/95 text-[#052e7f] backdrop-blur-md shadow-xs border border-white/80">
