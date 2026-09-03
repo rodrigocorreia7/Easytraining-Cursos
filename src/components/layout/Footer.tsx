@@ -12,9 +12,11 @@ export const Footer: React.FC = () => {
   const [loadMap, setLoadMap] = useState(false);
 
   useEffect(() => {
-    SiteConfigService.getConfig().then((data) => {
-      if (data) setConfig(data);
-    }).catch(console.error);
+    const timer = setTimeout(() => {
+      SiteConfigService.getConfig().then((data) => {
+        if (data) setConfig(data);
+      }).catch(console.error);
+    }, 5000);
 
     const el = mapRef.current;
     if (!el) return;

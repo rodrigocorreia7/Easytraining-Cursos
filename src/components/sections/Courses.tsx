@@ -30,17 +30,14 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ initialCategory 
   const [activeCourse, setActiveCourse] = useState<Course | null>(null);
 
   useEffect(() => {
-    async function loadDynamicCourses() {
-      try {
-        const data = await CourseService.getAllCourses();
+    const timer = setTimeout(() => {
+      CourseService.getAllCourses().then((data) => {
         if (data && data.length > 0) {
           setCoursesList(data);
         }
-      } catch (err) {
-        console.error('Erro ao carregar cursos dinâmicos:', err);
-      }
-    }
-    loadDynamicCourses();
+      }).catch(console.error);
+    }, 4000);
+    return () => clearTimeout(timer);
   }, []);
 
   const categoryCounts = useMemo(() => {

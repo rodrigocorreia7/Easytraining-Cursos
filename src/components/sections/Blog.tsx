@@ -11,17 +11,14 @@ export const BlogSection: React.FC = () => {
   const [posts, setPosts] = useState<BlogPost[]>(defaultPosts);
 
   useEffect(() => {
-    async function loadDynamicPosts() {
-      try {
-        const data = await BlogService.getAllPosts();
+    const timer = setTimeout(() => {
+      BlogService.getAllPosts().then((data) => {
         if (data && data.length > 0) {
           setPosts(data);
         }
-      } catch (err) {
-        console.error('Erro ao carregar posts para BlogSection:', err);
-      }
-    }
-    loadDynamicPosts();
+      }).catch(console.error);
+    }, 4500);
+    return () => clearTimeout(timer);
   }, []);
 
   // Show top 3 recent posts on landing page
@@ -109,7 +106,7 @@ export const BlogSection: React.FC = () => {
                 <div className="pt-5 mt-5 border-t border-slate-200/80 flex items-center justify-between">
                   <a
                     href={`/${post.slug}`}
-                    className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#00B060] group-hover:text-[#052e7f] transition-colors"
+                    className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#00874A] group-hover:text-[#052e7f] transition-colors"
                   >
                     <span>Ler Artigo Completo</span>
                     <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />

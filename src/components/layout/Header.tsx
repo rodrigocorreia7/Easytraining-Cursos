@@ -34,13 +34,18 @@ export const Header: React.FC<HeaderProps> = () => {
     };
 
     updateTime();
-    const interval = setInterval(updateTime, 1000);
+    const interval = setInterval(updateTime, 30000);
 
-    SiteConfigService.getConfig().then((data) => {
-      if (data) setConfig(data);
-    }).catch(console.error);
+    const timer = setTimeout(() => {
+      SiteConfigService.getConfig().then((data) => {
+        if (data) setConfig(data);
+      }).catch(console.error);
+    }, 5000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timer);
+    };
   }, []);
 
   // Fecha o menu mobile se a tela for redimensionada para desktop

@@ -74,7 +74,7 @@ export const ContactSection: React.FC = () => {
                     href="https://www.google.com/maps/search/?api=1&query=Av.+Jurema,+814+-+Parque+Jurema,+Guarulhos+-+SP,+07244-000"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs font-bold text-[#00B060] hover:underline mt-1"
+                    className="inline-flex items-center gap-1 text-xs font-bold text-[#00874A] hover:underline mt-1"
                   >
                     Ver no Google Maps →
                   </a>
@@ -82,12 +82,12 @@ export const ContactSection: React.FC = () => {
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#00B060] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#00874A] flex items-center justify-center shrink-0 mt-0.5">
                   <MessageCircle className="w-4 h-4" />
                 </div>
                 <div>
                   <p className="font-bold text-[#052e7f]">WhatsApp de Atendimento:</p>
-                  <p className="font-bold text-[#00B060]">{config.whatsapp}</p>
+                  <p className="font-bold text-[#00874A]">{config.whatsapp}</p>
                 </div>
               </div>
 
