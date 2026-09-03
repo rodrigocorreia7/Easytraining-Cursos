@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ai, GEMINI_MODEL } from '@/lib/gemini';
+import { ai, GEMINI_MODEL, GEMINI_FALLBACK_MODEL } from '@/lib/gemini';
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,15 +27,29 @@ Retorne EXCLUSIVAMENTE um objeto JSON válido (sem tags markdown de bloco de có
 Categoria de preferência: ${category || 'Mercado de Trabalho'}.
 O artigo deve ter pelo menos 4 seções com <h2>, formatação HTML limpa (<p>, <ul>, <li>, <strong>), dicas práticas de carreira e um incentivo final para quem busca qualificação em Guarulhos.`;
 
-    const response = await ai.models.generateContent({
-      model: GEMINI_MODEL,
-      contents: prompt,
-      config: {
-        systemInstruction,
-        responseMimeType: 'application/json',
-        temperature: 0.7
-      }
-    });
+    let response;
+    try {
+      response = await ai.models.generateContent({
+        model: GEMINI_MODEL,
+        contents: prompt,
+        config: {
+          systemInstruction,
+          responseMimeType: 'application/json',
+          temperature: 0.7
+        }
+      });
+    } catch (err) {
+      console.warn('Fallback para modelo secundário em generate-post:', err);
+      response = await ai.models.generateContent({
+        model: GEMINI_FALLBACK_MODEL,
+        contents: prompt,
+        config: {
+          systemInstruction,
+          responseMimeType: 'application/json',
+          temperature: 0.7
+        }
+      });
+    }
 
     const text = response.text || '{}';
     const postData = JSON.parse(text);

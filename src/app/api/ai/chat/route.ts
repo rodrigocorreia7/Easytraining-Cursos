@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
-import { ai, GEMINI_MODEL } from '@/lib/gemini';
+import { ai, GEMINI_MODEL, GEMINI_FALLBACK_MODEL } from '@/lib/gemini';
 import { getCoursesFromFirestore } from '@/lib/firestoreDb';
 import { getStoredSiteConfig } from '@/lib/db';
 import { recordChatMessage } from '@/lib/aiMetrics';
@@ -66,14 +66,27 @@ DIRETRIZES DE RESPOSTA:
 
     const prompt = `Pergunta do visitante: "${message}"`;
 
-    const response = await ai.models.generateContent({
-      model: GEMINI_MODEL,
-      contents: prompt,
-      config: {
-        systemInstruction,
-        temperature: 0.5
-      }
-    });
+    let response;
+    try {
+      response = await ai.models.generateContent({
+        model: GEMINI_MODEL,
+        contents: prompt,
+        config: {
+          systemInstruction,
+          temperature: 0.5
+        }
+      });
+    } catch (err) {
+      console.warn('Fallback para modelo secundário:', err);
+      response = await ai.models.generateContent({
+        model: GEMINI_FALLBACK_MODEL,
+        contents: prompt,
+        config: {
+          systemInstruction,
+          temperature: 0.5
+        }
+      });
+    }
 
     let replyText = response.text || 'Olá! Como posso te ajudar hoje na EasyTraining?';
 
