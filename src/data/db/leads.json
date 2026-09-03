@@ -10,6 +10,7 @@
     "source": "Chatbot Izzy",
     "notes": "Lead de demonstração do sistema para visualizar no Firestore.",
     "isDeleted": false,
-    "createdAt": "2026-09-03T01:30:05.703Z"
+    "createdAt": "2026-09-03T01:30:05.703Z",
+    "lastContactAt": "2026-09-03T01:45:55.645Z"
   }
 ]

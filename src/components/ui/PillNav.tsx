@@ -380,13 +380,13 @@ export const PillNav: React.FC<PillNavProps> = ({
           </ul>
         </div>
 
-        {/* MOBILE HAMBURGER BUTTON */}
+        {/* MOBILE HAMBURGER BUTTON (Handled by Header) */}
         <button
           ref={hamburgerRef}
           onClick={toggleMobileMenu}
           aria-label="Abrir Menu de Navegação"
           aria-expanded={isMobileMenuOpen}
-          className="md:hidden rounded-full border border-slate-200 flex flex-col items-center justify-center gap-1.5 cursor-pointer p-0 relative shadow-2xs bg-white"
+          className="hidden"
           style={{
             width: 'var(--nav-h)',
             height: 'var(--nav-h)'
@@ -401,10 +401,10 @@ export const PillNav: React.FC<PillNavProps> = ({
         </button>
       </nav>
 
-      {/* MOBILE MENU DROPDOWN */}
+      {/* MOBILE MENU DROPDOWN (Handled by Header) */}
       <div
         ref={mobileMenuRef}
-        className="md:hidden absolute top-[3.5em] left-0 right-0 rounded-3xl shadow-2xl z-[998] origin-top border border-slate-200 bg-white/98 backdrop-blur-xl p-2 overflow-hidden"
+        className="hidden"
       >
         <ul className="list-none m-0 p-1 flex flex-col gap-1.5">
           {items.map(item => {
