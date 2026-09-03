@@ -10,18 +10,21 @@ const LEADS_FILE = path.join(DB_DIR, 'leads.json');
 const LEADS_COLLECTION = 'leads';
 
 function ensureDbDir() {
-  if (!fs.existsSync(DB_DIR)) {
-    fs.mkdirSync(DB_DIR, { recursive: true });
+  try {
+    if (!fs.existsSync(DB_DIR)) {
+      fs.mkdirSync(DB_DIR, { recursive: true });
+    }
+  } catch {
+    // Sistema de arquivos somente-leitura na Vercel
   }
 }
 
 export function getLocalLeads(): Lead[] {
-  ensureDbDir();
-  if (!fs.existsSync(LEADS_FILE)) {
-    fs.writeFileSync(LEADS_FILE, JSON.stringify([], null, 2), 'utf-8');
-    return [];
-  }
   try {
+    ensureDbDir();
+    if (!fs.existsSync(LEADS_FILE)) {
+      return [];
+    }
     const raw = fs.readFileSync(LEADS_FILE, 'utf-8');
     return JSON.parse(raw);
   } catch (error) {
@@ -30,8 +33,13 @@ export function getLocalLeads(): Lead[] {
 }
 
 export function saveLocalLeads(leads: Lead[]): void {
-  ensureDbDir();
-  fs.writeFileSync(LEADS_FILE, JSON.stringify(leads, null, 2), 'utf-8');
+  try {
+    ensureDbDir();
+    fs.writeFileSync(LEADS_FILE, JSON.stringify(leads, null, 2), 'utf-8');
+  } catch {
+    // Em ambientes serverless (Vercel), ignora erro de disco somente-leitura
+    // pois a persistência oficial é o Google Cloud Firestore
+  }
 }
 
 export async function getLeadsFromDb(includeTrash = false): Promise<Lead[]> {

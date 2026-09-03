@@ -33,8 +33,12 @@ export function getStoredCourses(): Course[] {
 }
 
 export function saveStoredCourses(courses: Course[]): void {
-  ensureDbDir();
-  fs.writeFileSync(COURSES_FILE, JSON.stringify(courses, null, 2), 'utf-8');
+  try {
+    ensureDbDir();
+    fs.writeFileSync(COURSES_FILE, JSON.stringify(courses, null, 2), 'utf-8');
+  } catch {
+    // Ambiente serverless somente-leitura
+  }
 }
 
 export function resetStoredCourses(): Course[] {
@@ -44,23 +48,26 @@ export function resetStoredCourses(): Course[] {
 
 // ---------------------- POSTS ----------------------
 export function getStoredPosts(): BlogPost[] {
-  ensureDbDir();
-  if (!fs.existsSync(POSTS_FILE)) {
-    saveStoredPosts(defaultPosts);
-    return defaultPosts;
-  }
   try {
+    ensureDbDir();
+    if (!fs.existsSync(POSTS_FILE)) {
+      saveStoredPosts(defaultPosts);
+      return defaultPosts;
+    }
     const raw = fs.readFileSync(POSTS_FILE, 'utf-8');
     return JSON.parse(raw);
   } catch (error) {
-    console.error('Erro ao ler posts.json:', error);
     return defaultPosts;
   }
 }
 
 export function saveStoredPosts(posts: BlogPost[]): void {
-  ensureDbDir();
-  fs.writeFileSync(POSTS_FILE, JSON.stringify(posts, null, 2), 'utf-8');
+  try {
+    ensureDbDir();
+    fs.writeFileSync(POSTS_FILE, JSON.stringify(posts, null, 2), 'utf-8');
+  } catch {
+    // Ambiente serverless somente-leitura
+  }
 }
 
 export function resetStoredPosts(): BlogPost[] {
@@ -72,23 +79,26 @@ export function resetStoredPosts(): BlogPost[] {
 export type SiteConfigType = typeof defaultSiteConfig;
 
 export function getStoredSiteConfig(): SiteConfigType {
-  ensureDbDir();
-  if (!fs.existsSync(CONFIG_FILE)) {
-    saveStoredSiteConfig(defaultSiteConfig);
-    return defaultSiteConfig;
-  }
   try {
+    ensureDbDir();
+    if (!fs.existsSync(CONFIG_FILE)) {
+      saveStoredSiteConfig(defaultSiteConfig);
+      return defaultSiteConfig;
+    }
     const raw = fs.readFileSync(CONFIG_FILE, 'utf-8');
     return JSON.parse(raw);
   } catch (error) {
-    console.error('Erro ao ler siteConfig.json:', error);
     return defaultSiteConfig;
   }
 }
 
 export function saveStoredSiteConfig(config: SiteConfigType): void {
-  ensureDbDir();
-  fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), 'utf-8');
+  try {
+    ensureDbDir();
+    fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), 'utf-8');
+  } catch {
+    // Ambiente serverless somente-leitura
+  }
 }
 
 export function resetStoredSiteConfig(): SiteConfigType {
