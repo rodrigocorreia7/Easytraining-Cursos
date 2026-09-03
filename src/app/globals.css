@@ -93,6 +93,20 @@ body {
   font-weight: 600;
 }
 
+.prose-article a {
+  color: #00874A;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: rgba(0, 176, 96, 0.45);
+  text-underline-offset: 3px;
+  transition: all 0.2s ease-in-out;
+}
+
+.prose-article a:hover {
+  color: #052e7f;
+  text-decoration-color: #052e7f;
+}
+
 .prose-article blockquote {
   border-left: 4px solid #00B060;
   padding-left: 1.25rem;

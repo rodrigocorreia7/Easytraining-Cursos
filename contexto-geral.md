@@ -119,7 +119,7 @@ Um sistema de CRM completo integrado ao painel administrativo para controle do f
 
 - **Visão Geral (`/admin`)**: Indicadores em tempo real (Total de Cursos, Artigos, Leads Ativos, Mensagens respondidas pela IA).
 - **Gerenciamento de Cursos (`/admin/courses`)**: CRUD de 19 cursos com upload de fotos, controle de módulos, duração e tags.
-- **Gerenciamento de Artigos (`/admin/posts`)**: CRUD de artigos de blog com editor rico e **Redator com Inteligência Artificial** (gera artigos prontos e otimizados para SEO via Gemini com 1 clique).
+- **Gerenciamento de Artigos (`/admin/posts`)**: CRUD de artigos de blog com editor rico, **Redator com IA (Gemini)** com injeção automática de links internos para cursos e conversão, e **Assistente de Linkagem Interna ("🔗 Otimizar Links Internos")** para enriquecer artigos manuais ou antigos transferindo Page Authority (PA) para os cursos.
 - **Configurações Gerais (`/admin/config`)**: WhatsApp, telefone comercial, horários, endereço, redes sociais, Google Meu Negócio, e IDs do Google Analytics 4 e Google Tag Manager.
 - **Métricas de IA (`/admin/page.tsx`)**: Monitoramento de perguntas frequentes, tópicos mais consultados e artigos redigidos por IA.
 

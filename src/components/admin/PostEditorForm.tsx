@@ -84,6 +84,45 @@ export const PostEditorForm: React.FC<PostEditorFormProps> = ({ initialPost, isE
     }
   };
 
+  // SEO Internal Links Optimizer Assistant
+  const [optimizingLinks, setOptimizingLinks] = useState(false);
+  const handleOptimizeLinks = async () => {
+    if (!contentHtml || contentHtml.trim().length < 50) {
+      setMessage({ 
+        type: 'error', 
+        text: 'Insira ou redija pelo menos 50 caracteres no conteúdo antes de otimizar os links internos.' 
+      });
+      return;
+    }
+
+    setOptimizingLinks(true);
+    setMessage(null);
+
+    try {
+      const res = await fetch('/api/ai/link-assist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contentHtml, category })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Falha ao otimizar links.');
+      }
+
+      setContentHtml(data.optimizedHtml);
+      const summaryText = data.summary?.length ? ` (${data.summary.join(' • ')})` : '';
+      setMessage({
+        type: 'success',
+        text: `Links internos aplicados com sucesso! ${data.linksAdded} link(s) semânticos para cursos e conversão foram inseridos.${summaryText}`
+      });
+    } catch (err: any) {
+      setMessage({ type: 'error', text: err?.message || 'Falha ao processar linkagem interna de SEO.' });
+    } finally {
+      setOptimizingLinks(false);
+    }
+  };
+
   // Auto-generate slug from title
   const handleTitleChange = (val: string) => {
     setTitle(val);
@@ -346,13 +385,26 @@ export const PostEditorForm: React.FC<PostEditorFormProps> = ({ initialPost, isE
 
             {/* Content Body */}
             <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-3">
-              <div className="flex items-center justify-between">
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                  Conteúdo do Artigo (HTML / Texto Formatado) *
-                </label>
-                <span className="text-[11px] text-slate-400">
-                  Suporta tags HTML como &lt;h2&gt;, &lt;p&gt;, &lt;strong&gt;, &lt;ul&gt;, &lt;img&gt;
-                </span>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    Conteúdo do Artigo (HTML / Texto Formatado) *
+                  </label>
+                  <span className="text-[11px] text-slate-400">
+                    Suporta tags HTML como &lt;h2&gt;, &lt;p&gt;, &lt;strong&gt;, &lt;ul&gt;, &lt;a&gt;
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleOptimizeLinks}
+                  disabled={optimizingLinks || !contentHtml}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 active:bg-emerald-200 text-[#00874A] border border-emerald-200 text-xs font-bold transition-all cursor-pointer disabled:opacity-50 self-start sm:self-auto shadow-xs"
+                  title="Escanear o texto e inserir links contextuais para os cursos da escola para fortalecer DA e PA no Google"
+                >
+                  <LinkIcon className={`w-3.5 h-3.5 ${optimizingLinks ? 'animate-spin' : ''}`} />
+                  <span>{optimizingLinks ? 'Otimizando Links (SEO)...' : '🔗 Otimizar Links Internos (SEO)'}</span>
+                </button>
               </div>
 
               <textarea
