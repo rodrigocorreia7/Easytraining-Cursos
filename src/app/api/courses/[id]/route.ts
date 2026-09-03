@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCoursesFromFirestore, saveCourseToFirestore, deleteCourseFromFirestore } from '@/lib/firestoreDb';
 import { saveStoredCourses } from '@/lib/db';
 import { Course } from '@/types';
-import { sanitizeString, sanitizeObject } from '@/lib/security';
+import { sanitizeString, sanitizeObject, sanitizeHtmlContent } from '@/lib/security';
 
 export async function GET(
   request: NextRequest,
@@ -39,13 +39,17 @@ export async function PUT(
       return NextResponse.json({ error: 'Curso não encontrado.' }, { status: 404 });
     }
 
+    const rawFullDesc = rawBody.fullDescription !== undefined 
+      ? rawBody.fullDescription 
+      : (body.fullDescription || courses[index].fullDescription);
+
     const updatedCourse: Course = {
       ...courses[index],
       ...body,
       id: courses[index].id,
       title: sanitizeString(body.title || courses[index].title, 120),
       shortDescription: sanitizeString(body.shortDescription || courses[index].shortDescription, 280),
-      fullDescription: sanitizeString(body.fullDescription || courses[index].fullDescription, 2000),
+      fullDescription: sanitizeHtmlContent(rawFullDesc, 50000),
       duration: sanitizeString(body.duration || courses[index].duration, 50),
       image: sanitizeString(body.image || courses[index].image, 255),
       whatsappMessage: sanitizeString(body.whatsappMessage || courses[index].whatsappMessage, 200)

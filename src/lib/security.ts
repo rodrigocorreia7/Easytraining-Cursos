@@ -34,12 +34,48 @@ export function sanitizeString(input: unknown, maxLength = 255): string {
 }
 
 /**
+ * Sanitiza conteúdo HTML rico para artigos de blog e descrições completas:
+ * - Preserva tags e estrutura HTML semântica (<p>, <h2>, <h3>, <h4>, <ul>, <ol>, <li>, <a>, <img>, <strong>, <em>, <blockquote>, <figure>, etc.)
+ * - Remove scripts (<script>), manipuladores inline de eventos (onload, onclick, onerror, etc.) e esquemas javascript:
+ * - Suporta artigos extensos e profundos (limite expansivo de 500.000 caracteres, ~70 mil palavras)
+ */
+export function sanitizeHtmlContent(input: unknown, maxLength = 500000): string {
+  if (typeof input !== 'string') return '';
+
+  return input
+    .slice(0, maxLength)
+    // Remove tags de script e seus conteúdos
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    // Remove manipuladores de evento inline como onclick, onerror, onload, etc.
+    .replace(/\son\w+\s*=\s*(['"]).*?\1/gi, '')
+    .replace(/\son\w+\s*=\s*[^>\s]+/gi, '')
+    // Desativa esquemas javascript: em links e fontes
+    .replace(/href\s*=\s*(['"])javascript:[^'"]*\1/gi, 'href="#"')
+    .replace(/src\s*=\s*(['"])javascript:[^'"]*\1/gi, '')
+    // Remove operadores de injeção NoSQL no corpo do texto
+    .replace(/(\$where|\$regex)/gi, '')
+    // Remove caracteres de controle nulos e perigosos
+    .replace(/[\u0000-\u0008\u000B-\u000C\u000E-\u001F]/g, '');
+}
+
+/**
  * Sanitiza números de telefone / WhatsApp
  */
 export function sanitizePhone(input: unknown): string {
   if (typeof input !== 'string') return '';
   return input.replace(/[^\d()+\s-]/g, '').slice(0, 20);
 }
+
+/**
+ * Chaves que contêm HTML rico ou textos extensos e não devem ser truncados nem ter tags removidas
+ */
+const RICH_HTML_KEYS = new Set([
+  'contentHtml',
+  'content',
+  'rawHtml',
+  'fullDescription',
+  'optimizedHtml'
+]);
 
 /**
  * Previne Prototype Pollution e NoSQL Injection em objetos de entrada
@@ -59,13 +95,21 @@ export function sanitizeObject<T extends Record<string, any>>(obj: unknown): T {
     }
 
     if (typeof value === 'string') {
-      clean[key] = sanitizeString(value, 2000);
+      if (RICH_HTML_KEYS.has(key)) {
+        clean[key] = sanitizeHtmlContent(value, 500000);
+      } else {
+        clean[key] = sanitizeString(value, 5000);
+      }
     } else if (typeof value === 'number' || typeof value === 'boolean') {
       clean[key] = value;
     } else if (Array.isArray(value)) {
       clean[key] = value
-        .filter(item => typeof item === 'string' || typeof item === 'number')
-        .map(item => typeof item === 'string' ? sanitizeString(item, 500) : item);
+        .filter(item => typeof item === 'string' || typeof item === 'number' || (typeof item === 'object' && item !== null))
+        .map(item => {
+          if (typeof item === 'string') return sanitizeString(item, 1000);
+          if (typeof item === 'object' && item !== null) return sanitizeObject(item);
+          return item;
+        });
     } else if (typeof value === 'object' && value !== null) {
       clean[key] = sanitizeObject(value);
     }

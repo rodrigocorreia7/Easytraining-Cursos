@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCoursesFromFirestore, saveCourseToFirestore } from '@/lib/firestoreDb';
 import { saveStoredCourses } from '@/lib/db';
 import { Course } from '@/types';
-import { sanitizeString, sanitizeObject } from '@/lib/security';
+import { sanitizeString, sanitizeObject, sanitizeHtmlContent } from '@/lib/security';
 
 export async function GET(request: NextRequest) {
   try {
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
       category: sanitizeString(body.category, 60) || 'Geral',
       categorySlug: sanitizeString(body.categorySlug, 60) || 'geral',
       shortDescription: sanitizeString(body.shortDescription, 280),
-      fullDescription: sanitizeString(body.fullDescription, 2000),
+      fullDescription: sanitizeHtmlContent(rawBody.fullDescription || body.fullDescription, 50000),
       duration: sanitizeString(body.duration, 50) || '3 a 6 meses',
       modality: sanitizeString(body.modality, 60) || 'Presencial / Prático',
       certificate: Boolean(body.certificate),
