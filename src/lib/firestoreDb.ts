@@ -16,7 +16,7 @@ const SITE_CONFIG_DOC = 'siteConfig';
 
 let isFirestoreOperational: boolean | null = null;
 
-async function withTimeout<T>(promise: Promise<T>, ms = 800): Promise<T> {
+async function withTimeout<T>(promise: Promise<T>, ms = 3000): Promise<T> {
   let timer: any;
   const timeout = new Promise<never>((_, reject) => {
     timer = setTimeout(() => reject(new Error('Firestore timeout')), ms);
@@ -31,51 +31,50 @@ async function withTimeout<T>(promise: Promise<T>, ms = 800): Promise<T> {
 export async function getCoursesFromFirestore(): Promise<Course[]> {
   const localCourses = getStoredCourses();
 
-  if (isFirestoreOperational === false) {
-    return localCourses;
-  }
-
   try {
     const fetchPromise = getDocs(collection(db, COURSES_COLLECTION));
-    const snapshot = await withTimeout(fetchPromise, 800);
+    const snapshot = await withTimeout(fetchPromise, 3000);
 
     isFirestoreOperational = true;
 
-    // Se o Firestore tiver menos cursos do que a base completa (ex: apenas 1 curso de teste),
-    // usa a base completa e semeia o Firestore em background sem travar a requisição.
-    if (snapshot.empty || snapshot.size < localCourses.length) {
+    if (snapshot.empty) {
       seedCoursesToFirestore(localCourses).catch(() => {});
       return localCourses;
     }
 
-    const courses: Course[] = [];
+    const coursesMap = new Map<string, Course>();
+    localCourses.forEach((c) => coursesMap.set(String(c.id), c));
     snapshot.forEach((d) => {
-      courses.push(d.data() as Course);
+      const data = d.data() as Course;
+      if (data && (data.id || data.slug)) {
+        coursesMap.set(String(data.id), data);
+      }
     });
 
+    const courses = Array.from(coursesMap.values());
     courses.sort((a, b) => Number(a.id) - Number(b.id));
-    return courses.length >= localCourses.length ? courses : localCourses;
+    return courses;
   } catch (error: any) {
-    isFirestoreOperational = false;
+    console.warn('Fallback para cursos locais devido a erro no Firestore:', error?.message);
     return localCourses;
   }
 }
 
 export async function saveCourseToFirestore(course: Course): Promise<void> {
-  if (isFirestoreOperational === false) return;
   try {
     const docRef = doc(db, COURSES_COLLECTION, String(course.id));
-    await withTimeout(setDoc(docRef, course, { merge: true }), 800);
+    await withTimeout(setDoc(docRef, course, { merge: true }), 4000);
+    isFirestoreOperational = true;
   } catch (error) {
     console.warn('Não foi possível sincronizar curso no Firestore:', error);
   }
 }
 
 export async function deleteCourseFromFirestore(id: string | number): Promise<void> {
-  if (isFirestoreOperational === false) return;
   try {
     const docRef = doc(db, COURSES_COLLECTION, String(id));
-    await withTimeout(deleteDoc(docRef), 800);
+    await withTimeout(deleteDoc(docRef), 4000);
+    isFirestoreOperational = true;
   } catch (error) {
     console.warn('Não foi possível deletar curso no Firestore:', error);
   }
@@ -100,49 +99,52 @@ export async function seedCoursesToFirestore(coursesList: Course[]): Promise<voi
 export async function getPostsFromFirestore(): Promise<BlogPost[]> {
   const localPosts = getStoredPosts();
 
-  if (isFirestoreOperational === false) {
-    return localPosts;
-  }
-
   try {
     const fetchPromise = getDocs(collection(db, POSTS_COLLECTION));
-    const snapshot = await withTimeout(fetchPromise, 800);
+    const snapshot = await withTimeout(fetchPromise, 3000);
 
     isFirestoreOperational = true;
 
-    if (snapshot.empty || snapshot.size < localPosts.length) {
+    if (snapshot.empty) {
       seedPostsToFirestore(localPosts).catch(() => {});
       return localPosts;
     }
 
-    const posts: BlogPost[] = [];
+    const postsMap = new Map<string, BlogPost>();
+    // 1. Base prévia local
+    localPosts.forEach((p) => postsMap.set(String(p.slug).toLowerCase(), p));
+    // 2. Mescla e prioriza novos posts e edições vindos do Firestore
     snapshot.forEach((d) => {
-      posts.push(d.data() as BlogPost);
+      const data = d.data() as BlogPost;
+      if (data && data.slug) {
+        postsMap.set(String(data.slug).toLowerCase(), data);
+      }
     });
 
+    const posts = Array.from(postsMap.values());
     posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    return posts.length >= localPosts.length ? posts : localPosts;
+    return posts;
   } catch (error: any) {
-    isFirestoreOperational = false;
+    console.warn('Fallback para posts locais devido a erro no Firestore:', error?.message);
     return localPosts;
   }
 }
 
 export async function savePostToFirestore(post: BlogPost): Promise<void> {
-  if (isFirestoreOperational === false) return;
   try {
-    const docRef = doc(db, POSTS_COLLECTION, String(post.id));
-    await withTimeout(setDoc(docRef, post, { merge: true }), 800);
+    const docRef = doc(db, POSTS_COLLECTION, String(post.slug || post.id));
+    await withTimeout(setDoc(docRef, post, { merge: true }), 4000);
+    isFirestoreOperational = true;
   } catch (error) {
     console.warn('Não foi possível salvar post no Firestore:', error);
   }
 }
 
 export async function deletePostFromFirestore(id: string | number): Promise<void> {
-  if (isFirestoreOperational === false) return;
   try {
     const docRef = doc(db, POSTS_COLLECTION, String(id));
-    await withTimeout(deleteDoc(docRef), 800);
+    await withTimeout(deleteDoc(docRef), 4000);
+    isFirestoreOperational = true;
   } catch (error) {
     console.warn('Não foi possível excluir post no Firestore:', error);
   }
@@ -151,7 +153,7 @@ export async function deletePostFromFirestore(id: string | number): Promise<void
 export async function seedPostsToFirestore(postsList: BlogPost[]): Promise<void> {
   try {
     for (const p of postsList) {
-      const docRef = doc(db, POSTS_COLLECTION, String(p.id));
+      const docRef = doc(db, POSTS_COLLECTION, String(p.slug || p.id));
       await setDoc(docRef, p, { merge: true });
     }
     isFirestoreOperational = true;
