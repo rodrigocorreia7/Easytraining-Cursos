@@ -69,6 +69,7 @@ A Izzy é a consultora virtual oficial da EasyTraining integrada no canto inferi
 - **Ações Rápidas**: Disparo direto para o WhatsApp do aluno com mensagem personalizada, anotações de histórico, cadastro manual de alunos presenciais e busca instantânea.
 - **Lixeira com Reversão (Soft Delete)**: `isDeleted: true` com restauração em 1 clique ou exclusão permanente.
 - **Integração N8N**: Configuração dinâmica de webhook para disparo de leads em tempo real para o Telegram.
+- **Resiliência Serverless (Vercel)**: As operações de gravação local em `leadsDb.ts` e `db.ts` contam com blindagem `try/catch` para impedir que o sistema de arquivos somente-leitura da Vercel interrompa o fluxo de cadastro. O lead é enviado com sucesso para o Firestore e Webhooks.
 
 ---
 
