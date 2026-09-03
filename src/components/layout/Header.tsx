@@ -67,7 +67,7 @@ export const Header: React.FC<HeaderProps> = () => {
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-40 w-full max-w-[1440px] mx-auto p-2 sm:p-3 pointer-events-none">
-        <div className="bg-white/95 backdrop-blur-md rounded-full p-[6px] sm:p-[8px] flex items-center justify-between shadow-[0_4px_25px_rgba(11,79,156,0.08)] border border-white/80 pointer-events-auto transition-all">
+        <div className="bg-white/95 backdrop-blur-md rounded-full pl-2.5 pr-2.5 sm:px-4 py-1.5 sm:py-2 flex items-center justify-between shadow-[0_4px_25px_rgba(11,79,156,0.08)] border border-white/80 pointer-events-auto transition-all">
           
           {/* ========================================================= */}
           {/* 1. DESKTOP NAVIGATION (PillNav + Socials) */}
@@ -192,7 +192,7 @@ export const Header: React.FC<HeaderProps> = () => {
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="md:hidden flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#00874A] hover:bg-[#00703c] text-white text-[11px] font-bold shadow-xs active:scale-95 transition-transform"
+              className="md:hidden flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-[#00874A] hover:bg-[#00703c] text-white text-[10.5px] font-bold shadow-xs active:scale-95 transition-transform shrink-0"
             >
               <span>Matrículas</span>
               <ArrowRight className="w-3 h-3" />
@@ -201,14 +201,14 @@ export const Header: React.FC<HeaderProps> = () => {
             {/* Mobile Hamburger / Close Toggle Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-800 flex items-center justify-center cursor-pointer transition-all border border-slate-200/60 shadow-2xs"
+              className="md:hidden w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-800 flex items-center justify-center cursor-pointer transition-all border border-slate-200/60 shadow-2xs shrink-0 mr-0.5"
               aria-label={mobileMenuOpen ? 'Fechar menu de navegação' : 'Abrir menu de navegação'}
               aria-expanded={mobileMenuOpen}
             >
               {mobileMenuOpen ? (
-                <X className="w-4 h-4 text-slate-900 stroke-[2.5]" />
+                <X className="w-3.5 h-3.5 text-slate-900 stroke-[2.5]" />
               ) : (
-                <Menu className="w-4 h-4 text-slate-900 stroke-[2.5]" />
+                <Menu className="w-3.5 h-3.5 text-slate-900 stroke-[2.5]" />
               )}
             </button>
           </div>
