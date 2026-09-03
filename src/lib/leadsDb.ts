@@ -100,7 +100,7 @@ export async function createLead(leadData: Omit<Lead, 'id' | 'createdAt' | 'stat
   // 3. Dispara Webhook do N8N se configurado
   try {
     const config = getStoredSiteConfig();
-    const webhookUrl = (config as any)?.n8nWebhookUrl || process.env.N8N_WEBHOOK_URL;
+    const webhookUrl = (config as any)?.n8nWebhookUrl || process.env.N8N_WEBHOOK_URL || 'https://n8n.eterion.online/webhook/easytraining-leads';
     if (webhookUrl && webhookUrl.startsWith('http')) {
       fetch(webhookUrl, {
         method: 'POST',

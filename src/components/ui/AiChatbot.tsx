@@ -173,6 +173,7 @@ export const AiChatbot: React.FC = () => {
               onClick={() => setIsOpen(false)}
               className="p-1.5 rounded-xl hover:bg-white/10 text-white/80 hover:text-white transition-colors cursor-pointer"
               title="Fechar chat"
+              aria-label="Fechar chat da Izzy"
             >
               <X className="w-5 h-5" />
             </button>
@@ -188,6 +189,7 @@ export const AiChatbot: React.FC = () => {
               <button
                 onClick={() => setShowLeadForm(true)}
                 className="text-[10.5px] font-bold text-white bg-[#00874A] hover:bg-[#00703c] px-2.5 py-1 rounded-full shadow-xs transition-transform active:scale-95 cursor-pointer"
+                aria-label="Garantir Bolsa de estudos"
               >
                 Garantir Bolsa
               </button>
@@ -204,7 +206,8 @@ export const AiChatbot: React.FC = () => {
                 </div>
                 <button
                   onClick={() => setShowLeadForm(false)}
-                  className="text-slate-400 hover:text-white text-xs cursor-pointer"
+                  className="text-slate-400 hover:text-white text-xs cursor-pointer p-1"
+                  aria-label="Fechar formulário de bolsa"
                 >
                   ✕
                 </button>
@@ -213,15 +216,25 @@ export const AiChatbot: React.FC = () => {
                 Preencha abaixo e nossa secretaria entrará em contato com a condição especial:
               </p>
 
-              <form onSubmit={handleLeadSubmit} className="space-y-2">
+              <form
+                onSubmit={handleLeadSubmit}
+                className="space-y-2"
+                {...({
+                  toolname: "solicitarBolsaEstudos",
+                  tooldescription: "Reserva condição especial de bolsa de estudos ou aula experimental na EasyTraining."
+                } as any)}
+              >
                 <div className="relative">
                   <User className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
                   <input
                     type="text"
                     required
+                    aria-label="Seu nome completo"
+                    autoComplete="name"
                     value={leadName}
                     onChange={(e) => setLeadName(e.target.value)}
                     placeholder="Seu nome completo"
+                    {...({ toolparamdescription: "Nome completo para reserva de bolsa de estudos" } as any)}
                     className="w-full pl-8 pr-2.5 py-1.5 rounded-lg bg-[#071324] border border-slate-700 text-white placeholder-slate-400 text-[11px] focus:outline-hidden focus:ring-1 focus:ring-[#00B060]"
                   />
                 </div>
@@ -231,9 +244,12 @@ export const AiChatbot: React.FC = () => {
                   <input
                     type="tel"
                     required
+                    aria-label="Seu WhatsApp com DDD"
+                    autoComplete="tel"
                     value={leadPhone}
                     onChange={(e) => handlePhoneChange(e.target.value)}
                     placeholder="Seu WhatsApp: (11) 99999-9999"
+                    {...({ toolparamdescription: "Número de WhatsApp com DDD para contato pedagógico" } as any)}
                     className="w-full pl-8 pr-2.5 py-1.5 rounded-lg bg-[#071324] border border-slate-700 text-white placeholder-slate-400 text-[11px] focus:outline-hidden focus:ring-1 focus:ring-[#00B060]"
                   />
                 </div>
@@ -241,8 +257,10 @@ export const AiChatbot: React.FC = () => {
                 <div className="grid grid-cols-2 gap-1.5">
                   <div className="relative">
                     <select
+                      aria-label="Curso de interesse"
                       value={leadCourse}
                       onChange={(e) => setLeadCourse(e.target.value)}
+                      {...({ toolparamdescription: "Curso profissionalizante escolhido para bolsa" } as any)}
                       className="w-full px-2 py-1.5 rounded-lg bg-[#071324] border border-slate-700 text-white text-[10px] focus:outline-hidden focus:ring-1 focus:ring-[#00B060]"
                     >
                       {POPULAR_COURSES.map((c, i) => (
@@ -253,8 +271,10 @@ export const AiChatbot: React.FC = () => {
 
                   <div className="relative">
                     <select
+                      aria-label="Turno preferido"
                       value={leadShift}
                       onChange={(e) => setLeadShift(e.target.value)}
+                      {...({ toolparamdescription: "Turno de aula presencial preferido" } as any)}
                       className="w-full px-2 py-1.5 rounded-lg bg-[#071324] border border-slate-700 text-white text-[10px] focus:outline-hidden focus:ring-1 focus:ring-[#00B060]"
                     >
                       <option value="Segunda a Sexta - Manhã" className="bg-[#071324] text-white">Segunda a Sexta - Manhã</option>
@@ -376,12 +396,18 @@ export const AiChatbot: React.FC = () => {
           <form
             onSubmit={handleSubmit}
             className="p-3 bg-[#0A1628] border-t border-slate-800 flex items-center gap-2"
+            {...({
+              toolname: "perguntarIzzyConsultora",
+              tooldescription: "Envia perguntas sobre cursos, metodologia e valores para a consultora virtual Izzy."
+            } as any)}
           >
             <input
               type="text"
               value={input}
               onChange={handleInputChange}
+              aria-label="Mensagem ou pergunta para a consultora Izzy"
               placeholder="Pergunte sobre cursos, horários..."
+              {...({ toolparamdescription: "Dúvida ou pergunta sobre os cursos da EasyTraining" } as any)}
               className="flex-1 px-3.5 py-2.5 rounded-xl bg-[#071324] border border-slate-700/80 text-white placeholder-slate-400 text-xs focus:outline-hidden focus:ring-2 focus:ring-[#00B060] transition-all"
             />
             <button
@@ -389,6 +415,7 @@ export const AiChatbot: React.FC = () => {
               disabled={!input.trim() || isLoading}
               className="p-2.5 rounded-xl bg-[#00874A] hover:bg-[#00703c] text-white disabled:opacity-40 transition-all cursor-pointer shadow-md"
               title="Enviar mensagem"
+              aria-label="Enviar mensagem para a Izzy"
             >
               <Send className="w-4 h-4" />
             </button>

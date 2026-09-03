@@ -107,6 +107,7 @@ export default function AdminLeadsPage() {
       .then(r => r.json())
       .then(cfg => {
         if (cfg.n8nWebhookUrl) setWebhookUrl(cfg.n8nWebhookUrl);
+        else setWebhookUrl('https://n8n.eterion.online/webhook/easytraining-leads');
       })
       .catch(() => {});
   }, []);
@@ -390,7 +391,7 @@ export default function AdminLeadsPage() {
               type="url"
               value={webhookUrl}
               onChange={(e) => setWebhookUrl(e.target.value)}
-              placeholder="Cole a URL do Webhook do seu N8N (ex: https://seu-n8n.com/webhook/easytraining-leads)"
+              placeholder="https://n8n.eterion.online/webhook/easytraining-leads"
               className="flex-1 px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder-purple-300/50 text-xs focus:outline-hidden focus:ring-2 focus:ring-emerald-400"
             />
             <button

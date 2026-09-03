@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MapPin, Phone, MessageCircle, Clock, Award, ShieldCheck } from 'lucide-react';
 import { siteConfig as defaultSiteConfig } from '../../data/siteConfig';
 import { SiteConfigService } from '../../services/siteConfigService';
@@ -8,11 +8,24 @@ import { SiteConfigService } from '../../services/siteConfigService';
 export const Footer: React.FC = () => {
   const [config, setConfig] = useState(defaultSiteConfig);
   const currentYear = new Date().getFullYear();
+  const mapRef = useRef<HTMLDivElement>(null);
+  const [loadMap, setLoadMap] = useState(false);
 
   useEffect(() => {
     SiteConfigService.getConfig().then((data) => {
       if (data) setConfig(data);
     }).catch(console.error);
+
+    const el = mapRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setLoadMap(true);
+        observer.disconnect();
+      }
+    }, { rootMargin: '300px' });
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   return (
@@ -79,23 +92,30 @@ export const Footer: React.FC = () => {
               </p>
             </div>
 
-            {/* Mapa Interativo do Google Maps */}
-            <div className="mt-3 rounded-2xl overflow-hidden border border-slate-700/80 shadow-lg bg-slate-900/60">
-              <div className="relative w-full h-44 sm:h-48">
-                <iframe
-                  title="Localização EasyTraining no Google Maps"
-                  src="https://www.google.com/maps?q=Av.+Jurema,+814+-+Parque+Jurema,+Guarulhos+-+SP,+07244-000&output=embed"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen={false}
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  className="w-full h-full grayscale-[10%] hover:grayscale-0 transition-all duration-300"
-                />
+            {/* Mapa Interativo do Google Maps (Carregamento sob demanda para não pesar a página) */}
+            <div ref={mapRef} className="mt-3 rounded-2xl overflow-hidden border border-slate-700/80 shadow-lg bg-slate-900/60">
+              <div className="relative w-full h-44 sm:h-48 bg-slate-900 flex items-center justify-center">
+                {loadMap ? (
+                  <iframe
+                    title="Localização EasyTraining no Google Maps"
+                    src="https://www.google.com/maps?q=Av.+Jurema,+814+-+Parque+Jurema,+Guarulhos+-+SP,+07244-000&output=embed"
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen={false}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    className="w-full h-full grayscale-[10%] hover:grayscale-0 transition-all duration-300"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-slate-400 gap-2 p-4 text-center">
+                    <MapPin className="w-6 h-6 text-[#00B060] animate-bounce" />
+                    <span className="text-xs font-medium">Carregando mapa interativo...</span>
+                  </div>
+                )}
               </div>
               <div className="px-3 py-2 bg-slate-900/90 flex items-center justify-between gap-2 border-t border-slate-800 text-xs">
-                <span className="text-slate-400 truncate flex items-center gap-1.5">
+                <span className="text-slate-300 truncate flex items-center gap-1.5">
                   <MapPin className="w-3.5 h-3.5 text-[#00B060] shrink-0" />
                   Av. Jurema, 814 - Parque Jurema
                 </span>

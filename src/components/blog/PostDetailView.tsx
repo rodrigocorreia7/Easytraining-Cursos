@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Clock, Calendar, ArrowLeft, User, CheckCircle, Award } from 'lucide-react';
 import { BlogPost } from '../../types';
@@ -115,9 +117,16 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ post, relatedPos
           {/* Featured Image */}
           <div className="relative w-full rounded-3xl overflow-hidden shadow-xl mb-10 bg-slate-100 aspect-16/9 max-h-[520px]">
             <img
-              src={post.image}
+              src={post.image?.includes('wp-content/uploads/')
+                ? `/images/courses/${post.image.split('/').pop()}`
+                : (post.image || '/images/courses/Curso-de-informatica-basica-em-guarulhos.png')}
               alt={post.title}
               className="w-full h-full object-cover"
+              onError={(e) => {
+                const target = e.currentTarget;
+                target.onerror = null;
+                target.src = '/images/courses/Curso-de-informatica-basica-em-guarulhos.png';
+              }}
             />
           </div>
 

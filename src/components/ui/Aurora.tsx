@@ -139,6 +139,7 @@ export default function Aurora(props: AuroraProps) {
   useEffect(() => {
     const ctn = ctnDom.current;
     if (!ctn) return;
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) return;
 
     let renderer: Renderer | null = null;
     let animateId = 0;
@@ -203,7 +204,10 @@ export default function Aurora(props: AuroraProps) {
       ctn.appendChild(gl.canvas);
       setWebglActive(true);
 
+      let isVisible = false;
+
       const update = (t: number) => {
+        if (!isVisible) return;
         animateId = requestAnimationFrame(update);
         const { time = t * 0.01, speed = 1.0 } = propsRef.current;
         if (program) {
@@ -216,9 +220,23 @@ export default function Aurora(props: AuroraProps) {
           renderer.render({ scene: mesh });
         }
       };
-      animateId = requestAnimationFrame(update);
+
+      const observer = new IntersectionObserver(([entry]) => {
+        const nowVisible = entry.isIntersecting;
+        if (nowVisible && !isVisible) {
+          isVisible = true;
+          cancelAnimationFrame(animateId);
+          animateId = requestAnimationFrame(update);
+        } else if (!nowVisible && isVisible) {
+          isVisible = false;
+          cancelAnimationFrame(animateId);
+        }
+      }, { threshold: 0.05 });
+
+      observer.observe(ctn);
 
       return () => {
+        observer.disconnect();
         cancelAnimationFrame(animateId);
         window.removeEventListener('resize', resize);
         if (gl && gl.canvas && gl.canvas.parentNode) {

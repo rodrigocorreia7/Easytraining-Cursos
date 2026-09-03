@@ -3,25 +3,15 @@
 import React from 'react';
 import { Award, Users, CheckCircle2, ShieldCheck, MapPin } from 'lucide-react';
 import { siteConfig } from '../../data/siteConfig';
-import Aurora from '../ui/Aurora';
 import SplitText from '../ui/SplitText';
 
 export const About: React.FC = () => {
   return (
-    <section id="quem-somos" className="py-20 sm:py-28 relative overflow-hidden bg-slate-900 text-slate-900">
-      
-      {/* 1. AURORA WEBGL SHADER BACKGROUND */}
-      <div className="absolute inset-0 z-0 opacity-70 pointer-events-none">
-        <Aurora
-          colorStops={["#dad517", "#186cc9", "#084e0c"]}
-          blend={0.66}
-          amplitude={1.0}
-          speed={0.9}
-        />
-      </div>
-
-      {/* Subtle Overlay to enhance contrast and readability */}
-      <div className="absolute inset-0 z-0 bg-slate-950/40 pointer-events-none" />
+    <section id="quem-somos" className="py-20 sm:py-28 relative overflow-hidden bg-gradient-to-b from-[#0A2540] via-[#052e7f] to-[#0A1D33] text-white">
+      {/* Fundo Estático Suave e Otimizado */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-20 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px]" />
+      <div className="absolute -top-40 right-0 w-96 h-96 bg-[#00B060]/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-40 left-0 w-96 h-96 bg-[#052e7f]/20 rounded-full blur-3xl pointer-events-none" />
 
       {/* 2. MAIN CONTENT */}
       <div className="relative z-10 max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -29,7 +19,7 @@ export const About: React.FC = () => {
         {/* Header Title */}
         <div className="max-w-2xl mx-auto text-center mb-16 space-y-3">
           <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/90 backdrop-blur-md text-xs font-bold text-[#052e7f] shadow-sm">
-            <Award className="w-4 h-4 text-[#D97706]" />
+            <Award className="w-4 h-4 text-[#B45309]" />
             <span>Tradição em Qualificação Profissional</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight drop-shadow-md leading-normal pb-1">

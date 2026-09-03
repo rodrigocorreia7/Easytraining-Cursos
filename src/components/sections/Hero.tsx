@@ -20,13 +20,12 @@ export const Hero: React.FC = () => {
       return;
     }
 
-    const loadedImages: HTMLImageElement[] = [];
-    for (let i = 1; i <= TOTAL_FRAMES; i++) {
-      const img = new Image();
-      const numStr = String(i).padStart(3, '0');
-      img.src = `/images/robot/frames/frame_${numStr}.webp`;
-      loadedImages.push(img);
-    }
+    const loadedImages: HTMLImageElement[] = new Array(TOTAL_FRAMES);
+    
+    // 1. Carrega primeiro o frame inicial de repouso (frame 35)
+    const initialImg = new Image();
+    initialImg.src = '/images/robot/frames/frame_035.webp';
+    loadedImages[34] = initialImg;
     imagesRef.current = loadedImages;
 
     const canvas = canvasRef.current;
@@ -34,14 +33,35 @@ export const Hero: React.FC = () => {
     const ctx = canvas.getContext('2d', { alpha: true });
 
     const renderInitial = () => {
-      const initialImg = loadedImages[35] || loadedImages[0];
-      if (initialImg && initialImg.complete && ctx) {
+      if (initialImg.complete && ctx) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(initialImg, 0, 0, canvas.width, canvas.height);
       }
     };
-    if (loadedImages[35]) {
-      loadedImages[35].onload = renderInitial;
+    if (initialImg.complete) {
+      renderInitial();
+    } else {
+      initialImg.onload = renderInitial;
+    }
+
+    // 2. Carrega os outros frames em segundo plano (Idle time ou ao mover o mouse)
+    let idleLoaded = false;
+    const loadRemainingFrames = () => {
+      if (idleLoaded) return;
+      idleLoaded = true;
+      for (let i = 1; i <= TOTAL_FRAMES; i++) {
+        if (i === 35) continue;
+        const img = new Image();
+        const numStr = String(i).padStart(3, '0');
+        img.src = `/images/robot/frames/frame_${numStr}.webp`;
+        loadedImages[i - 1] = img;
+      }
+    };
+
+    if ('requestIdleCallback' in window) {
+      (window as any).requestIdleCallback(loadRemainingFrames, { timeout: 2000 });
+    } else {
+      setTimeout(loadRemainingFrames, 1500);
     }
 
     // 60fps Canvas Render Loop
@@ -63,6 +83,7 @@ export const Hero: React.FC = () => {
     animIdRef.current = requestAnimationFrame(renderLoop);
 
     const handleGlobalMouseMove = (e: MouseEvent) => {
+      loadRemainingFrames();
       if (!heroRef.current) return;
       const rect = heroRef.current.getBoundingClientRect();
       
@@ -134,7 +155,7 @@ export const Hero: React.FC = () => {
             <p className="text-[10px] sm:text-[11px] text-slate-700 font-semibold mt-0.5">Cursos Práticos</p>
           </div>
           <div className="p-3 bg-white rounded-2xl border border-slate-200/90 shadow-xs">
-            <p className="text-lg sm:text-xl font-black text-[#D97706]">★ 5.0</p>
+            <p className="text-lg sm:text-xl font-black text-[#B45309]">★ 5.0</p>
             <p className="text-[10px] sm:text-[11px] text-slate-700 font-semibold mt-0.5">Nota no Google</p>
           </div>
           <div className="p-3 bg-white rounded-2xl border border-slate-200/90 shadow-xs">
@@ -224,8 +245,8 @@ export const Hero: React.FC = () => {
               <p className="text-xl sm:text-2xl 2xl:text-3xl font-black text-[#052e7f]">19+</p>
               <p className="text-[11px] sm:text-xs 2xl:text-sm text-slate-700 font-semibold mt-0.5">Cursos Práticos</p>
             </div>
-            <div className="p-3.5 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 shadow-xs hover:border-[#D97706]/40 transition-colors">
-              <p className="text-xl sm:text-2xl 2xl:text-3xl font-black text-[#D97706]">★ 5.0</p>
+            <div className="p-3.5 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 shadow-xs hover:border-[#B45309]/40 transition-colors">
+              <p className="text-xl sm:text-2xl 2xl:text-3xl font-black text-[#B45309]">★ 5.0</p>
               <p className="text-[11px] sm:text-xs 2xl:text-sm text-slate-700 font-semibold mt-0.5">Nota no Google</p>
             </div>
             <div className="p-3.5 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 shadow-xs hover:border-[#00874A]/40 transition-colors">

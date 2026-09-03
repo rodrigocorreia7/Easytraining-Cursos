@@ -37,5 +37,6 @@ export const siteConfig = {
     youtube: "https://www.youtube.com/@easytrainingprofissionalizante",
     instagram: "https://www.instagram.com/easytraining1/",
     whatsapp: "https://wa.me/551123037983"
-  }
+  },
+  n8nWebhookUrl: "https://n8n.eterion.online/webhook/easytraining-leads"
 };

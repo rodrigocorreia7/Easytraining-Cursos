@@ -119,7 +119,14 @@ export const ContactSection: React.FC = () => {
             <h3 className="text-xl font-bold text-[#052e7f] mb-2">Envie uma Mensagem</h3>
             <p className="text-xs sm:text-sm text-slate-600 mb-6">Preencha os campos para receber a grade curricular e informações sobre bolsas e descontos.</p>
             
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-4"
+              {...({
+                toolname: "enviarMensagemContato",
+                tooldescription: "Envia mensagem para a secretaria da EasyTraining solicitando grade de cursos e informações de bolsas."
+              } as any)}
+            >
               <div>
                 <label htmlFor="nome-completo" className="block text-xs font-bold text-slate-700 uppercase mb-1.5">Seu Nome Completo</label>
                 <input
@@ -127,9 +134,12 @@ export const ContactSection: React.FC = () => {
                   name="nome-completo"
                   type="text"
                   required
+                  aria-label="Seu Nome Completo"
+                  autoComplete="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Ex: Maria Silva"
+                  {...({ toolparamdescription: "Nome completo do interessado" } as any)}
                   className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-hidden focus:border-[#00874A] focus:bg-white transition-all text-slate-800"
                 />
               </div>
@@ -142,9 +152,12 @@ export const ContactSection: React.FC = () => {
                     name="telefone-whatsapp"
                     type="tel"
                     required
+                    aria-label="Telefone ou WhatsApp com DDD"
+                    autoComplete="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="(11) 99999-9999"
+                    {...({ toolparamdescription: "Telefone ou WhatsApp com DDD" } as any)}
                     className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-hidden focus:border-[#00874A] focus:bg-white transition-all text-slate-800"
                   />
                 </div>
@@ -156,6 +169,7 @@ export const ContactSection: React.FC = () => {
                     aria-label="Curso de Interesse"
                     value={course}
                     onChange={(e) => setCourse(e.target.value)}
+                    {...({ toolparamdescription: "Curso profissionalizante ou de informática de interesse" } as any)}
                     className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-hidden focus:border-[#00874A] focus:bg-white transition-all text-slate-800"
                   >
                     <option value="Informática Básica">Informática Básica</option>
@@ -178,9 +192,11 @@ export const ContactSection: React.FC = () => {
                   id="mensagem-duvida"
                   name="mensagem-duvida"
                   rows={3}
+                  aria-label="Mensagem ou Dúvida (Opcional)"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Gostaria de saber o valor das mensalidades e dias de aula..."
+                  {...({ toolparamdescription: "Mensagem ou dúvida sobre o curso e valores" } as any)}
                   className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-hidden focus:border-[#00874A] focus:bg-white transition-all text-slate-800"
                 />
               </div>

@@ -101,6 +101,13 @@ export const BorderGlow: React.FC<BorderGlowProps> = ({
   const [cursorAngle, setCursorAngle] = useState(45);
   const [edgeProximity, setEdgeProximity] = useState(0);
   const [sweepActive, setSweepActive] = useState(false);
+  const [isTouch, setIsTouch] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && ('ontouchstart' in window || window.innerWidth < 1024)) {
+      setIsTouch(true);
+    }
+  }, []);
 
   const getCenterOfElement = useCallback((el: HTMLElement) => {
     const { width, height } = el.getBoundingClientRect();
@@ -173,6 +180,24 @@ export const BorderGlow: React.FC<BorderGlowProps> = ({
   const fillBg = meshGradients.map(g => `${g} padding-box`);
   const angleDeg = `${cursorAngle.toFixed(3)}deg`;
   const lightSurface = isLightColor(backgroundColor);
+
+  if (isTouch) {
+    return (
+      <div
+        className={`relative grid isolate border transition-all duration-200 ${className}`}
+        style={{
+          background: backgroundColor,
+          borderColor: lightSurface ? 'rgba(226, 232, 240, 0.9)' : 'rgba(255, 255, 255, 0.15)',
+          borderRadius: `${borderRadius}px`,
+          boxShadow: lightSurface
+            ? '0 2px 10px -2px rgba(11, 79, 156, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04)'
+            : '0 4px 20px rgba(0, 0, 0, 0.25)',
+        }}
+      >
+        {children}
+      </div>
+    );
+  }
 
   return (
     <div

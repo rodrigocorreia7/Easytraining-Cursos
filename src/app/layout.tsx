@@ -119,6 +119,30 @@ export default function RootLayout({
         <link rel="llms" href="/llms.txt" />
         <link rel="llms-txt" href="/llms.txt" />
         <link rel="alternate" type="text/markdown" href="/llms.txt" title="LLMs Context" />
+        <script
+          id="webmcp-agentic-init"
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof navigator !== 'undefined' && 'modelContext' in navigator && navigator.modelContext?.registerTool) {
+                try {
+                  navigator.modelContext.registerTool({
+                    name: 'solicitarInformacoesCursos',
+                    description: 'Consulta informações, grade curricular e bolsas para cursos presenciais na EasyTraining Guarulhos.',
+                    inputSchema: {
+                      type: 'object',
+                      properties: {
+                        nome: { type: 'string', description: 'Nome do interessado' },
+                        whatsapp: { type: 'string', description: 'Telefone WhatsApp com DDD' },
+                        curso: { type: 'string', description: 'Curso profissionalizante de interesse' }
+                      },
+                      required: ['nome', 'whatsapp']
+                    }
+                  });
+                } catch(e){}
+              }
+            `
+          }}
+        />
 
         {/* Google Analytics 4 (GA4) - Inserção Dinâmica */}
         {gaId && (
