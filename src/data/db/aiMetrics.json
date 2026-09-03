@@ -1,0 +1,55 @@
+{
+  "articlesGenerated": 3,
+  "chatQuestionsAnswered": 45,
+  "recentInquiries": [
+    {
+      "id": "inq-1788396323232",
+      "question": "Qual a duração do curso de Auxiliar Veterinário?",
+      "category": "Auxiliar Veterinário & Pet",
+      "timestamp": "21:45"
+    },
+    {
+      "id": "inq-1788396160154",
+      "question": "Vocês têm curso de auxiliar veterinário aos domingos?",
+      "category": "Auxiliar Veterinário & Pet",
+      "timestamp": "21:42"
+    },
+    {
+      "id": "inq-1788396036388",
+      "question": "Quais os horários do curso de auxiliar veterinário?",
+      "category": "Auxiliar Veterinário & Pet",
+      "timestamp": "21:40"
+    },
+    {
+      "id": "inq-1",
+      "question": "Quais os dias e horários do curso de auxiliar de veterinário?",
+      "category": "Auxiliar Veterinário & Pet",
+      "timestamp": "Hoje às 18:40"
+    },
+    {
+      "id": "inq-2",
+      "question": "O curso de informática básica tem certificado para currículo?",
+      "category": "Informática & Pacote Office",
+      "timestamp": "Hoje às 17:15"
+    },
+    {
+      "id": "inq-3",
+      "question": "Vocês têm turmas aos sábados para quem trabalha durante a semana?",
+      "category": "Aulas aos Sábados & Horários",
+      "timestamp": "Hoje às 15:20"
+    },
+    {
+      "id": "inq-4",
+      "question": "Como funciona o desconto para matrícula presencial nos Pimentas?",
+      "category": "Valores, Bolsas & Matrículas",
+      "timestamp": "Ontem às 19:10"
+    }
+  ],
+  "topicCounts": {
+    "Aulas aos Sábados & Horários": 4,
+    "Auxiliar Veterinário & Pet": 15,
+    "Farmácia & Drogaria": 2,
+    "Informática & Pacote Office": 16,
+    "Valores, Bolsas & Matrículas": 8
+  }
+}

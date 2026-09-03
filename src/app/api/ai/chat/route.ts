@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { ai, GEMINI_MODEL, GEMINI_FALLBACK_MODEL } from '@/lib/gemini';
-import { getCoursesFromFirestore } from '@/lib/firestoreDb';
-import { getStoredSiteConfig } from '@/lib/db';
+import { getStoredCourses, getStoredSiteConfig } from '@/lib/db';
 import { recordChatMessage } from '@/lib/aiMetrics';
 
 function getGeneralInfoDoc(): string {
@@ -25,7 +24,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Mensagem inválida' }, { status: 400 });
     }
 
-    const courses = await getCoursesFromFirestore();
+    const courses = getStoredCourses();
     const config = getStoredSiteConfig();
     const extraInfo = getGeneralInfoDoc();
 

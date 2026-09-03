@@ -107,23 +107,22 @@ export async function getAiMetrics(): Promise<AiMetricsData> {
   }
 }
 
-export async function recordArticleGenerated(): Promise<void> {
+export function recordArticleGenerated(): void {
   try {
-    const current = await getAiMetrics();
+    const current = getLocalMetrics();
     current.articlesGenerated = (current.articlesGenerated || 0) + 1;
-
     saveLocalMetrics(current);
 
     const docRef = doc(db, FIRESTORE_COLLECTION, FIRESTORE_DOC);
-    await setDoc(docRef, current, { merge: true });
+    setDoc(docRef, current, { merge: true }).catch(() => {});
   } catch (error) {
     console.error('Erro ao registrar geração de artigo:', error);
   }
 }
 
-export async function recordChatMessage(question: string, category: string): Promise<void> {
+export function recordChatMessage(question: string, category: string): void {
   try {
-    const current = await getAiMetrics();
+    const current = getLocalMetrics();
     current.chatQuestionsAnswered = (current.chatQuestionsAnswered || 0) + 1;
 
     if (!current.topicCounts) current.topicCounts = {};
@@ -137,11 +136,10 @@ export async function recordChatMessage(question: string, category: string): Pro
     };
 
     current.recentInquiries = [newInquiry, ...(current.recentInquiries || [])].slice(0, 8);
-
     saveLocalMetrics(current);
 
     const docRef = doc(db, FIRESTORE_COLLECTION, FIRESTORE_DOC);
-    await setDoc(docRef, current, { merge: true });
+    setDoc(docRef, current, { merge: true }).catch(() => {});
   } catch (error) {
     console.error('Erro ao registrar mensagem do chat:', error);
   }
