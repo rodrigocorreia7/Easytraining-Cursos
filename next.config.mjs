@@ -19,7 +19,7 @@ const nextConfig = {
     return [
       // 1. Static Assets Immutable Caching
       {
-        source: '/:all*(svg|jpg|jpeg|png|webp|avif|woff2|mp4)',
+        source: '/:all*(svg|jpg|jpeg|png|webp|avif|woff2|mp4|ico)',
         headers: [
           {
             key: 'Cache-Control',
