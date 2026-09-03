@@ -192,7 +192,7 @@ export default function PrivacyPolicyPage() {
               </p>
               <div className="text-xs sm:text-sm font-bold text-[#052e7f] space-y-1">
                 <p>E-mail: <a href="mailto:privacidade@easytraining.com.br" className="text-[#00874A] underline">privacidade@easytraining.com.br</a></p>
-                <p>Atendimento Presencial: Estrada do Sacramento, 1250 - Sala 02, Conj. Hab. Marcos Freire / Pimentas, Guarulhos - SP</p>
+                <p>Atendimento Presencial: Av. Jurema, 814 - Parque Jurema, Guarulhos - SP, CEP 07244-000</p>
               </div>
             </section>
 

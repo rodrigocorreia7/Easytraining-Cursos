@@ -20,7 +20,7 @@ export const Footer: React.FC = () => {
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 pb-12 border-b border-slate-800/80">
           
-          <div className="lg:col-span-5 space-y-4">
+          <div className="lg:col-span-4 space-y-4">
             <div className="flex items-center gap-3">
               <img
                 src="/images/logos/logo-easytraining.webp"
@@ -56,12 +56,14 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
 
-          <div className="lg:col-span-4 space-y-3">
-            <h4 className="text-sm font-bold uppercase tracking-wider text-white">Endereço & Contato</h4>
-            <div className="space-y-2.5 text-sm text-slate-300">
+          <div className="lg:col-span-5 space-y-4">
+            <h4 className="text-sm font-bold uppercase tracking-wider text-white">Endereço & Localização</h4>
+            <div className="space-y-2 text-sm text-slate-300">
               <p className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-[#FFB800] mt-0.5 shrink-0" />
-                <span>{config.address.street}, {config.address.neighborhood} - {config.address.city}/{config.address.state}</span>
+                <span className="font-medium text-white">
+                  Av. Jurema, 814 - Parque Jurema, Guarulhos - SP, CEP 07244-000
+                </span>
               </p>
               <p className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-[#00B060] shrink-0" />
@@ -75,6 +77,37 @@ export const Footer: React.FC = () => {
                 <Clock className="w-4 h-4 text-[#FFB800] shrink-0" />
                 <span>{config.openingHours.weekdays}</span>
               </p>
+            </div>
+
+            {/* Mapa Interativo do Google Maps */}
+            <div className="mt-3 rounded-2xl overflow-hidden border border-slate-700/80 shadow-lg bg-slate-900/60">
+              <div className="relative w-full h-44 sm:h-48">
+                <iframe
+                  title="Localização EasyTraining no Google Maps"
+                  src="https://www.google.com/maps?q=Av.+Jurema,+814+-+Parque+Jurema,+Guarulhos+-+SP,+07244-000&output=embed"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen={false}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="w-full h-full grayscale-[10%] hover:grayscale-0 transition-all duration-300"
+                />
+              </div>
+              <div className="px-3 py-2 bg-slate-900/90 flex items-center justify-between gap-2 border-t border-slate-800 text-xs">
+                <span className="text-slate-400 truncate flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-[#00B060] shrink-0" />
+                  Av. Jurema, 814 - Parque Jurema
+                </span>
+                <a
+                  href="https://www.google.com/maps/search/?api=1&query=Av.+Jurema,+814+-+Parque+Jurema,+Guarulhos+-+SP,+07244-000"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#00B060] hover:text-emerald-300 font-bold shrink-0 underline transition-colors"
+                >
+                  Abrir no Maps →
+                </a>
+              </div>
             </div>
           </div>
         </div>

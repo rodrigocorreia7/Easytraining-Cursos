@@ -87,15 +87,15 @@ export const About: React.FC = () => {
                 02
               </span>
               <h3 className="text-xl sm:text-2xl font-bold text-white">
-                Fácil Acesso em Guarulhos (Pimentas)
+                Fácil Acesso em Guarulhos
               </h3>
               <p className="text-sm text-slate-200 leading-relaxed">
-                Situada na Estrada do Sacramento, ao lado do Terminal Pimentas e Shopping Bonsucesso. Transporte público fácil para alunos de toda a região.
+                Situada na Av. Jurema, 814 - Parque Jurema, com transporte público fácil e rápido para alunos de toda a região de Guarulhos.
               </p>
             </div>
             <div className="p-3.5 rounded-2xl bg-white/10 backdrop-blur-md text-xs text-slate-200 flex items-center gap-2 border border-white/10">
               <MapPin className="w-4 h-4 text-[#FFB800] shrink-0" />
-              <span>{siteConfig.address.street} - Guarulhos/SP</span>
+              <span>Av. Jurema, 814 - Parque Jurema, Guarulhos - SP</span>
             </div>
           </div>
 

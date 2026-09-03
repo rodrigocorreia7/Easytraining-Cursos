@@ -202,7 +202,7 @@ export default function AdminConfigPage() {
                 ...config,
                 address: { ...config.address, street: e.target.value }
               })}
-              placeholder="Estrada do Sacramento, 1250 - Sala 02"
+              placeholder="Av. Jurema, 814"
               className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 focus:outline-hidden focus:border-[#00B060]"
             />
           </div>
@@ -217,7 +217,7 @@ export default function AdminConfigPage() {
                   ...config,
                   address: { ...config.address, neighborhood: e.target.value }
                 })}
-                placeholder="Marcos Freire / Pimentas"
+                placeholder="Parque Jurema"
                 className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 focus:outline-hidden focus:border-[#00B060]"
               />
             </div>
@@ -230,7 +230,7 @@ export default function AdminConfigPage() {
                   ...config,
                   address: { ...config.address, zipCode: e.target.value }
                 })}
-                placeholder="07272-000"
+                placeholder="07244-000"
                 className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 focus:outline-hidden focus:border-[#00B060]"
               />
             </div>
@@ -274,7 +274,7 @@ export default function AdminConfigPage() {
                 ...config,
                 address: { ...config.address, reference: e.target.value }
               })}
-              placeholder="Próximo ao Terminal Pimentas e Shopping Bonsucesso"
+              placeholder="Região dos Pimentas - Guarulhos"
               className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 focus:outline-hidden focus:border-[#00B060]"
             />
           </div>

@@ -76,7 +76,7 @@ DIRETRIZES DE SEGURANÇA E PROTEÇÃO DO MODELO (INVIOLÁVEIS):
 
 INFORMAÇÕES INSTITUCIONAIS DA ESCOLA:
 - Nome: EasyTraining Formação Profissional
-- Localização: ${config.address.street}, ${config.address.neighborhood} - Guarulhos/SP (coração do bairro Pimentas, próximo ao Terminal Pimentas e Shopping Bonsucesso). Há 16 anos no mesmo endereço!
+- Localização: ${config.address.street}, ${config.address.neighborhood} - Guarulhos/SP (CEP: 07244-000). Há 16 anos no mesmo endereço!
 - Telefone / WhatsApp: ${config.phone}
 - Horários de funcionamento: Segunda a Sexta das 08h às 21h; Sábados das 08h às 17h; Turmas especiais aos domingos.
 - Reputação: Mais de 1.000 alunos formados, nota 5 no Google, sem registros no Reclame Aqui e sem processos no Procon.

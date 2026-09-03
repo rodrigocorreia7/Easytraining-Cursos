@@ -67,9 +67,17 @@ export const ContactSection: React.FC = () => {
                 </div>
                 <div>
                   <p className="font-bold text-[#052e7f]">Endereço:</p>
-                  <p>{config.address.street}</p>
+                  <p className="font-semibold text-slate-800">{config.address.street}</p>
                   <p>{config.address.neighborhood} - {config.address.city}/{config.address.state}</p>
-                  <p className="text-xs text-slate-500 mt-1">{config.address.reference}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">CEP: {config.address.zipCode || '07244-000'}</p>
+                  <a
+                    href="https://www.google.com/maps/search/?api=1&query=Av.+Jurema,+814+-+Parque+Jurema,+Guarulhos+-+SP,+07244-000"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs font-bold text-[#00B060] hover:underline mt-1"
+                  >
+                    Ver no Google Maps →
+                  </a>
                 </div>
               </div>
 

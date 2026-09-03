@@ -452,7 +452,7 @@ export default function AdminOverviewDashboard() {
             <MapPin className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
             <div className="min-w-0">
               <div className="font-bold text-slate-700">Endereço</div>
-              <div className="text-slate-500 truncate">{config?.address?.street || 'Estrada do Sacramento, 1250'}</div>
+              <div className="text-slate-500 truncate">{config?.address?.street || 'Av. Jurema, 814'}</div>
             </div>
           </div>
         </div>

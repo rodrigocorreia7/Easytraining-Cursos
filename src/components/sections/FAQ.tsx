@@ -32,7 +32,7 @@ export const FAQSection: React.FC = () => {
     },
     {
       q: 'Os cursos são presenciais em Guarulhos? Há opção online/híbrida?',
-      a: 'Nossas turmas são presenciais em Guarulhos (Estrada do Sacramento, Pimentas), garantindo prática real. Alguns módulos teóricos contam com material de apoio online.',
+      a: 'Nossas turmas são presenciais em Guarulhos na Av. Jurema, 814 - Parque Jurema, garantindo prática real. Alguns módulos teóricos contam com material de apoio online.',
     },
     {
       q: 'Vocês emitem certificado? Ele tem validade no mercado de trabalho?',
@@ -48,7 +48,7 @@ export const FAQSection: React.FC = () => {
     },
     {
       q: 'Onde fica a Easytraining e como faço contato / matrícula?',
-      a: 'Estamos na Estrada do Sacramento, 1250 - Sala 02, Marcos Freire / Pimentas em Guarulhos (ao lado do Terminal Pimentas e Shopping Bonsucesso). Telefone / WhatsApp: (11) 2303-7983.',
+      a: 'Estamos localizados na Av. Jurema, 814 - Parque Jurema, Guarulhos - SP, CEP 07244-000. Telefone / WhatsApp: (11) 2303-7983.',
     },
   ];
 

@@ -12,12 +12,14 @@ export const siteConfig = {
   googleAnalyticsId: "G-MQQYFMPM3F",
   googleTagManagerId: "",
   address: {
-    street: "Estrada do Sacramento, 1250 - Sala 02",
-    neighborhood: "Conjunto Habitacional Marcos Freire / Pimentas",
+    street: "Av. Jurema, 814",
+    neighborhood: "Parque Jurema",
     city: "Guarulhos",
     state: "SP",
-    zipCode: "07272-000",
-    reference: "Próximo ao Terminal Pimentas e Shopping Bonsucesso"
+    zipCode: "07244-000",
+    reference: "Região dos Pimentas - Guarulhos",
+    googleMapsEmbedUrl: "https://www.google.com/maps?q=Av.+Jurema,+814+-+Parque+Jurema,+Guarulhos+-+SP,+07244-000&output=embed",
+    googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=Av.+Jurema,+814+-+Parque+Jurema,+Guarulhos+-+SP,+07244-000"
   },
   openingHours: {
     weekdays: "Segunda a Sexta: 08:00 às 20:30",

@@ -85,10 +85,10 @@ export default function RootLayout({
     image: 'https://easytraining.com.br/images/robot/image-hero.webp',
     address: {
       '@type': 'PostalAddress',
-      streetAddress: config?.address?.street || 'Estrada do Sacramento, 1250 - Sala 02',
+      streetAddress: config?.address?.street || 'Av. Jurema, 814 - Parque Jurema',
       addressLocality: config?.address?.city || 'Guarulhos',
       addressRegion: config?.address?.state || 'SP',
-      postalCode: config?.address?.zipCode || '07272-000',
+      postalCode: config?.address?.zipCode || '07244-000',
       addressCountry: 'BR'
     },
     telephone: config?.phone || '+55 11 2303-7983',

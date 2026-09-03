@@ -41,7 +41,7 @@ A Izzy é a consultora virtual oficial da EasyTraining integrada no canto inferi
   - Auxiliar Veterinário: 8 meses, 100h (64h na escola + 36h de estágio prático em clínica/hospital parceiro), turmas aos domingos das 10h às 12h ou segundas das 19h às 21h, professora Andressa Lessa.
   - Pagamento: Parcelamento em boleto bancário **SEM consulta ao SPC/Serasa**.
   - Idade mínima: 15 anos (sem escolaridade mínima exigida).
-  - Tradição: Há 16 anos no mesmo endereço no bairro Pimentas em Guarulhos.
+  - Tradição: Há 16 anos no mesmo endereço na Av. Jurema, 814 - Parque Jurema, Guarulhos - SP (CEP 07244-000).
   - Reputação: Nota máxima no Google, sem reclamações no Reclame Aqui nem Procon, mais de 5.000 formados.
 
 ### 3.2. Formulário Inteligente de Captação de Leads no Chat
