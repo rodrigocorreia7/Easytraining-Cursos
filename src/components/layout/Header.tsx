@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { 
   Clock, Menu, X, Home, BookOpen, Users, 
   Newspaper, Phone, MessageCircle, ArrowRight, MapPin 
@@ -42,12 +43,16 @@ export const Header: React.FC<HeaderProps> = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const pathname = usePathname();
+  const isHomePage = pathname === '/';
+  const contatoHref = isHomePage ? '/#contato' : '/contato';
+
   const navItems: PillNavItem[] = [
     { label: 'Início', href: '/#home' },
     { label: 'Cursos', href: '/#cursos' },
     { label: 'Quem Somos', href: '/#quem-somos' },
     { label: 'Blog', href: '/blog' },
-    { label: 'Contato', href: '/#contato' }
+    { label: 'Contato', href: contatoHref }
   ];
 
   const whatsappUrl = `https://wa.me/${config.whatsappClean}?text=${encodeURIComponent('Olá! Acessei o site da EasyTraining e gostaria de informações sobre os cursos.')}`;
@@ -284,7 +289,7 @@ export const Header: React.FC<HeaderProps> = () => {
               </Link>
 
               <Link
-                href="/#contato"
+                href={contatoHref}
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center justify-between px-4 py-2.5 rounded-2xl bg-slate-50 hover:bg-emerald-50 text-slate-800 hover:text-[#00874A] font-bold text-xs transition-colors"
               >

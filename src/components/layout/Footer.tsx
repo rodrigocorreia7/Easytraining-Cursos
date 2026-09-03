@@ -68,7 +68,7 @@ export const Footer: React.FC = () => {
               <li><a href="/#quem-somos" className="hover:text-[#00B060] transition-colors">Quem Somos</a></li>
               <li><a href="/#diferenciais" className="hover:text-[#00B060] transition-colors">Metodologia Prática</a></li>
               <li><a href="/blog" className="hover:text-[#00B060] transition-colors">Blog de Carreira</a></li>
-              <li><a href="/#contato" className="hover:text-[#00B060] transition-colors">Localização & Contato</a></li>
+              <li><a href="/contato" className="hover:text-[#00B060] transition-colors">Localização & Contato</a></li>
               <li><a href="/admin" className="hover:text-[#FFB800] transition-colors text-xs opacity-75">Área do Administrador</a></li>
             </ul>
           </div>

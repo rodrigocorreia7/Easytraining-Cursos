@@ -32,7 +32,8 @@ const blogSlugs = [
   'curso-de-informatica-basicadesvende-o-mundo-digital',
   'o-que-se-faz-em-um-curso-de-informatica',
   'auxiliar-de-farmacia',
-  'descubra-a-importancia-de-um-curso-de-informatica-basica'
+  'descubra-a-importancia-de-um-curso-de-informatica-basica',
+  'a-importancia-da-educacao-profissionalizante-para-o-mercado-de-trabalho'
 ];
 
 const today = new Date().toISOString().split('T')[0];
@@ -44,6 +45,12 @@ let xml = `<?xml version="1.0" encoding="UTF-8"?>
     <lastmod>${today}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://easytraining.com.br/contato</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://easytraining.com.br/blog</loc>

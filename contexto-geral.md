@@ -109,6 +109,11 @@ Implementação estratégica para potencializar o **Domain Authority (DA)** do d
 - O `firestoreDb.ts` conta com a função `sanitizePostMedia` que higieniza qualquer URL legada de `wp-content/uploads/` em tempo real.
 - O componente `BlogCard.tsx` conta com tratamento `onError` que substitui imagens com falha de rede por uma foto de curso válida, impedindo qualquer quebra visual.
 
+### 6.4. Preservação de Backlinks e Rotas Específicas (/contato e Artigo Profissionalizante)
+- **Página Dedicada de Contato (`/contato`)**: Criada em `src/app/contato/page.tsx` com componente interativo `ContactPageView.tsx`. Oferece status 200 OK para backlinks externos legados, metadados ricos de SEO Local, Schema.org `LocalBusiness` e `EducationalOrganization`, mapa interativo embutido do Google Maps, FAQs de localização/matrícula e formulário integrado ao WhatsApp da secretaria.
+- **Artigo de Educação Profissionalizante (`/a-importancia-da-educacao-profissionalizante-para-o-mercado-de-trabalho`)**: Adicionado como artigo mestre (post #10) em `blogPostsReal.ts` e `posts.json`. Possui mais de 1.200 palavras, FAQs para Rich Snippets, banner de conversão para o curso de **Assistente Administrativo** e links contextuais para Informática, Excel, Auxiliar Veterinário e Farmácia. Servido com HTTP 200 via `src/app/[slug]/page.tsx` na raiz e `/blog/...`.
+- **Sitemap Atualizado (`public/sitemap.xml`)**: O script `generate_sitemap.cjs` indexa automaticamente as duas URLs para o Googlebot.
+
 ---
 
 ## 7. Infraestrutura de DNS, Domínio & Nuvem (Vercel + Registro.br)
