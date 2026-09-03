@@ -147,10 +147,10 @@ export const AiChatbot: React.FC = () => {
   ];
 
   return (
-    <div className="fixed bottom-22 right-6 z-40">
+    <div className="fixed bottom-20 sm:bottom-22 right-3 sm:right-6 z-40 flex flex-col items-end">
       {/* Chat Window */}
       {isOpen && (
-        <div className="mb-3 w-[calc(100vw-2rem)] sm:w-96 h-[540px] max-h-[82vh] bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4">
+        <div className="mb-3 w-[calc(100vw-1.5rem)] sm:w-96 h-[520px] sm:h-[540px] max-h-[78vh] sm:max-h-[82vh] bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4">
           
           {/* Header */}
           <div className="bg-gradient-to-r from-[#052e7f] to-[#0a3fa8] text-white p-4 flex items-center justify-between shadow-xs">
