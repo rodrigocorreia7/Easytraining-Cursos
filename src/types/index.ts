@@ -89,4 +89,6 @@ export interface Lead {
   notes?: string;
   createdAt: string;
   lastContactAt?: string;
+  isDeleted?: boolean;
+  deletedAt?: string;
 }

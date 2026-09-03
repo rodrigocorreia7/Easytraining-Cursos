@@ -35,7 +35,7 @@ export const AiChatbot: React.FC = () => {
   const [leadName, setLeadName] = useState('');
   const [leadPhone, setLeadPhone] = useState('');
   const [leadCourse, setLeadCourse] = useState(POPULAR_COURSES[0]);
-  const [leadShift, setLeadShift] = useState('Sábados ou Domingos');
+  const [leadShift, setLeadShift] = useState('Segunda a Sexta - Noite');
   const [submittingLead, setSubmittingLead] = useState(false);
   const [leadSuccess, setLeadSuccess] = useState(false);
 
@@ -294,10 +294,10 @@ export const AiChatbot: React.FC = () => {
                       onChange={(e) => setLeadShift(e.target.value)}
                       className="w-full px-2 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-800 text-[10px] focus:outline-hidden focus:ring-1 focus:ring-[#00B060]"
                     >
-                      <option value="Sábados ou Domingos">Sábado / Domingo</option>
-                      <option value="Semana - Manhã">Semana - Manhã</option>
-                      <option value="Semana - Tarde">Semana - Tarde</option>
-                      <option value="Semana - Noite">Semana - Noite</option>
+                      <option value="Segunda a Sexta - Manhã">Segunda a Sexta - Manhã</option>
+                      <option value="Segunda a Sexta - Tarde">Segunda a Sexta - Tarde</option>
+                      <option value="Segunda a Sexta - Noite">Segunda a Sexta - Noite</option>
+                      <option value="Segunda a Sexta - Horário Flexível">Segunda a Sexta - Flexível</option>
                     </select>
                   </div>
                 </div>

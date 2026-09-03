@@ -5,7 +5,8 @@ import { Lead, LeadStatus } from '@/types';
 import { 
   Users, MessageSquare, Plus, Phone, Calendar, Clock, 
   Search, ExternalLink, Trash2, Edit3, CheckCircle2, ArrowRight,
-  Send, Sparkles, Filter, RefreshCw, Radio, Settings2, Info
+  Send, Sparkles, Filter, RefreshCw, Radio, Settings2, Info,
+  RotateCcw, AlertTriangle, Archive
 } from 'lucide-react';
 
 const COLUMNS: { id: LeadStatus; title: string; color: string; badgeBg: string; borderTop: string }[] = [
@@ -48,12 +49,15 @@ const COLUMNS: { id: LeadStatus; title: string; color: string; badgeBg: string; 
 
 export default function AdminLeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [trashLeads, setTrashLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [draggedLeadId, setDraggedLeadId] = useState<string | null>(null);
+  const [toast, setToast] = useState('');
 
   // Modals & Panels
   const [showNewLeadModal, setShowNewLeadModal] = useState(false);
+  const [showTrashModal, setShowTrashModal] = useState(false);
   const [showN8nConfig, setShowN8nConfig] = useState(false);
   const [webhookUrl, setWebhookUrl] = useState('');
   const [testingWebhook, setTestingWebhook] = useState(false);
@@ -63,12 +67,13 @@ export default function AdminLeadsPage() {
   const [newLeadName, setNewLeadName] = useState('');
   const [newLeadPhone, setNewLeadPhone] = useState('');
   const [newLeadCourse, setNewLeadCourse] = useState('Auxiliar Veterinário');
-  const [newLeadShift, setNewLeadShift] = useState('Sábados ou Domingos');
+  const [newLeadShift, setNewLeadShift] = useState('Segunda a Sexta - Noite');
   const [newLeadNotes, setNewLeadNotes] = useState('');
 
-  // Editing Note State
-  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
-  const [noteText, setNoteText] = useState('');
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 4000);
+  };
 
   const loadLeads = async () => {
     try {
@@ -78,6 +83,7 @@ export default function AdminLeadsPage() {
         const data = await res.json();
         setLeads(data);
       }
+      loadTrashLeads();
     } catch (err) {
       console.error('Erro ao carregar leads:', err);
     } finally {
@@ -85,9 +91,18 @@ export default function AdminLeadsPage() {
     }
   };
 
+  const loadTrashLeads = async () => {
+    try {
+      const res = await fetch('/api/leads?trash=true');
+      if (res.ok) {
+        const data = await res.json();
+        setTrashLeads(data);
+      }
+    } catch {}
+  };
+
   useEffect(() => {
     loadLeads();
-    // Carrega Webhook URL das configurações
     fetch('/api/site-config')
       .then(r => r.json())
       .then(cfg => {
@@ -110,7 +125,6 @@ export default function AdminLeadsPage() {
     const id = draggedLeadId || e.dataTransfer.getData('text/plain');
     if (!id) return;
 
-    // Atualiza otimista na tela
     setLeads(prev => prev.map(l => l.id === id ? { ...l, status: newStatus } : l));
     setDraggedLeadId(null);
 
@@ -121,7 +135,6 @@ export default function AdminLeadsPage() {
         body: JSON.stringify({ status: newStatus })
       });
     } catch (err) {
-      console.error('Erro ao mover lead:', err);
       loadLeads();
     }
   };
@@ -139,9 +152,15 @@ export default function AdminLeadsPage() {
     }
   };
 
-  const handleDeleteLead = async (id: string) => {
-    if (!confirm('Deseja realmente excluir este lead?')) return;
+  // Move lead to Trash (Soft Delete)
+  const handleTrashLead = async (id: string) => {
+    const targetLead = leads.find(l => l.id === id);
     setLeads(prev => prev.filter(l => l.id !== id));
+    if (targetLead) {
+      setTrashLeads(prev => [{ ...targetLead, isDeleted: true, deletedAt: new Date().toISOString() }, ...prev]);
+    }
+    showToast('Lead movido para a Lixeira! Você pode restaurá-lo a qualquer momento.');
+
     try {
       await fetch(`/api/leads/${id}`, { method: 'DELETE' });
     } catch {
@@ -149,17 +168,49 @@ export default function AdminLeadsPage() {
     }
   };
 
-  const handleSaveNote = async (id: string) => {
-    setLeads(prev => prev.map(l => l.id === id ? { ...l, notes: noteText } : l));
-    setEditingNoteId(null);
+  // Restore lead from Trash
+  const handleRestoreLead = async (id: string) => {
     try {
-      await fetch(`/api/leads/${id}`, {
+      const res = await fetch(`/api/leads/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ notes: noteText })
+        body: JSON.stringify({ action: 'restore' })
       });
+
+      if (res.ok) {
+        const restored = await res.json();
+        setTrashLeads(prev => prev.filter(l => l.id !== id));
+        setLeads(prev => [restored, ...prev]);
+        showToast(`Lead "${restored.name}" restaurado com sucesso para o Kanban!`);
+      }
     } catch {
       loadLeads();
+    }
+  };
+
+  // Permanent Delete
+  const handlePermanentDelete = async (id: string) => {
+    if (!confirm('Esta ação é irreversível e excluirá o lead definitivamente do Firestore. Continuar?')) return;
+
+    setTrashLeads(prev => prev.filter(l => l.id !== id));
+    try {
+      await fetch(`/api/leads/${id}?permanent=true`, { method: 'DELETE' });
+      showToast('Lead excluído permanentemente.');
+    } catch {
+      loadTrashLeads();
+    }
+  };
+
+  // Empty Trash
+  const handleEmptyTrash = async () => {
+    if (!confirm('Deseja realmente esvaziar toda a lixeira? Todos os leads na lixeira serão apagados em definitivo do Firebase.')) return;
+
+    setTrashLeads([]);
+    try {
+      await fetch('/api/leads?emptyTrash=true', { method: 'DELETE' });
+      showToast('Lixeira esvaziada com sucesso.');
+    } catch {
+      loadTrashLeads();
     }
   };
 
@@ -186,6 +237,7 @@ export default function AdminLeadsPage() {
         setNewLeadName('');
         setNewLeadPhone('');
         setNewLeadNotes('');
+        showToast('Lead cadastrado no Kanban e sincronizado com o Firebase!');
         loadLeads();
       }
     } catch (err) {
@@ -202,7 +254,7 @@ export default function AdminLeadsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...cfg, n8nWebhookUrl: webhookUrl })
       });
-      setWebhookFeedback('Webhook salvo com sucesso!');
+      setWebhookFeedback('Webhook salvo com sucesso no Firebase!');
       setTimeout(() => setWebhookFeedback(''), 4000);
     } catch (e) {
       setWebhookFeedback('Erro ao salvar webhook.');
@@ -223,22 +275,22 @@ export default function AdminLeadsPage() {
         body: JSON.stringify({
           event: 'teste_conexao',
           origem: 'Painel EasyTraining CRM',
-          mensagem: 'Disparo de teste bem-sucedido! A sua integração com o N8N e Telegram está funcionando.',
+          mensagem: 'Disparo de teste bem-sucedido! Integração ativa.',
           leadExemplo: {
             nome: 'Aluno Teste',
             whatsapp: '(11) 97063-8888',
             curso: 'Auxiliar Veterinário',
-            turno: 'Domingos'
+            turno: 'Segunda a Sexta - Noite'
           }
         })
       });
       if (res.ok) {
-        setWebhookFeedback('✅ Sucesso! O N8N recebeu o disparo teste com sucesso.');
+        setWebhookFeedback('✅ Sucesso! O N8N recebeu o disparo teste.');
       } else {
-        setWebhookFeedback(`⚠️ O N8N respondeu com status ${res.status}. Verifique se o nó Webhook está ativo no N8N.`);
+        setWebhookFeedback(`⚠️ O N8N respondeu com status ${res.status}.`);
       }
     } catch (e: any) {
-      setWebhookFeedback(`❌ Falha de conexão: ${e.message}`);
+      setWebhookFeedback(`❌ Falha: ${e.message}`);
     } finally {
       setTestingWebhook(false);
     }
@@ -262,20 +314,37 @@ export default function AdminLeadsPage() {
   return (
     <div className="space-y-6 pb-12">
       
+      {/* Toast Notification */}
+      {toast && (
+        <div className="fixed top-20 right-6 z-50 bg-[#052e7f] text-white px-4 py-3 rounded-2xl shadow-xl border border-blue-400/30 flex items-center gap-2 text-xs font-bold animate-in fade-in slide-in-from-top-3">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+          <span>{toast}</span>
+        </div>
+      )}
+
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 text-xs font-bold text-purple-700 mb-2">
             <Users className="w-3.5 h-3.5 text-purple-600" />
-            <span>CRM & Funil de Matrículas</span>
+            <span>CRM & Funil de Matrículas • Cloud Firestore</span>
           </div>
           <h1 className="text-2xl font-black text-[#052e7f]">Pipeline de Leads & Atendimento</h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Gerencie contatos vindos do Chatbot da Izzy, agende visitas na unidade Pimentas e acompanhe conversões.
+            Gerencie contatos do Chatbot da Izzy, agende visitas na unidade Pimentas e acompanhe conversões.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <button
+            onClick={() => { setShowTrashModal(true); loadTrashLeads(); }}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all cursor-pointer shadow-xs"
+            title="Ver itens na lixeira"
+          >
+            <Trash2 className="w-4 h-4 text-slate-500" />
+            <span>Lixeira ({trashLeads.length})</span>
+          </button>
+
           <button
             onClick={() => setShowN8nConfig(!showN8nConfig)}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all cursor-pointer shadow-xs"
@@ -305,7 +374,7 @@ export default function AdminLeadsPage() {
               </div>
               <h2 className="text-lg font-black">Notificação no Telegram a cada novo Lead no Site</h2>
               <p className="text-xs text-purple-200 leading-relaxed">
-                Toda vez que um aluno preenche o contato no chat com a Izzy ou no site, nosso sistema faz um disparo HTTP POST para o seu Webhook do N8N. No N8N, você conecta ao nó do <strong>Telegram</strong> para receber o alerta instantâneo no seu celular!
+                Toda vez que um aluno preenche o contato no chat com a Izzy ou no site, nosso sistema salva no <strong>Cloud Firestore</strong> e faz um disparo HTTP POST para o seu Webhook do N8N. No N8N, você conecta ao nó do <strong>Telegram</strong> para receber o alerta instantâneo no seu celular!
               </p>
             </div>
             <button
@@ -351,7 +420,7 @@ export default function AdminLeadsPage() {
       {/* KPI Stats Strip */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total de Leads</span>
+          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Ativos</span>
           <div className="text-2xl font-black text-[#052e7f] mt-1">{leads.length}</div>
         </div>
 
@@ -439,17 +508,17 @@ export default function AdminLeadsPage() {
                       onDragStart={(e) => handleDragStart(e, lead.id)}
                       className="bg-white p-3.5 rounded-xl border border-slate-200 hover:border-blue-400 hover:shadow-md transition-all cursor-grab active:cursor-grabbing group select-none relative"
                     >
-                      {/* Card Header: Name + Time */}
+                      {/* Card Header: Name + Trash Button */}
                       <div className="flex items-start justify-between gap-2 mb-1.5">
                         <h4 className="text-xs font-bold text-slate-900 leading-tight">
                           {lead.name}
                         </h4>
                         <button
-                          onClick={() => handleDeleteLead(lead.id)}
-                          className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 p-0.5 transition-opacity cursor-pointer"
-                          title="Excluir lead"
+                          onClick={() => handleTrashLead(lead.id)}
+                          className="text-slate-300 hover:text-red-500 p-0.5 transition-colors cursor-pointer"
+                          title="Mover para a Lixeira"
                         >
-                          <Trash2 className="w-3 h-3" />
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
 
@@ -542,6 +611,114 @@ export default function AdminLeadsPage() {
         })}
       </div>
 
+      {/* LIXEIRA MODAL */}
+      {showTrashModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 w-full max-w-2xl shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 max-h-[85vh] flex flex-col">
+            
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center">
+                  <Trash2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-slate-900">Lixeira de Leads</h3>
+                  <p className="text-xs text-slate-500">
+                    Itens apagados do Kanban. Você pode restaurar qualquer contato para o funil ou excluir definitivamente do Firebase.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowTrashModal(false)}
+                className="text-slate-400 hover:text-slate-600 text-sm cursor-pointer p-1"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Trash List */}
+            <div className="flex-1 overflow-y-auto py-4 space-y-2.5">
+              {trashLeads.map(lead => (
+                <div 
+                  key={lead.id}
+                  className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                >
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-slate-900">{lead.name}</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 font-bold">
+                        {lead.courseInterest}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 text-[11px] text-slate-500 mt-1">
+                      <span>📱 {lead.phone}</span>
+                      <span>🕒 Turno: {lead.preferredShift || 'Flexível'}</span>
+                      {lead.deletedAt && (
+                        <span className="text-red-500">
+                          Apagado em: {new Date(lead.deletedAt).toLocaleDateString('pt-BR')}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={() => handleRestoreLead(lead.id)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-[#00874A] text-xs font-bold transition-colors cursor-pointer border border-emerald-200"
+                      title="Restaurar lead de volta para o Kanban"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>Restaurar</span>
+                    </button>
+
+                    <button
+                      onClick={() => handlePermanentDelete(lead.id)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold transition-colors cursor-pointer border border-red-200"
+                      title="Excluir do Firebase permanentemente"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Excluir Definitivo</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              {trashLeads.length === 0 && (
+                <div className="py-12 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
+                  <Archive className="w-8 h-8 text-slate-300" />
+                  <span>A lixeira está vazia. Nenhum lead foi apagado.</span>
+                </div>
+              )}
+            </div>
+
+            {/* Trash Footer */}
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-xs text-slate-500 font-medium">
+                {trashLeads.length} {trashLeads.length === 1 ? 'item na lixeira' : 'itens na lixeira'}
+              </span>
+
+              <div className="flex items-center gap-2">
+                {trashLeads.length > 0 && (
+                  <button
+                    onClick={handleEmptyTrash}
+                    className="px-3.5 py-1.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-colors cursor-pointer shadow-xs"
+                  >
+                    Esvaziar Lixeira
+                  </button>
+                )}
+                <button
+                  onClick={() => setShowTrashModal(false)}
+                  className="px-4 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors cursor-pointer"
+                >
+                  Fechar
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
+
       {/* Manual New Lead Modal */}
       {showNewLeadModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
@@ -609,10 +786,10 @@ export default function AdminLeadsPage() {
                     onChange={(e) => setNewLeadShift(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-hidden"
                   >
-                    <option value="Sábados ou Domingos">Sábado ou Domingo</option>
-                    <option value="Semana - Manhã">Semana - Manhã</option>
-                    <option value="Semana - Tarde">Semana - Tarde</option>
-                    <option value="Semana - Noite">Semana - Noite</option>
+                    <option value="Segunda a Sexta - Manhã">Segunda a Sexta - Manhã</option>
+                    <option value="Segunda a Sexta - Tarde">Segunda a Sexta - Tarde</option>
+                    <option value="Segunda a Sexta - Noite">Segunda a Sexta - Noite</option>
+                    <option value="Segunda a Sexta - Horário Flexível">Segunda a Sexta - Horário Flexível</option>
                   </select>
                 </div>
               </div>
@@ -622,7 +799,7 @@ export default function AdminLeadsPage() {
                 <textarea
                   value={newLeadNotes}
                   onChange={(e) => setNewLeadNotes(e.target.value)}
-                  placeholder="Ex: Aluno quer turma de domingo, mora no Parque Pimentas..."
+                  placeholder="Ex: Aluno quer turma da noite, mora no Parque Pimentas..."
                   rows={3}
                   className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-[#00B060]"
                 />

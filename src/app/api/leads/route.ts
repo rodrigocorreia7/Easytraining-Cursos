@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getLeadsFromDb, createLead } from '@/lib/leadsDb';
+import { getLeadsFromDb, createLead, emptyTrash } from '@/lib/leadsDb';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const leads = await getLeadsFromDb();
+    const { searchParams } = new URL(request.url);
+    const isTrash = searchParams.get('trash') === 'true';
+
+    const leads = await getLeadsFromDb(isTrash);
     return NextResponse.json(leads);
   } catch (error: any) {
     console.error('Erro ao buscar leads:', error);
@@ -33,5 +36,18 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error('Erro ao criar lead:', error);
     return NextResponse.json({ error: 'Erro ao registrar contato' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    if (searchParams.get('emptyTrash') === 'true') {
+      await emptyTrash();
+      return NextResponse.json({ success: true, message: 'Lixeira esvaziada com sucesso' });
+    }
+    return NextResponse.json({ error: 'Operação não permitida' }, { status: 400 });
+  } catch (error: any) {
+    return NextResponse.json({ error: 'Erro ao esvaziar lixeira' }, { status: 500 });
   }
 }

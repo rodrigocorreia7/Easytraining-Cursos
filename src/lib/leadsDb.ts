@@ -34,21 +34,31 @@ export function saveLocalLeads(leads: Lead[]): void {
   fs.writeFileSync(LEADS_FILE, JSON.stringify(leads, null, 2), 'utf-8');
 }
 
-export async function getLeadsFromDb(): Promise<Lead[]> {
+export async function getLeadsFromDb(includeTrash = false): Promise<Lead[]> {
+  let leads: Lead[] = [];
   try {
     const snap = await getDocs(collection(db, LEADS_COLLECTION));
     if (snap.empty) {
-      return getLocalLeads();
+      leads = getLocalLeads();
+    } else {
+      snap.forEach(d => {
+        leads.push(d.data() as Lead);
+      });
     }
-    const leads: Lead[] = [];
-    snap.forEach(d => {
-      leads.push(d.data() as Lead);
-    });
-    leads.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    return leads;
   } catch (err) {
-    return getLocalLeads();
+    leads = getLocalLeads();
   }
+
+  // Filtra por lixeira ou ativos
+  if (includeTrash) {
+    return leads.filter(l => l.isDeleted === true).sort((a, b) => 
+      new Date(b.deletedAt || b.createdAt).getTime() - new Date(a.deletedAt || a.createdAt).getTime()
+    );
+  }
+
+  return leads.filter(l => !l.isDeleted).sort((a, b) => 
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
 }
 
 export async function createLead(leadData: Omit<Lead, 'id' | 'createdAt' | 'status'> & { status?: LeadStatus }): Promise<Lead> {
@@ -62,6 +72,7 @@ export async function createLead(leadData: Omit<Lead, 'id' | 'createdAt' | 'stat
     status: leadData.status || 'novo',
     source: leadData.source || 'Chatbot Izzy',
     notes: leadData.notes || '',
+    isDeleted: false,
     createdAt: new Date().toISOString()
   };
 
@@ -93,9 +104,7 @@ export async function createLead(leadData: Omit<Lead, 'id' | 'createdAt' | 'stat
         })
       }).catch(e => console.warn('Erro ao disparar Webhook N8N:', e.message));
     }
-  } catch (e) {
-    // Ignora erro de webhook para não travar o fluxo
-  }
+  } catch (e) {}
 
   return newLead;
 }
@@ -121,7 +130,54 @@ export async function updateLeadStatus(id: string, status: LeadStatus, notes?: s
   return local[index];
 }
 
-export async function deleteLead(id: string): Promise<boolean> {
+/**
+ * Envia o lead para a Lixeira (Soft Delete no Firestore e local)
+ */
+export async function trashLead(id: string): Promise<boolean> {
+  const local = getLocalLeads();
+  const index = local.findIndex(l => l.id === id);
+  if (index === -1) return false;
+
+  local[index].isDeleted = true;
+  local[index].deletedAt = new Date().toISOString();
+  saveLocalLeads(local);
+
+  try {
+    const docRef = doc(db, LEADS_COLLECTION, id);
+    setDoc(docRef, local[index], { merge: true }).catch(() => {});
+  } catch (err) {
+    console.warn('Erro ao mover lead para lixeira no Firestore:', err);
+  }
+
+  return true;
+}
+
+/**
+ * Restaura o lead da Lixeira de volta para o Kanban
+ */
+export async function restoreLead(id: string): Promise<Lead | null> {
+  const local = getLocalLeads();
+  const index = local.findIndex(l => l.id === id);
+  if (index === -1) return null;
+
+  local[index].isDeleted = false;
+  delete local[index].deletedAt;
+  saveLocalLeads(local);
+
+  try {
+    const docRef = doc(db, LEADS_COLLECTION, id);
+    setDoc(docRef, local[index], { merge: true }).catch(() => {});
+  } catch (err) {
+    console.warn('Erro ao restaurar lead no Firestore:', err);
+  }
+
+  return local[index];
+}
+
+/**
+ * Exclui definitivamente o lead do Firestore e do arquivo local
+ */
+export async function permanentDeleteLead(id: string): Promise<boolean> {
   let local = getLocalLeads();
   local = local.filter(l => l.id !== id);
   saveLocalLeads(local);
@@ -129,6 +185,25 @@ export async function deleteLead(id: string): Promise<boolean> {
   try {
     const docRef = doc(db, LEADS_COLLECTION, id);
     deleteDoc(docRef).catch(() => {});
+  } catch (err) {}
+
+  return true;
+}
+
+/**
+ * Esvazia toda a lixeira definitivamente
+ */
+export async function emptyTrash(): Promise<boolean> {
+  let local = getLocalLeads();
+  const trashed = local.filter(l => l.isDeleted);
+  local = local.filter(l => !l.isDeleted);
+  saveLocalLeads(local);
+
+  try {
+    for (const l of trashed) {
+      const docRef = doc(db, LEADS_COLLECTION, l.id);
+      deleteDoc(docRef).catch(() => {});
+    }
   } catch (err) {}
 
   return true;
