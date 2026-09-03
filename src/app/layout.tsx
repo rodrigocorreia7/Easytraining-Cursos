@@ -146,67 +146,46 @@ export default function RootLayout({
           }}
         />
 
-        {/* Google Consent Mode v2 (LGPD Compliance & Zero Third-Party Cookie Penalty) */}
-        <script
-          id="google-consent-mode-v2"
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('consent', 'default', {
-                'ad_storage': 'denied',
-                'ad_user_data': 'denied',
-                'ad_personalization': 'denied',
-                'analytics_storage': 'denied'
-              });
-            `,
-          }}
-        />
-
-        {/* Deferred Analytics & Third-Party Tag Loader (Klaviyo/GA4/GTM) - Zero Critical Path Penalty */}
-        <script
-          id="deferred-analytics-loader"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                var loaded = false;
-                function loadTracking() {
-                  if (loaded) return;
-                  loaded = true;
-                  ['scroll', 'mousemove', 'touchstart', 'click', 'keydown'].forEach(function(e) {
-                    window.removeEventListener(e, loadTracking);
+        {/* Google Analytics 4 (GA4) - Inserção Dinâmica Otimizada */}
+        {gaId && (
+          <>
+            <Script
+              strategy="lazyOnload"
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+            />
+            <Script
+              id="google-analytics-init"
+              strategy="lazyOnload"
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', '${gaId}', {
+                    page_path: window.location.pathname,
                   });
+                `,
+              }}
+            />
+          </>
+        )}
 
-                  ${gaId ? `
-                  var gaScript = document.createElement('script');
-                  gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=${gaId}';
-                  gaScript.async = true;
-                  gaScript.onload = function() {
-                    window.dataLayer = window.dataLayer || [];
-                    function gtag(){dataLayer.push(arguments);}
-                    gtag('js', new Date());
-                    gtag('config', '${gaId}', { page_path: window.location.pathname });
-                  };
-                  document.head.appendChild(gaScript);
-                  ` : ''}
-
-                  ${gtmId ? `
-                  (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-                  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-                  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-                  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-                  })(window,document,'script','dataLayer','${gtmId}');
-                  ` : ''}
-                }
-
-                ['scroll', 'mousemove', 'touchstart', 'click', 'keydown'].forEach(function(e) {
-                  window.addEventListener(e, loadTracking, { passive: true });
-                });
-                setTimeout(loadTracking, 4500);
-              })();
-            `
-          }}
-        />
+        {/* Google Tag Manager (GTM) - Inserção Dinâmica Otimizada */}
+        {gtmId && (
+          <Script
+            id="google-tag-manager"
+            strategy="lazyOnload"
+            dangerouslySetInnerHTML={{
+              __html: `
+                (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+                new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+                j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+                'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+                })(window,document,'script','dataLayer','${gtmId}');
+              `,
+            }}
+          />
+        )}
 
         <script
           type="application/ld+json"

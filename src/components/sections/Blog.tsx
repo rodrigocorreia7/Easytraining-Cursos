@@ -12,21 +12,14 @@ export const BlogSection: React.FC = () => {
   const [posts, setPosts] = useState<BlogPost[]>(defaultPosts);
 
   useEffect(() => {
-    let timer: any;
-    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      (window as any).requestIdleCallback(() => {
-        BlogService.getAllPosts().then((data) => {
-          if (data && data.length > 0) setPosts(data);
-        }).catch(() => {});
-      }, { timeout: 12000 });
-    } else {
-      timer = setTimeout(() => {
-        BlogService.getAllPosts().then((data) => {
-          if (data && data.length > 0) setPosts(data);
-        }).catch(() => {});
-      }, 12000);
-    }
-    return () => { if (timer) clearTimeout(timer); };
+    const timer = setTimeout(() => {
+      BlogService.getAllPosts().then((data) => {
+        if (data && data.length > 0) {
+          setPosts(data);
+        }
+      }).catch(console.error);
+    }, 4500);
+    return () => clearTimeout(timer);
   }, []);
 
   // Show top 3 recent posts on landing page

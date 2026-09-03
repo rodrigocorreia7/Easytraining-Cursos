@@ -30,21 +30,14 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ initialCategory 
   const [activeCourse, setActiveCourse] = useState<Course | null>(null);
 
   useEffect(() => {
-    let timer: any;
-    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      (window as any).requestIdleCallback(() => {
-        CourseService.getAllCourses().then((data) => {
-          if (data && data.length > 0) setCoursesList(data);
-        }).catch(() => {});
-      }, { timeout: 12000 });
-    } else {
-      timer = setTimeout(() => {
-        CourseService.getAllCourses().then((data) => {
-          if (data && data.length > 0) setCoursesList(data);
-        }).catch(() => {});
-      }, 12000);
-    }
-    return () => { if (timer) clearTimeout(timer); };
+    const timer = setTimeout(() => {
+      CourseService.getAllCourses().then((data) => {
+        if (data && data.length > 0) {
+          setCoursesList(data);
+        }
+      }).catch(console.error);
+    }, 4000);
+    return () => clearTimeout(timer);
   }, []);
 
   const categoryCounts = useMemo(() => {

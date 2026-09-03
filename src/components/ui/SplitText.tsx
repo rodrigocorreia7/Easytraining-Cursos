@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useRef, useEffect, useState, useMemo } from 'react';
+import { gsap } from 'gsap';
+
 export interface SplitTextProps {
   text: string;
   className?: string;
@@ -8,8 +10,8 @@ export interface SplitTextProps {
   duration?: number;
   ease?: string | ((t: number) => number);
   splitType?: 'chars' | 'words' | 'lines' | 'words, chars';
-  from?: Record<string, any>;
-  to?: Record<string, any>;
+  from?: gsap.TweenVars;
+  to?: gsap.TweenVars;
   threshold?: number;
   rootMargin?: string;
   tag?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span';
@@ -72,25 +74,23 @@ export const SplitText: React.FC<SplitTextProps> = ({
 
     if (targets.length === 0) return;
 
-    import('gsap').then(({ gsap }) => {
-      gsap.fromTo(
-        targets,
-        {
-          ...from,
-          display: 'inline-block',
-          willChange: 'transform, opacity'
-        },
-        {
-          ...to,
-          duration,
-          ease,
-          stagger: delay / 1000,
-          onComplete: () => {
-            onLetterAnimationComplete?.();
-          }
+    gsap.fromTo(
+      targets,
+      {
+        ...from,
+        display: 'inline-block',
+        willChange: 'transform, opacity'
+      },
+      {
+        ...to,
+        duration,
+        ease,
+        stagger: delay / 1000,
+        onComplete: () => {
+          onLetterAnimationComplete?.();
         }
-      );
-    }).catch(() => {});
+      }
+    );
   }, [inView, delay, duration, ease, from, to, onLetterAnimationComplete]);
 
   const Tag = tag;

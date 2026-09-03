@@ -11,13 +11,7 @@ export const ClientWidgets: React.FC = () => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    let timer: any;
-    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      (window as any).requestIdleCallback(() => setMounted(true), { timeout: 3500 });
-    } else {
-      timer = setTimeout(() => setMounted(true), 3500);
-    }
-    return () => { if (timer) clearTimeout(timer); };
+    setMounted(true);
   }, []);
 
   if (!mounted) return null;
