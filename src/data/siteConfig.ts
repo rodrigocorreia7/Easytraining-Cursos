@@ -36,6 +36,7 @@ export const siteConfig = {
     linkedin: "https://www.linkedin.com/company/easytraining-curso-de-inform%C3%A1tica-auxiliar-de-veterin%C3%A1rio-e-profissionalizantes/",
     youtube: "https://www.youtube.com/@easytrainingprofissionalizante",
     instagram: "https://www.instagram.com/easytraining1/",
+    tiktok: "https://www.tiktok.com/@easytrainingcursos",
     whatsapp: "https://wa.me/551123037983"
   },
   n8nWebhookUrl: "https://n8n.eterion.online/webhook/easytraining-leads"

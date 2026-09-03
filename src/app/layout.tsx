@@ -98,7 +98,8 @@ export default function RootLayout({
     sameAs: [
       config?.social?.facebook || 'https://www.facebook.com/easytrainingcursosprofissionalizantes',
       config?.social?.instagram || 'https://www.instagram.com/easytraining1/',
-      config?.social?.youtube || 'https://www.youtube.com/@easytrainingprofissionalizante'
+      config?.social?.youtube || 'https://www.youtube.com/@easytrainingprofissionalizante',
+      (config?.social as any)?.tiktok || 'https://www.tiktok.com/@easytrainingcursos'
     ]
   };
 

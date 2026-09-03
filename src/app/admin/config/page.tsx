@@ -330,6 +330,20 @@ export default function AdminConfigPage() {
           </div>
 
           <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">TikTok URL</label>
+            <input
+              type="text"
+              value={(config.social as any).tiktok || ''}
+              onChange={(e) => setConfig({
+                ...config,
+                social: { ...config.social, tiktok: e.target.value } as any
+              })}
+              placeholder="https://www.tiktok.com/@easytrainingcursos"
+              className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 focus:outline-hidden focus:border-[#00B060]"
+            />
+          </div>
+
+          <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">LinkedIn URL</label>
             <input
               type="text"
