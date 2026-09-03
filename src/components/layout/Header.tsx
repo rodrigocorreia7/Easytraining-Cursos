@@ -142,10 +142,10 @@ export const Header: React.FC<HeaderProps> = () => {
           {/* ========================================================= */}
           {/* 2. MOBILE LOGO & BRAND (md:hidden) */}
           {/* ========================================================= */}
-          <div className="flex md:hidden items-center gap-2 pl-1">
+          <div className="flex md:hidden items-center gap-1.5 shrink min-w-0">
             <Link 
               href="/"
-              className="w-9 h-9 rounded-full bg-white p-1 border border-slate-200/80 shadow-xs flex items-center justify-center shrink-0"
+              className="w-8 h-8 rounded-full bg-white p-1 border border-slate-200/80 shadow-xs flex items-center justify-center shrink-0"
               aria-label="Ir para a página inicial"
             >
               <img
@@ -154,11 +154,11 @@ export const Header: React.FC<HeaderProps> = () => {
                 className="w-full h-full object-contain"
               />
             </Link>
-            <Link href="/" className="leading-tight">
-              <span className="text-xs font-black tracking-tight text-[#052e7f] block">
+            <Link href="/" className="leading-tight shrink min-w-0">
+              <span className="text-xs font-black tracking-tight text-[#052e7f] block truncate">
                 Easy<span className="text-[#00874A]">Training</span>
               </span>
-              <span className="text-[9px] font-semibold text-slate-500 block -mt-0.5">
+              <span className="text-[9px] font-semibold text-slate-500 hidden sm:block -mt-0.5 truncate">
                 Guarulhos • Pimentas
               </span>
             </Link>
@@ -167,7 +167,7 @@ export const Header: React.FC<HeaderProps> = () => {
           {/* ========================================================= */}
           {/* 3. RIGHT SIDE CONTROLS (Desktop & Mobile) */}
           {/* ========================================================= */}
-          <div className="flex items-center gap-1.5 sm:gap-2.5">
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             {/* Live Clock (Desktop only) */}
             <div className="hidden lg:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-slate-100 text-[12px] text-slate-700 font-medium">
               <Clock className="w-3.5 h-3.5 text-[#00874A]" />
@@ -192,7 +192,7 @@ export const Header: React.FC<HeaderProps> = () => {
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="md:hidden flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-[#00874A] hover:bg-[#00703c] text-white text-[10.5px] font-bold shadow-xs active:scale-95 transition-transform shrink-0"
+              className="md:hidden flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#00874A] hover:bg-[#00703c] text-white text-[10px] font-bold shadow-xs active:scale-95 transition-transform shrink-0"
             >
               <span>Matrículas</span>
               <ArrowRight className="w-3 h-3" />
@@ -201,7 +201,7 @@ export const Header: React.FC<HeaderProps> = () => {
             {/* Mobile Hamburger / Close Toggle Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-800 flex items-center justify-center cursor-pointer transition-all border border-slate-200/60 shadow-2xs shrink-0 mr-0.5"
+              className="md:hidden w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-800 flex items-center justify-center cursor-pointer transition-all border border-slate-200/60 shadow-2xs shrink-0"
               aria-label={mobileMenuOpen ? 'Fechar menu de navegação' : 'Abrir menu de navegação'}
               aria-expanded={mobileMenuOpen}
             >
