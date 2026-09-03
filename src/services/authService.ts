@@ -140,13 +140,23 @@ export const AuthService = {
 
       return { success: true, user: adminUser };
     } catch (fbErr: any) {
-      // 3. Fallback de contingência para o superusuário local se ainda não cadastrado no Firebase
-      if (normalizedEmail === 'admin@easytraining.com.br' && (pass === 'admin123' || pass === 'easytraining2026')) {
+      // 3. Fallback de contingência para administradores autorizados com credencial mestra
+      const isAllowedAdmin = ALLOWED_ADMIN_EMAILS.includes(normalizedEmail);
+      const isMasterPass = pass === 'Easytraining2026#' || pass === 'easytraining2026' || pass === 'admin123';
+
+      if (isAllowedAdmin && isMasterPass) {
         this.resetLoginAttempts();
+
+        const fallbackUser: AdminUser = {
+          id: normalizedEmail === 'admin@easytraining.com.br' ? 'admin-01' : 'admin-rodrigo',
+          email: normalizedEmail,
+          name: normalizedEmail.includes('rac') ? 'Rodrigo Correia' : 'Administrador EasyTraining',
+          role: 'admin'
+        };
 
         if (typeof window !== 'undefined') {
           const sessionData: StoredSession = {
-            user: MOCK_ADMIN,
+            user: fallbackUser,
             lastActive: Date.now()
           };
           localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(sessionData));
@@ -154,7 +164,7 @@ export const AuthService = {
           const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
           document.cookie = `admin_token=valid_session_token; path=/; max-age=7200; SameSite=Strict${secureFlag}`;
         }
-        return { success: true, user: MOCK_ADMIN };
+        return { success: true, user: fallbackUser };
       }
 
       // 4. Falha na autenticação -> registra tentativa de rate limiting
@@ -171,6 +181,8 @@ export const AuthService = {
         errorMsg = `E-mail ou senha incorretos no Firebase. Restam ${failureStatus.remaining} tentativa(s).`;
       } else if (fbErr?.code === 'auth/too-many-requests') {
         errorMsg = 'Acesso temporariamente bloqueado pelo Firebase por excesso de requisições.';
+      } else if (fbErr?.code === 'auth/auth-domain-config-required' || fbErr?.code === 'auth/invalid-api-key') {
+        errorMsg = 'Chaves do Firebase não configuradas no ambiente. Verifique sua senha de administrador ou as variáveis na Vercel.';
       }
 
       return {
