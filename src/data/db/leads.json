@@ -1,5 +1,18 @@
 [
   {
+    "id": "lead-1788400857212",
+    "name": "Rodrigo Correia",
+    "phone": "(11) 96609-0133",
+    "email": "",
+    "courseInterest": "Assistente Administrativo & RH",
+    "preferredShift": "Segunda a Sexta - Manhã",
+    "status": "novo",
+    "source": "Chatbot Izzy",
+    "notes": "",
+    "isDeleted": false,
+    "createdAt": "2026-09-03T02:00:57.212Z"
+  },
+  {
     "id": "lead-exemplo-1",
     "name": "Ana Paula Santos (Exemplo)",
     "phone": "(11) 97063-8888",

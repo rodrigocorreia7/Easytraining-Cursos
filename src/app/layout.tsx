@@ -5,7 +5,10 @@ import { getStoredSiteConfig } from '../lib/db';
 import { siteConfig as defaultSiteConfig } from '../data/siteConfig';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://easytraining.com.br'),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || 
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://easytraining-cursos.vercel.app')
+  ),
   title: {
     default: 'Easytraining - Cursos de Informática e Profissionalizantes em Guarulhos-SP',
     template: '%s | EasyTraining Guarulhos'
@@ -25,7 +28,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'pt_BR',
-    url: 'https://easytraining.com.br',
+    url: 'https://easytraining-cursos.vercel.app',
     siteName: 'EasyTraining - Cursos Profissionalizantes',
     title: 'Easytraining - Cursos de Informática e Profissionalizantes em Guarulhos-SP',
     description: 'Transforme seu futuro profissional com cursos 100% práticos e certificados reconhecidos em Guarulhos.',
@@ -51,9 +54,10 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: '/favicon.ico', sizes: 'any' },
       { url: '/logo1.svg', type: 'image/svg+xml' }
     ],
-    shortcut: '/logo1.svg',
+    shortcut: '/favicon.ico',
     apple: '/logo1.png'
   }
 };
@@ -104,8 +108,9 @@ export default function RootLayout({
     <html lang="pt-BR">
       <head>
         <meta name="theme-color" content="#052e7f" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/logo1.svg" type="image/svg+xml" sizes="any" />
-        <link rel="shortcut icon" href="/logo1.svg" type="image/svg+xml" />
+        <link rel="shortcut icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/logo1.png" />
         <link rel="dns-prefetch" href="https://wa.me" />
         <link rel="dns-prefetch" href="https://api.whatsapp.com" />

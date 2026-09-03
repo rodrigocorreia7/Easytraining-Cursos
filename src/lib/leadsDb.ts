@@ -81,12 +81,12 @@ export async function createLead(leadData: Omit<Lead, 'id' | 'createdAt' | 'stat
   local.unshift(newLead);
   saveLocalLeads(local);
 
-  // 2. Salva no Firestore (background)
+  // 2. Salva no Firestore (Create para regras de segurança)
   try {
     const docRef = doc(db, LEADS_COLLECTION, newLead.id);
-    setDoc(docRef, newLead, { merge: true }).catch(() => {});
-  } catch (err) {
-    console.warn('Erro ao salvar lead no Firestore:', err);
+    await setDoc(docRef, newLead);
+  } catch (err: any) {
+    console.warn('Aviso: Firestore offline ou em validação, salvo localmente:', err.message);
   }
 
   // 3. Dispara Webhook do N8N se configurado

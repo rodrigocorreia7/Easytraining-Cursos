@@ -38,6 +38,7 @@ export const AiChatbot: React.FC = () => {
   const [leadShift, setLeadShift] = useState('Segunda a Sexta - Noite');
   const [submittingLead, setSubmittingLead] = useState(false);
   const [leadSuccess, setLeadSuccess] = useState(false);
+  const [leadError, setLeadError] = useState('');
 
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -131,7 +132,18 @@ export const AiChatbot: React.FC = () => {
 
   const handleLeadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!leadName.trim() || leadPhone.replace(/\D/g, '').length < 10) return;
+    setLeadError('');
+
+    if (!leadName.trim()) {
+      setLeadError('Por favor, informe seu nome completo.');
+      return;
+    }
+
+    const digitsOnly = leadPhone.replace(/\D/g, '');
+    if (digitsOnly.length < 10) {
+      setLeadError('Por favor, digite seu WhatsApp com DDD.');
+      return;
+    }
 
     setSubmittingLead(true);
     try {
@@ -139,8 +151,8 @@ export const AiChatbot: React.FC = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: leadName,
-          phone: leadPhone,
+          name: leadName.trim(),
+          phone: leadPhone.trim(),
           courseInterest: leadCourse,
           preferredShift: leadShift,
           source: 'Chatbot Izzy'
@@ -151,9 +163,9 @@ export const AiChatbot: React.FC = () => {
         setLeadSuccess(true);
         setShowLeadForm(false);
 
-        const cleanPhone = '55' + leadPhone.replace(/\D/g, '');
+        const cleanPhone = '55' + digitsOnly;
         const directWhatsapp = `https://wa.me/5511970638888?text=${encodeURIComponent(
-          `Olá! Meu nome é ${leadName}. Acabei de deixar meu contato no site com a Izzy para o curso de ${leadCourse} (${leadShift}) e gostaria de garantir minha condição especial.`
+          `Olá! Meu nome é ${leadName.trim()}. Acabei de preencher o formulário no site com a Izzy para o curso de ${leadCourse} (${leadShift}) e gostaria de garantir minha condição especial.`
         )}`;
 
         setMessages((prev) => [
@@ -161,15 +173,18 @@ export const AiChatbot: React.FC = () => {
           {
             id: `lead-ok-${Date.now()}`,
             sender: 'bot',
-            text: `🎉 Perfeito, ${leadName}! Registrei seu interesse no curso de ${leadCourse} (${leadShift}).\n\nNossa secretaria aqui no bairro Pimentas já recebeu seus dados e vai te chamar no WhatsApp (${leadPhone}) para liberar sua condição de bolsa e tirar suas dúvidas.\n\nSe quiser falar agora mesmo, é só tocar no botão abaixo!`,
+            text: `🎉 Perfeito, ${leadName.trim()}! Registrei seu interesse no curso de ${leadCourse} (${leadShift}).\n\nNossa secretaria aqui no bairro Pimentas já recebeu seus dados no sistema e vai te chamar no WhatsApp (${leadPhone}) para liberar sua condição de bolsa e tirar suas dúvidas.\n\nSe quiser falar agora mesmo sem esperar, basta tocar no botão abaixo:`,
             whatsappUrl: directWhatsapp,
             isLeadConfirmation: true,
             time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
           }
         ]);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setLeadError(data.error || 'Não foi possível registrar seu contato. Tente novamente.');
       }
     } catch (err) {
-      console.error('Erro ao enviar lead:', err);
+      setLeadError('Erro de conexão ao enviar contato. Tente novamente.');
     } finally {
       setSubmittingLead(false);
     }
@@ -302,25 +317,34 @@ export const AiChatbot: React.FC = () => {
                   </div>
                 </div>
 
+                {leadError && (
+                  <p className="text-[10px] text-red-600 bg-red-50 border border-red-200 px-2.5 py-1.5 rounded-lg font-semibold animate-in fade-in">
+                    {leadError}
+                  </p>
+                )}
+
                 <div className="flex items-center gap-2 pt-1">
                   <button
                     type="submit"
-                    disabled={submittingLead || !leadName || leadPhone.length < 14}
-                    className="flex-1 py-1.5 px-3 rounded-lg bg-[#00874A] hover:bg-[#00703c] disabled:opacity-50 text-white font-bold text-[11px] transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                    disabled={submittingLead}
+                    className="flex-1 py-2 px-3 rounded-xl bg-[#00874A] hover:bg-[#00703c] disabled:opacity-60 text-white font-bold text-[11px] transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     {submittingLead ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Enviando contato...</span>
+                      </>
                     ) : (
                       <>
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>Garantir Condição Especial</span>
+                        <Send className="w-3.5 h-3.5" />
+                        <span>Enviar Contato & Garantir Condição</span>
                       </>
                     )}
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowLeadForm(false)}
-                    className="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] font-medium transition-colors cursor-pointer"
+                    className="px-2.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] font-medium transition-colors cursor-pointer"
                   >
                     Agora não
                   </button>

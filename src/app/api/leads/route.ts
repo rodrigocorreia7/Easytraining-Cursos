@@ -17,9 +17,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // 1. Rate Limiting Anti-Spam (Máximo de 5 envios a cada 10 minutos por IP)
+    // 1. Rate Limiting Anti-Spam (Generoso: 30 envios a cada 10 minutos por IP)
     const clientIp = getClientIp(request);
-    const rateCheck = checkRateLimit(`lead_submit:${clientIp}`, 5, 10 * 60 * 1000);
+    const rateCheck = checkRateLimit(`lead_submit:${clientIp}`, 30, 10 * 60 * 1000);
     if (!rateCheck.allowed) {
       return NextResponse.json(
         { error: 'Muitas tentativas em sequência. Por favor, aguarde alguns minutos ou fale direto no WhatsApp da escola.' },
