@@ -428,7 +428,7 @@ export const AiChatbot: React.FC = () => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="group flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#052e7f] hover:bg-[#042464] text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95 border-2 border-white cursor-pointer"
-        aria-label="Abrir assistente virtual da EasyTraining"
+        aria-label={isOpen ? 'Fechar Izzy' : 'Fale com a Izzy (IA) - Assistente Virtual'}
       >
         <div className="relative">
           <Bot className="w-5 h-5 text-emerald-400 group-hover:rotate-12 transition-transform" />

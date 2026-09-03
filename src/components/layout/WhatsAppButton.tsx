@@ -22,7 +22,7 @@ export const WhatsAppFloatingButton: React.FC = () => {
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Atendimento via WhatsApp EasyTraining"
+        aria-label="Dúvidas? Fale Conosco no WhatsApp"
         className="group relative flex items-center gap-2.5 px-4 py-3 bg-[#075E54] hover:bg-[#054c44] text-white rounded-full shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95 border-2 border-white/40 focus:outline-hidden focus:ring-4 focus:ring-emerald-500/40"
       >
         <span className="w-6 h-6 flex items-center justify-center">

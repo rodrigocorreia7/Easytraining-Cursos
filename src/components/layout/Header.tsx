@@ -171,7 +171,7 @@ export const Header: React.FC<HeaderProps> = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 size="sm"
-                ariaLabel="Falar com a EasyTraining no WhatsApp"
+                ariaLabel="Matrículas Abertas no WhatsApp"
               />
             </div>
 
