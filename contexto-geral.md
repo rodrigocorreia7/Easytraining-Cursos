@@ -56,6 +56,11 @@ A Izzy é a consultora virtual oficial da EasyTraining integrada no canto inferi
   - Dispara o evento para o **N8N** para alerta no Telegram.
   - A Izzy responde confirmando o recebimento com carinho e gera um link para o WhatsApp da secretaria já preenchido.
 
+### 3.3. Streaming em Tempo Real (Vercel AI SDK & Gemini 2.5 Flash)
+- **Latência Mínima (TTFT)**: Resposta contínua token por token via Server-Sent Events (SSE), eliminando a espera pelo payload completo.
+- **Backend (`/api/chat`)**: Utiliza `streamText` da biblioteca `ai` com o provider `@ai-sdk/google` (`gemini-2.5-flash`), retornando `toDataStreamResponse()`.
+- **Frontend (`AiChatbot.tsx`)**: Utiliza o hook `useChat` de `ai/react`, garantindo renderização reativa com efeito de digitação suave, feedback animado enquanto digita e preservação do histórico da conversa.
+
 ---
 
 ## 4. Pipeline de Leads & Mini-CRM Kanban (`/admin/leads`)

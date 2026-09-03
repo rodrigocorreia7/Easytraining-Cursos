@@ -10,7 +10,10 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ai-sdk/google": "^1.1.20",
+    "@ai-sdk/react": "^4.0.94",
     "@google/genai": "^2.21.0",
+    "ai": "^4.1.50",
     "clsx": "^2.1.1",
     "firebase": "^12.18.0",
     "gsap": "^3.15.0",

@@ -1,19 +1,11 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useChat } from 'ai/react';
 import { 
   Bot, Send, X, MessageSquare, ExternalLink, Loader2, 
-  Sparkles, CheckCircle2, User, Phone, BookOpen, Clock, ChevronRight
+  Sparkles, CheckCircle2, User, Phone
 } from 'lucide-react';
-
-interface ChatMessage {
-  id: string;
-  sender: 'user' | 'bot';
-  text: string;
-  time: string;
-  whatsappUrl?: string;
-  isLeadConfirmation?: boolean;
-}
 
 const POPULAR_COURSES = [
   'Auxiliar Veterinário',
@@ -27,8 +19,6 @@ const POPULAR_COURSES = [
 
 export const AiChatbot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(false);
   
   // Lead Form State
   const [showLeadForm, setShowLeadForm] = useState(false);
@@ -40,14 +30,34 @@ export const AiChatbot: React.FC = () => {
   const [leadSuccess, setLeadSuccess] = useState(false);
   const [leadError, setLeadError] = useState('');
 
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: 'welcome',
-      sender: 'bot',
-      text: 'Olá! Sou a Izzy, consultora virtual da EasyTraining. Como posso te ajudar com cursos, horários, bolsas ou certificados hoje?',
-      time: 'Agora'
+  // Vercel AI SDK useChat hook for continuous streaming
+  const {
+    messages,
+    input,
+    handleInputChange,
+    handleSubmit,
+    isLoading,
+    append,
+    setMessages
+  } = useChat({
+    api: '/api/chat',
+    initialMessages: [
+      {
+        id: 'welcome',
+        role: 'assistant',
+        content: 'Olá! Sou a Izzy, consultora virtual da EasyTraining. Como posso te ajudar com cursos, horários, bolsas ou certificados hoje?'
+      }
+    ],
+    onFinish: (message) => {
+      const lower = message.content.toLowerCase();
+      if (
+        (lower.includes('preço') || lower.includes('valor') || lower.includes('bolsa') || lower.includes('matrícula') || lower.includes('inscrição') || lower.includes('quanto')) &&
+        !leadSuccess && !showLeadForm
+      ) {
+        setTimeout(() => setShowLeadForm(true), 1200);
+      }
     }
-  ]);
+  });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -59,7 +69,7 @@ export const AiChatbot: React.FC = () => {
     if (isOpen) {
       scrollToBottom();
     }
-  }, [messages, isOpen, showLeadForm]);
+  }, [messages, isOpen, showLeadForm, isLoading]);
 
   // Format phone number as user types (XX) XXXXX-XXXX
   const handlePhoneChange = (val: string) => {
@@ -71,63 +81,6 @@ export const AiChatbot: React.FC = () => {
       formatted = `(${clean.slice(0, 2)}) ${clean.slice(2, 7)}-${clean.slice(7)}`;
     }
     setLeadPhone(formatted);
-  };
-
-  const handleSend = async (textToSend?: string) => {
-    const query = textToSend || input;
-    if (!query.trim() || loading) return;
-
-    const userMsg: ChatMessage = {
-      id: `u-${Date.now()}`,
-      sender: 'user',
-      text: query,
-      time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-    };
-
-    setMessages((prev) => [...prev, userMsg]);
-    setInput('');
-    setLoading(true);
-
-    try {
-      const res = await fetch('/api/ai/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: query })
-      });
-
-      const data = await res.json();
-      const botMsg: ChatMessage = {
-        id: `b-${Date.now()}`,
-        sender: 'bot',
-        text: data.reply || 'Posso te ajudar com mais alguma informação?',
-        whatsappUrl: data.whatsappUrl,
-        time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-      };
-
-      setMessages((prev) => [...prev, botMsg]);
-
-      // If user asks about price, registration or contact, prompt lead form
-      const lower = query.toLowerCase();
-      if (
-        (lower.includes('preço') || lower.includes('valor') || lower.includes('bolsa') || lower.includes('matrícula') || lower.includes('inscrição') || lower.includes('quanto')) &&
-        !leadSuccess && !showLeadForm
-      ) {
-        setTimeout(() => setShowLeadForm(true), 1200);
-      }
-    } catch {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: `err-${Date.now()}`,
-          sender: 'bot',
-          text: 'Tive uma oscilação temporária de conexão, mas você pode chamar nossa equipe no WhatsApp agora mesmo!',
-          whatsappUrl: 'https://wa.me/5511970638888',
-          time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-        }
-      ]);
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleLeadSubmit = async (e: React.FormEvent) => {
@@ -163,7 +116,6 @@ export const AiChatbot: React.FC = () => {
         setLeadSuccess(true);
         setShowLeadForm(false);
 
-        const cleanPhone = '55' + digitsOnly;
         const directWhatsapp = `https://wa.me/5511970638888?text=${encodeURIComponent(
           `Olá! Meu nome é ${leadName.trim()}. Acabei de preencher o formulário no site com a Izzy para o curso de ${leadCourse} (${leadShift}) e gostaria de garantir minha condição especial.`
         )}`;
@@ -172,11 +124,8 @@ export const AiChatbot: React.FC = () => {
           ...prev,
           {
             id: `lead-ok-${Date.now()}`,
-            sender: 'bot',
-            text: `🎉 Perfeito, ${leadName.trim()}! Registrei seu interesse no curso de ${leadCourse} (${leadShift}).\n\nNossa secretaria aqui no bairro Pimentas já recebeu seus dados no sistema e vai te chamar no WhatsApp (${leadPhone}) para liberar sua condição de bolsa e tirar suas dúvidas.\n\nSe quiser falar agora mesmo sem esperar, basta tocar no botão abaixo:`,
-            whatsappUrl: directWhatsapp,
-            isLeadConfirmation: true,
-            time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+            role: 'assistant',
+            content: `🎉 Perfeito, ${leadName.trim()}! Registrei seu interesse no curso de ${leadCourse} (${leadShift}).\n\nNossa secretaria aqui no bairro Pimentas já recebeu seus dados no sistema e vai te chamar no WhatsApp (${leadPhone}) para liberar sua condição de bolsa e tirar suas dúvidas.\n\nSe quiser falar agora mesmo sem esperar, basta tocar no botão abaixo do WhatsApp!`
           }
         ]);
       } else {
@@ -238,10 +187,9 @@ export const AiChatbot: React.FC = () => {
               </div>
               <button
                 onClick={() => setShowLeadForm(true)}
-                className="text-[11px] font-bold text-white bg-[#00874A] hover:bg-[#00703c] px-2.5 py-1 rounded-lg transition-colors cursor-pointer shadow-xs flex items-center gap-1"
+                className="text-[10.5px] font-bold text-white bg-[#00874A] hover:bg-[#00703c] px-2.5 py-1 rounded-full shadow-2xs transition-transform active:scale-95 cursor-pointer"
               >
-                <span>Preencher</span>
-                <ChevronRight className="w-3 h-3" />
+                Garantir Bolsa
               </button>
             </div>
           )}
@@ -358,28 +306,27 @@ export const AiChatbot: React.FC = () => {
             {messages.map((m) => (
               <div
                 key={m.id}
-                className={`flex gap-2.5 ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex gap-2.5 ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                {m.sender === 'bot' && (
+                {m.role === 'assistant' && (
                   <div className="w-7 h-7 rounded-xl bg-[#052e7f] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
                     <Bot className="w-4 h-4 text-emerald-300" />
                   </div>
                 )}
                 <div
                   className={`max-w-[84%] p-3 rounded-2xl shadow-xs leading-relaxed ${
-                    m.sender === 'user'
+                    m.role === 'user'
                       ? 'bg-[#052e7f] text-white rounded-tr-xs'
-                      : m.isLeadConfirmation
-                      ? 'bg-emerald-50 text-slate-800 border border-emerald-200 rounded-tl-xs'
                       : 'bg-white text-slate-800 border border-slate-200/80 rounded-tl-xs'
                   }`}
                 >
-                  <p className="whitespace-pre-line">{m.text}</p>
+                  <p className="whitespace-pre-line">{m.content}</p>
                   
-                  {m.whatsappUrl && (
+                  {/* WhatsApp CTA button on assistant answers */}
+                  {m.role === 'assistant' && m.id !== 'welcome' && (
                     <div className="mt-2.5 pt-2 border-t border-slate-100">
                       <a
-                        href={m.whatsappUrl}
+                        href={`https://wa.me/5511970638888?text=${encodeURIComponent('Olá! Estive conversando com a Izzy no site e gostaria de falar com a equipe da EasyTraining.')}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#00874A] hover:bg-[#00703c] text-white font-bold text-[11px] transition-all shadow-xs"
@@ -390,22 +337,19 @@ export const AiChatbot: React.FC = () => {
                       </a>
                     </div>
                   )}
-
-                  <span className={`block text-[9px] mt-1 ${m.sender === 'user' ? 'text-blue-200' : 'text-slate-400'} text-right`}>
-                    {m.time}
-                  </span>
                 </div>
               </div>
             ))}
 
-            {loading && (
-              <div className="flex gap-2.5 justify-start">
+            {/* Live Typing Indicator */}
+            {isLoading && (
+              <div className="flex gap-2.5 justify-start animate-in fade-in">
                 <div className="w-7 h-7 rounded-xl bg-[#052e7f] text-white flex items-center justify-center shrink-0">
                   <Bot className="w-4 h-4 text-emerald-300" />
                 </div>
                 <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-2 text-slate-500">
                   <Loader2 className="w-3.5 h-3.5 animate-spin text-[#00B060]" />
-                  <span>Izzy digitando resposta...</span>
+                  <span className="text-[11px] font-medium animate-pulse">Izzy digitando resposta...</span>
                 </div>
               </div>
             )}
@@ -419,7 +363,7 @@ export const AiChatbot: React.FC = () => {
               {quickQuestions.map((q, idx) => (
                 <button
                   key={idx}
-                  onClick={() => handleSend(q)}
+                  onClick={() => append({ role: 'user', content: q })}
                   className="whitespace-nowrap px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-colors cursor-pointer"
                 >
                   {q}
@@ -428,24 +372,21 @@ export const AiChatbot: React.FC = () => {
             </div>
           )}
 
-          {/* Input Area */}
+          {/* Input Form with useChat handleSubmit */}
           <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSend();
-            }}
+            onSubmit={handleSubmit}
             className="p-3 bg-white border-t border-slate-200 flex items-center gap-2"
           >
             <input
               type="text"
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={handleInputChange}
               placeholder="Pergunte sobre cursos, horários..."
               className="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-100 text-slate-800 text-xs focus:outline-hidden focus:ring-2 focus:ring-[#00B060] transition-all"
             />
             <button
               type="submit"
-              disabled={!input.trim() || loading}
+              disabled={!input.trim() || isLoading}
               className="p-2.5 rounded-xl bg-[#00874A] hover:bg-[#00703c] text-white disabled:opacity-40 transition-all cursor-pointer shadow-sm"
               title="Enviar mensagem"
             >
