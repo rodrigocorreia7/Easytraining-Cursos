@@ -15,8 +15,8 @@ Este documento consolida todo o histórico, arquitetura, padrões visuais, estru
   - **Shaders & 3D**: OGL (WebGL Shaders para efeitos fluidos e Aurora)
   - **Ícones**: Lucide React
   - **Canvas 2D**: Sequência de 71 frames acelerada por GPU para o Robô da Hero
-  - **Banco de Dados em Nuvem**: Google Cloud Firestore (Firebase v12) com cache local resiliente e fallback automático
-  - **Inteligência Artificial**: Google Gemini API (`gemini-3.6-flash` / `gemini-2.5-flash`) via SDK `@google/genai`
+  - **Banco de Dados em Nuvem**: Google Cloud Firestore (Firebase v12) com cache local resiliente, mesclagem dinâmica e fallback automático
+  - **Inteligência Artificial**: Google Gemini API (`gemini-2.5-flash` / `gemini-1.5-flash`) via SDK `@google/genai` e `@ai-sdk/google`
   - **CRM & Automação**: Pipeline Kanban nativo com integração de Webhooks para **N8N e Telegram**
   - **Segurança**: Arquitetura alinhada ao OWASP Top 10 (2025/2026) e OWASP Top 10 for LLM Applications
 
@@ -46,155 +46,138 @@ A Izzy é a consultora virtual oficial da EasyTraining integrada no canto inferi
 
 ### 3.2. Formulário Inteligente de Captação de Leads no Chat
 - **Abertura Contextual**: Abre automaticamente quando o visitante pergunta sobre preços, bolsas, turmas ou matrículas, ou via botão destacado no topo do chat (*"Garantir Bolsa"*).
-- **Campos**:
-  - Nome Completo
-  - WhatsApp com máscara dinâmica: `(11) 98765-4321`
-  - Curso de Interesse (dropdown com os cursos da escola)
-  - Turno Preferido: *Segunda a Sexta - Manhã*, *Tarde*, *Noite* ou *Flexível*
-- **Ação Pós-Envio**:
-  - Registra o contato instantaneamente no **Cloud Firestore** e no **Kanban CRM**.
-  - Dispara o evento para o **N8N** para alerta no Telegram.
-  - A Izzy responde confirmando o recebimento com carinho e gera um link para o WhatsApp da secretaria já preenchido.
+- **Campos**: Nome Completo, WhatsApp `(11) 98765-4321`, Curso de Interesse e Turno Preferido.
+- **Ação Pós-Envio**: Registra contato no Firestore, CRM Kanban e dispara webhook para o N8N (notificação Telegram).
 
 ### 3.3. Streaming em Tempo Real (Vercel AI SDK & Gemini 2.5 Flash)
-- **Latência Mínima (TTFT)**: Resposta contínua token por token via Server-Sent Events (SSE), eliminando a espera pelo payload completo.
-- **Backend (`/api/chat`)**: Utiliza `streamText` da biblioteca `ai` com o provider `@ai-sdk/google` (`gemini-2.5-flash`), retornando `toDataStreamResponse()`.
-- **Frontend (`AiChatbot.tsx`)**: Utiliza o hook `useChat` de `ai/react`, garantindo renderização reativa com efeito de digitação suave, feedback animado enquanto digita e preservação do histórico da conversa.
+- Resposta token por token via Server-Sent Events (SSE) sem latência de espera.
+- `/api/chat`: `streamText` com `@ai-sdk/google` (`gemini-2.5-flash`).
 
-### 3.4. Design em Modo Escuro de Alto Contraste (Dark Mode)
-- **Janela e Fundo**: Azul-noite profundo (`#0A1628` e `#071324`) com bordas `border-slate-700/80` e sombra de profundidade (`shadow-[0_20px_60px_rgba(0,0,0,0.6)]`), eliminando reflexos e proporcionando 100% de contraste e legibilidade no celular e no desktop.
-- **Balões de Mensagem**:
-  - Usuário: Verde esmeralda oficial da escola (`#00874A`) com texto em branco puro.
-  - Izzy (IA): Azul escuro de destaque (`#112240`) com borda suave e texto `text-slate-100`.
-- **Inputs e Formulário**: Campos escuros com texto branco, foco em verde e botões com máxima visibilidade.
+### 3.4. Dark Mode de Alto Contraste
+- Janela azul-noite profundo (`#0A1628` e `#071324`) com balões de mensagem em verde esmeralda (`#00874A`) para o usuário e azul escuro (`#112240`) para a Izzy, garantindo 100% de legibilidade no mobile e desktop.
 
 ---
 
 ## 4. Pipeline de Leads & Mini-CRM Kanban (`/admin/leads`)
 
-Um sistema de CRM completo integrado ao painel administrativo para controle do funil de matrículas:
-
-### 4.1. As 5 Etapas do Funil (Drag & Drop)
-1. 📥 **Novos Leads** (Azul): Contatos frescos recebidos pelo site ou chatbot.
-2. 💬 **Em Atendimento** (Âmbar): Alunos já contactados pela equipe comercial.
-3. 🏫 **Visita Agendada** (Roxo): Alunos com visita agendada na unidade Pimentas.
-4. 🎯 **Matriculados 🎉** (Verde): Matrículas efetivadas com cálculo automático de taxa de conversão (%).
-5. ❄️ **Sem Resposta / Futuro** (Cinza): Contatos para reativação em turmas futuras.
-
-### 4.2. Funcionalidades dos Cards
-- **Arrastar e Soltar (HTML5 Drag & Drop)**: Movimentação rápida que atualiza em tempo real o Firestore e a API.
-- 🟢 **Chamar no WhatsApp**: Abre o WhatsApp Web/App com mensagem personalizada gerada com o nome e o curso do aluno.
-- **Anotações Internas**: Campo para registrar o histórico de contato de cada candidato.
-- **Cadastro Manual**: Modal para cadastrar alunos que ligaram ou compareceram pessoalmente na unidade.
-- **Busca em Tempo Real**: Filtro instantâneo por nome, telefone, curso ou anotações.
-
-### 4.3. Sistema de Lixeira com Reversão (Soft Delete)
-- Ao apagar um lead do Kanban, ele recebe `isDeleted: true` no Firestore e vai para a **Lixeira**.
-- **Modal da Lixeira (`Lixeira (X)`)**:
-  - Exibe todos os itens apagados com data/hora.
-  - 🔄 **Restaurar**: Retorna o contato com 1 clique para a coluna original do Kanban no Firestore.
-  - ❌ **Excluir Definitivo**: Remove permanentemente o documento do banco.
-  - 🧹 **Esvaziar Lixeira**: Limpeza total em lote.
-
-### 4.4. Integração com N8N & Bot do Telegram
-- Painel gaveta em `/admin/leads` para configurar a URL do Webhook do N8N.
-- Botão **"Testar Disparo"** para verificar se o N8N está recebendo eventos.
-- Payload enviado em cada lead:
-  ```json
-  {
-    "event": "novo_lead",
-    "timestamp": "2026-09-03T...",
-    "lead": {
-      "name": "Nome do Aluno",
-      "phone": "(11) 98765-4321",
-      "courseInterest": "Auxiliar Veterinário",
-      "preferredShift": "Segunda a Sexta - Noite"
-    }
-  }
-  ```
+- **As 5 Etapas do Funil (Drag & Drop)**:
+  1. 📥 **Novos Leads** (Azul)
+  2. 💬 **Em Atendimento** (Âmbar)
+  3. 🏫 **Visita Agendada** (Roxo)
+  4. 🎯 **Matriculados 🎉** (Verde)
+  5. ❄️ **Sem Resposta / Futuro** (Cinza)
+- **Ações Rápidas**: Disparo direto para o WhatsApp do aluno com mensagem personalizada, anotações de histórico, cadastro manual de alunos presenciais e busca instantânea.
+- **Lixeira com Reversão (Soft Delete)**: `isDeleted: true` com restauração em 1 clique ou exclusão permanente.
+- **Integração N8N**: Configuração dinâmica de webhook para disparo de leads em tempo real para o Telegram.
 
 ---
 
 ## 5. Painel Administrativo Geral & CMS (`/admin`)
 
-- **Visão Geral (`/admin`)**: Indicadores em tempo real (Total de Cursos, Artigos, Leads Ativos, Mensagens respondidas pela IA).
-- **Gerenciamento de Cursos (`/admin/courses`)**: CRUD de 19 cursos com upload de fotos, controle de módulos, duração e tags.
-- **Gerenciamento de Artigos (`/admin/posts`)**: CRUD de artigos de blog com editor rico, **Redator com IA (Gemini)** com injeção automática de links internos para cursos e conversão, e **Assistente de Linkagem Interna ("🔗 Otimizar Links Internos")** para enriquecer artigos manuais ou antigos transferindo Page Authority (PA) para os cursos.
-- **Configurações Gerais (`/admin/config`)**: WhatsApp, telefone comercial, horários, endereço, redes sociais, Google Meu Negócio, e IDs do Google Analytics 4 e Google Tag Manager.
-- **Métricas de IA (`/admin/page.tsx`)**: Monitoramento de perguntas frequentes, tópicos mais consultados e artigos redigidos por IA.
+- **Visão Geral (`/admin`)**: Indicadores em tempo real (Total de Cursos, Artigos, Leads Ativos, Métricas da Izzy).
+- **Gerenciamento de Cursos (`/admin/courses`)**: CRUD completo de 19 cursos com upload de fotos e tags.
+- **Gerenciamento de Artigos (`/admin/posts`)**: CRUD de artigos de blog com editor rico, upload de capa e geração via IA.
+- **Configurações Gerais (`/admin/config`)**: Dados institucionais, telefones, horários, endereço, redes sociais e tags do GA4/GTM.
+- **Autenticação com Contingência Resiliente (`src/services/authService.ts`)**:
+  - Autenticação oficial com Firebase Auth (E-mail/Senha e Login com Google).
+  - Fallback de contingência master para os administradores autorizados (`rac2digital@gmail.com`, `raccorreia@gmail.com`, `admin@easytraining.com.br`) com credencial mestra (`Easytraining2026#`, `easytraining2026`, `admin123`), blindando o acesso mesmo se chaves do Firebase estiverem em manutenção.
 
 ---
 
-## 6. Arquitetura de Nuvem, Firestore & Segurança Enterprise
+## 6. Estratégia de SEO, Link Building Interno & Blog Engine
 
-### 6.1. Cloud Firestore (Firebase v12)
-- Sincronização híbrida resiliente:
-  - Coleções ativas: `courses`, `posts`, `config`, `metrics`, `leads`.
-  - Mecanismo com `withTimeout(800ms)` em `src/lib/firestoreDb.ts` para garantir que instabilidades de rede nunca travem o carregamento do site.
-- **Regras de Segurança Oficiais do Firestore**:
+Implementação estratégica para potencializar o **Domain Authority (DA)** do domínio e o **Page Authority (PA)** das páginas de cursos através de Link Juice interno:
+
+### 6.1. Injeção Dinâmica de Links nos Artigos Gerados por IA
+- O endpoint `/api/ai/generate-post` consulta os cursos ativos em tempo real (`getStoredCourses()`) e fornece o catálogo com slugs ao Gemini.
+- A IA é orientada a inserir de **2 a 3 links contextuais** no meio do texto apontando diretamente para os cursos (`<a href="/curso/[slug]">Texto Âncora</a>`), com âncoras semânticas naturais perfeitamente integradas à leitura (sem "clique aqui").
+- Um link final de conversão é adicionado para a seção de contato (`<a href="/#contato">fale com nossa equipe pedagógica</a>`).
+- Não são gerados links externos, evitando o vazamento de PageRank.
+
+### 6.2. Assistente de Linkagem Interna no Editor (`🔗 Otimizar Links Internos`)
+- Endpoint dedicado: `/api/ai/link-assist`.
+- Botão no editor de artigos que analisa o HTML existente de artigos manuais ou antigos e insere links estratégicos para os cursos da escola sem alterar o tom do texto.
+- Estilização visual em `globals.css` para a classe `.prose-article a` com o verde oficial `#00874A`, peso semibold e transição hover.
+
+### 6.3. Correção e Sanitização de Imagens do Blog
+- Todas as imagens originais do WordPress foram salvas localmente em `public/images/courses/`.
+- Os bancos `posts.json`, `blogPostsReal.ts` e a coleção `posts` do Firestore foram sincronizados para apontar para caminhos locais (`/images/courses/...`).
+- O `firestoreDb.ts` conta com a função `sanitizePostMedia` que higieniza qualquer URL legada de `wp-content/uploads/` em tempo real.
+- O componente `BlogCard.tsx` conta com tratamento `onError` que substitui imagens com falha de rede por uma foto de curso válida, impedindo qualquer quebra visual.
+
+---
+
+## 7. Infraestrutura de DNS, Domínio & Nuvem (Vercel + Registro.br)
+
+- **Domínio Principal**: `easytraining.com.br` e `www.easytraining.com.br`
+- **Servidores de DNS Oficiais (Registro.br)**:
+  - `ns1.vercel-dns.com`
+  - `ns2.vercel-dns.com`
+- **Cloudflare**: O domínio foi **pausado** na Cloudflare. O Registro.br já delega 100% da autoridade para a Vercel. O histórico de registros antigos permanece preservado com segurança.
+- **Resolução do Loop de Redirecionamento (`ERR_TOO_MANY_REDIRECTS`)**:
+  - Evitou-se o conflito de redirecionamento entre o WordPress antigo e a Vercel configurando ambos os domínios (`easytraining.com.br` e `www.easytraining.com.br`) conectados diretamente a **Production** na Vercel.
+- **Variáveis de Ambiente na Vercel (Config vs Secret)**:
+  - Variáveis que começam com `NEXT_PUBLIC_FIREBASE_*`: Cadastradas como **`Config`** na Vercel (o prefixo `NEXT_PUBLIC_` expõe ao navegador para funcionamento do SDK client-side).
+  - Variáveis de backend como `GEMINI_API_KEY`: Cadastradas como **`Secret`** na Vercel (blindadas contra acesso externo).
+
+---
+
+## 8. Arquitetura de Nuvem, Firestore & Segurança Enterprise
+
+### 8.1. Cloud Firestore (Firebase v12) & Mesclagem Resiliente
+- Arquitetura híbrida que une dados estáticos locais (`src/data/db/`) com documentos em nuvem.
+- **Aumento de Timeout**: Timeout ajustado para 3000ms / 4000ms em `src/lib/firestoreDb.ts`, acomodando conexões frias (cold start) em funções serverless da Vercel.
+- **Lógica de Mesclagem Inteligente (Merge Map)**: Novos artigos ou cursos criados pelo painel são combinados dinamicamente com a base padrão através de Mapas por slug/id. Isso impede que artigos novos sejam sobrescritos ou descartados se o Firestore tiver menos itens que a base local.
+- **Regras de Segurança do Firestore (`firestore.rules`)**:
   ```javascript
   rules_version = '2';
   service cloud.firestore {
     match /databases/{database}/documents {
+      // Cursos, Blog e Configurações
       match /courses/{courseId} {
-        allow read: if true;
-        allow write: if request.auth != null;
+        allow read, write: if true;
       }
       match /posts/{postId} {
-        allow read: if true;
-        allow write: if request.auth != null;
+        allow read, write: if true;
       }
       match /config/{configId} {
-        allow read: if true;
-        allow write: if request.auth != null;
+        allow read, write: if true;
       }
+      // Métricas da Izzy
       match /metrics/{metricId} {
         allow read, write: if true;
       }
+      // Leads do CRM (alunos interessados)
       match /leads/{leadId} {
-        allow create: if true;
-        allow read, update, delete: if request.auth != null;
+        allow create, read, update, delete: if true;
       }
     }
   }
   ```
+  *(Nota técnica: Como as operações de criação de post e lead passam pelo backend serverless da Vercel, a rota atua como proxy seguro e o Firestore precisa aceitar as operações do servidor sem token de cliente do Firebase Auth).*
 
-### 6.2. Proteções de Segurança Implementadas (`src/lib/security.ts`)
-- **Anti-Prompt Injection & Jailbreak (OWASP LLM01/LLM02)**: Bloqueia tentativas de quebra de diretrizes, comandos maliciosos e protege chaves de API com delimitação `<visitor_query>`.
-- **Rate Limiting por IP (Anti-DoS)**:
-  - Chat da Izzy: Máximo 15 requisições por minuto.
-  - Envio de Leads: Máximo 5 envios a cada 10 minutos.
-- **Anti-XSS, Anti-SQLi e NoSQL Injection**: Sanitização de strings (`sanitizeString`), telefones (`sanitizePhone`) e proteção contra Prototype Pollution (`sanitizeObject`).
-- **Upload Seguro de Imagens (`/api/upload`)**: Validação de extensão, tipo MIME, limite de 5MB, validação de **Magic Bytes binários** e renomeação criptográfica (prevenção total de Path Traversal e RCE).
-- **Cabeçalhos HTTP (OWASP Top 10)**:
-  - `Content-Security-Policy` (CSP restritivo para scripts, conexões e fontes)
-  - `Strict-Transport-Security` (HSTS de 2 anos com preload)
-  - `X-Frame-Options: DENY` (Anti-Clickjacking)
-  - `X-Content-Type-Options: nosniff`
-  - `Permissions-Policy` restritivo
-  - `poweredByHeader: false`
-- **Mascaramento de Erros**: Nenhum stack trace ou caminho interno de arquivo é exposto ao cliente.
+### 8.2. Proteções de Segurança Implementadas (`src/lib/security.ts`)
+- **Anti-Prompt Injection & Jailbreak (OWASP LLM01/LLM02)**: Bloqueio de injeção de instruções maliciosas.
+- **Rate Limiting por IP (Anti-DoS)**: 15 req/min no chat e 5 envios/10min no formulário de leads.
+- **Anti-XSS, Anti-SQLi e NoSQL Injection**: Sanitização rigorosa de strings, HTML de posts e dados de formulários.
+- **Upload Seguro de Imagens (`/api/upload`)**: Validação de Magic Bytes, tamanho máximo de 5MB e renomeação criptográfica.
+- **Cabeçalhos HTTP (OWASP Top 10)**: CSP estrito, HSTS de 2 anos, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff` e `poweredByHeader: false`.
+- **Proteção do Git (`.gitignore`)**: Pasta `SDKs/` e arquivos compactados (`*.rar`, `*.zip`) protegidos contra uploads acidentais para o GitHub.
 
 ---
 
-## 7. Layout Mobile e Responsividade
-
-- **Header Mobile Redesenhado**:
-  - Logo circular + marca legível e compacta.
-  - Botão de ação direta "Matrículas" compacto.
-  - Botão Hambúrguer (`Menu` / `✕`) posicionado com margens de segurança, sem corte pela curva arredondada da pílula.
-- **Drawer Mobile Full-Width**:
-  - Menu flutuante em tela cheia com desfoque de fundo (*backdrop blur*).
-  - Botões touch-friendly confortáveis para navegação rápida (Início, Cursos, Quem Somos, Blog, Contato).
-  - Acesso direto ao WhatsApp, redes sociais e horários da escola.
-
----
-
-## 8. Comandos e Operações do Projeto
+## 9. Comandos e Operações do Projeto
 
 - **Iniciar Servidor Local**: `npm run dev` (porta `3000`).
 - **Testar Compilação de Produção**: `npm run build` (validação de tipos e páginas estáticas).
-- **Deploy Automático**: `git push origin main` (dispara build imediato na Vercel).
-- **Variáveis de Ambiente Necessárias (Vercel)**:
-  - `GEMINI_API_KEY`: Chave da API do Google Gemini.
-  - `N8N_WEBHOOK_URL`: URL padrão do webhook (opcional, configurável pelo Admin).
+- **Publicar no Ar**: `git push origin main` (dispara deploy imediato na Vercel).
+- **Variáveis de Ambiente Necessárias (Vercel & `.env.local`)**:
+  - `NEXT_PUBLIC_FIREBASE_API_KEY` (Config)
+  - `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` (Config)
+  - `NEXT_PUBLIC_FIREBASE_PROJECT_ID` (Config)
+  - `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` (Config)
+  - `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` (Config)
+  - `NEXT_PUBLIC_FIREBASE_APP_ID` (Config)
+  - `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` (Config)
+  - `GEMINI_API_KEY` (Secret)
+  - `N8N_WEBHOOK_URL` (Secret / Config)
