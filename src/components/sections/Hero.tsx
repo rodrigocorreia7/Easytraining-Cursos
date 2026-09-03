@@ -94,70 +94,65 @@ export const Hero: React.FC = () => {
     <section
       id="home"
       ref={heroRef}
-      className="relative bg-gradient-to-b from-[#06182c] via-[#0A2540] to-[#081f36] lg:bg-[#F6F9F8] pt-24 sm:pt-28 lg:pt-32 pb-12 lg:pb-20 overflow-hidden min-h-[600px] lg:min-h-[680px] xl:min-h-[740px] 2xl:min-h-[800px] flex items-center"
+      className="relative bg-[#F6F9F8] pt-24 sm:pt-28 lg:pt-32 pb-12 lg:pb-20 overflow-hidden min-h-[600px] lg:min-h-[680px] xl:min-h-[740px] 2xl:min-h-[800px] flex items-center"
     >
-      {/* Subtle Mobile Ambient Glow behind the robot */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-tr from-blue-600/25 to-emerald-500/20 blur-3xl rounded-full pointer-events-none lg:hidden" />
-
       {/* ========================================================= */}
-      {/* 1. MOBILE LAYOUT (lg:hidden) - MODO ESCURO DE ALTO CONTRASTE */}
+      {/* 1. MOBILE LAYOUT (lg:hidden) */}
       {/* ========================================================= */}
       <div className="lg:hidden w-full max-w-[480px] mx-auto px-4 sm:px-6 flex flex-col items-center text-left space-y-4 relative z-20">
         
         {/* 1.1 Matrículas Pill */}
-        <div className="self-start inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[11px] font-bold text-emerald-300 shadow-xs">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+        <div className="self-start inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white shadow-xs border border-emerald-200 text-[11px] font-bold text-[#052e7f]">
+          <span className="w-2 h-2 rounded-full bg-[#00874A] animate-pulse" />
           <span>Matrículas Abertas • Guarulhos (Pimentas)</span>
         </div>
 
         {/* 1.2 Main Headline H1 */}
-        <h1 className="text-[28px] sm:text-[32px] font-black tracking-tight leading-[1.12] text-left w-full text-white">
-          <span className="text-white">Easytraining - </span>
-          <span className="text-emerald-400">Cursos de Informática e Profissionalizantes</span>
-          <span className="text-slate-200 block text-2xl sm:text-[28px] font-extrabold mt-0.5">em Guarulhos-SP</span>
+        <h1 className="text-[28px] sm:text-[32px] font-black tracking-tight leading-[1.12] text-left w-full">
+          <span className="text-[#052e7f]">Easytraining - </span>
+          <span className="text-[#00874A]">Cursos de Informática e Profissionalizantes em Guarulhos-SP</span>
         </h1>
 
-        {/* 1.3 Centered Hero Robot com Glow de Fundo e Drop Shadow */}
-        <div className="w-full flex justify-center items-center py-2 my-0 relative">
-          <div className="absolute inset-0 bg-radial from-emerald-500/15 via-blue-500/10 to-transparent blur-2xl rounded-full pointer-events-none" />
+        {/* 1.3 Centered Hero Robot */}
+        <div className="w-full flex justify-center items-center py-0 my-0">
           <img
             src="/images/robot/image-hero.webp"
             alt="Easytraining - Cursos de Informática e Profissionalizantes em Guarulhos"
             width={360}
             height={360}
-            className="w-full max-w-[300px] sm:max-w-[340px] h-auto object-contain select-none relative z-10 drop-shadow-[0_15px_30px_rgba(0,0,0,0.5)]"
+            className="w-full max-w-[320px] sm:max-w-[360px] h-auto object-contain select-none"
             loading="eager"
             fetchPriority="high"
             decoding="async"
           />
         </div>
 
-        {/* 1.4 Three Metric Cards (Dark Glass) */}
+        {/* 1.4 Three Metric Cards */}
         <div className="grid grid-cols-3 gap-2.5 w-full text-center">
-          <div className="p-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/15 shadow-xs">
-            <p className="text-lg sm:text-xl font-black text-white">19+</p>
-            <p className="text-[10px] sm:text-[11px] text-slate-300 font-semibold mt-0.5">Cursos Práticos</p>
+          <div className="p-3 bg-white rounded-2xl border border-slate-200/90 shadow-xs">
+            <p className="text-lg sm:text-xl font-black text-[#052e7f]">19+</p>
+            <p className="text-[10px] sm:text-[11px] text-slate-700 font-semibold mt-0.5">Cursos Práticos</p>
           </div>
-          <div className="p-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/15 shadow-xs">
-            <p className="text-lg sm:text-xl font-black text-[#FFB800]">★ 5.0</p>
-            <p className="text-[10px] sm:text-[11px] text-slate-300 font-semibold mt-0.5">Nota no Google</p>
+          <div className="p-3 bg-white rounded-2xl border border-slate-200/90 shadow-xs">
+            <p className="text-lg sm:text-xl font-black text-[#D97706]">★ 5.0</p>
+            <p className="text-[10px] sm:text-[11px] text-slate-700 font-semibold mt-0.5">Nota no Google</p>
           </div>
-          <div className="p-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/15 shadow-xs">
-            <p className="text-lg sm:text-xl font-black text-emerald-400">100%</p>
-            <p className="text-[10px] sm:text-[11px] text-slate-300 font-semibold mt-0.5">Com Certificado</p>
+          <div className="p-3 bg-white rounded-2xl border border-slate-200/90 shadow-xs">
+            <p className="text-lg sm:text-xl font-black text-[#00874A]">100%</p>
+            <p className="text-[10px] sm:text-[11px] text-slate-700 font-semibold mt-0.5">Com Certificado</p>
           </div>
         </div>
 
         {/* 1.5 Subtitle Description */}
-        <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed text-left w-full pt-1">
-          Mais de <strong className="text-white font-bold">5.000 alunos</strong> já transformaram suas carreiras. Venha para a <strong className="text-emerald-300 font-bold">Easytraining</strong> e faça parte deste time! Formação 100% presencial e prática com certificado reconhecido.
+        <p className="text-xs sm:text-sm text-slate-700 font-normal leading-relaxed text-left w-full pt-1">
+          Mais de <strong className="text-slate-900">5.000 alunos</strong> já transformaram suas carreiras. Venha para a <strong className="text-[#052e7f]">Easytraining</strong> e faça parte deste time! Formação 100% presencial e prática com certificado reconhecido.
         </p>
 
         {/* 1.6 Action CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-2.5 w-full pt-1">
           <button
             onClick={scrollToCourses}
-            className="w-full flex items-center justify-center gap-2 px-5 py-3.5 bg-[#00874A] hover:bg-[#00703C] text-white text-xs sm:text-sm font-bold rounded-full transition-all shadow-lg shadow-emerald-500/20 active:scale-95 cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-[#00874A] hover:bg-[#00703C] text-white text-xs sm:text-sm font-bold rounded-full transition-all shadow-md active:scale-95 cursor-pointer"
           >
             <span>Explorar Cursos</span>
             <ArrowRight className="w-4 h-4" />
@@ -166,9 +161,9 @@ export const Hero: React.FC = () => {
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full flex items-center justify-center gap-2 px-5 py-3.5 bg-white/10 hover:bg-white/15 text-white border border-white/20 text-xs sm:text-sm font-bold rounded-full backdrop-blur-md transition-all active:scale-95"
+            className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-emerald-50 hover:bg-emerald-100 text-[#00874A] border border-emerald-300 text-xs sm:text-sm font-bold rounded-full transition-all active:scale-95"
           >
-            <MessageCircle className="w-4 h-4 text-emerald-400" />
+            <MessageCircle className="w-4 h-4" />
             <span>Falar no WhatsApp</span>
           </a>
         </div>
