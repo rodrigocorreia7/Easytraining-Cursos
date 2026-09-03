@@ -98,10 +98,10 @@ export const SplitText: React.FC<SplitTextProps> = ({
   return (
     <Tag
       ref={containerRef as any}
-      {...(Tag === 'span' ? { role: 'text' } : { 'aria-label': text })}
       style={{ textAlign, wordWrap: 'break-word' }}
       className={`split-parent overflow-visible inline-block whitespace-normal pb-1.5 pt-0.5 ${className}`}
     >
+      <span className="sr-only">{text}</span>
       <span aria-hidden="true" className="inline overflow-visible">
         {words.map((word, wordIndex) => (
           <span
