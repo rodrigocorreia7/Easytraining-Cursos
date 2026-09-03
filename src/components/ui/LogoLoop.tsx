@@ -157,7 +157,23 @@ const useAnimationLoop = (
       };
     }
 
+    let isVisible = false;
+    const observer = new IntersectionObserver(([entry]) => {
+      isVisible = entry.isIntersecting;
+      if (isVisible) {
+        lastTimestampRef.current = null;
+        if (!rafRef.current) rafRef.current = requestAnimationFrame(animate);
+      } else {
+        if (rafRef.current !== null) {
+          cancelAnimationFrame(rafRef.current);
+          rafRef.current = null;
+        }
+      }
+    }, { threshold: 0.05 });
+    observer.observe(track);
+
     const animate = (timestamp: number) => {
+      if (!isVisible) return;
       if (lastTimestampRef.current === null) {
         lastTimestampRef.current = timestamp;
       }
@@ -184,9 +200,8 @@ const useAnimationLoop = (
       rafRef.current = requestAnimationFrame(animate);
     };
 
-    rafRef.current = requestAnimationFrame(animate);
-
     return () => {
+      observer.disconnect();
       if (rafRef.current !== null) {
         cancelAnimationFrame(rafRef.current);
         rafRef.current = null;

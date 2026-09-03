@@ -44,7 +44,10 @@ export const Hero: React.FC = () => {
       initialImg.onload = renderInitial;
     }
 
-    // 2. Carrega os outros frames em segundo plano (Idle time ou ao mover o mouse)
+    // Em telas mobile/touch (<1024px), o canvas não é exibido (fica oculto por CSS), então não consome CPU/rede
+    if (window.innerWidth < 1024) return;
+
+    // 2. Carrega os outros frames em segundo plano sob demanda no desktop
     let idleLoaded = false;
     const loadRemainingFrames = () => {
       if (idleLoaded) return;
@@ -59,12 +62,17 @@ export const Hero: React.FC = () => {
     };
 
     if ('requestIdleCallback' in window) {
-      (window as any).requestIdleCallback(loadRemainingFrames, { timeout: 2000 });
+      (window as any).requestIdleCallback(loadRemainingFrames, { timeout: 3000 });
     } else {
-      setTimeout(loadRemainingFrames, 1500);
+      setTimeout(loadRemainingFrames, 2500);
     }
 
-    // 60fps Canvas Render Loop
+    // Render loop sob demanda (não fica em loop infinito gastando CPU quando o mouse está parado)
+    const requestFrame = () => {
+      if (animIdRef.current) return;
+      animIdRef.current = requestAnimationFrame(renderLoop);
+    };
+
     const renderLoop = () => {
       const diff = targetIndexRef.current - currentIndexRef.current;
       if (Math.abs(diff) > 0.01) {
@@ -76,11 +84,11 @@ export const Hero: React.FC = () => {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           ctx.drawImage(activeImg, 0, 0, canvas.width, canvas.height);
         }
+        animIdRef.current = requestAnimationFrame(renderLoop);
+      } else {
+        animIdRef.current = null;
       }
-      animIdRef.current = requestAnimationFrame(renderLoop);
     };
-
-    animIdRef.current = requestAnimationFrame(renderLoop);
 
     const handleGlobalMouseMove = (e: MouseEvent) => {
       loadRemainingFrames();
@@ -90,6 +98,7 @@ export const Hero: React.FC = () => {
       if (e.clientY >= rect.top - 50 && e.clientY <= rect.bottom + 150) {
         const normalizedX = Math.max(0, Math.min(1, e.clientX / window.innerWidth));
         targetIndexRef.current = normalizedX * (TOTAL_FRAMES - 1);
+        requestFrame();
       }
     };
 

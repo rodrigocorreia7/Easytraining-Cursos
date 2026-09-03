@@ -16,26 +16,10 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = () => {
-  const [spTime, setSpTime] = useState('');
-  const [mounted, setMounted] = useState(false);
   const [config, setConfig] = useState(defaultSiteConfig);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    const updateTime = () => {
-      const formatted = new Intl.DateTimeFormat('pt-BR', {
-        timeZone: 'America/Sao_Paulo',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-      }).format(new Date());
-      setSpTime(formatted);
-    };
-
-    updateTime();
-    const interval = setInterval(updateTime, 30000);
-
     const timer = setTimeout(() => {
       SiteConfigService.getConfig().then((data) => {
         if (data) setConfig(data);
@@ -43,7 +27,6 @@ export const Header: React.FC<HeaderProps> = () => {
     }, 5000);
 
     return () => {
-      clearInterval(interval);
       clearTimeout(timer);
     };
   }, []);
@@ -173,10 +156,10 @@ export const Header: React.FC<HeaderProps> = () => {
           {/* 3. RIGHT SIDE CONTROLS (Desktop & Mobile) */}
           {/* ========================================================= */}
           <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-            {/* Live Clock (Desktop only) */}
+            {/* Localização (Desktop only) */}
             <div className="hidden lg:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-slate-100 text-[12px] text-slate-700 font-medium">
-              <Clock className="w-3.5 h-3.5 text-[#00874A]" />
-              <span suppressHydrationWarning>{mounted && spTime ? `Guarulhos ${spTime}` : 'Guarulhos'}</span>
+              <MapPin className="w-3.5 h-3.5 text-[#00874A]" />
+              <span>Guarulhos - SP</span>
             </div>
 
             {/* Desktop CTA Button */}

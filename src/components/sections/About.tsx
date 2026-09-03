@@ -48,7 +48,7 @@ export const About: React.FC = () => {
           {/* Card 1: Laboratórios */}
           <div className="lg:col-span-7 bg-white/95 backdrop-blur-xl rounded-3xl p-6 sm:p-8 shadow-xl border border-white/40 flex flex-col justify-between space-y-6">
             <div className="space-y-3">
-              <span className="w-10 h-10 rounded-2xl bg-emerald-50 text-[#00B060] flex items-center justify-center font-black text-sm shadow-sm">
+              <span className="w-10 h-10 rounded-2xl bg-emerald-50 text-[#00874A] flex items-center justify-center font-black text-sm shadow-sm">
                 01
               </span>
               <h3 className="text-xl sm:text-2xl font-bold text-[#052e7f]">
@@ -60,11 +60,11 @@ export const About: React.FC = () => {
             </div>
             <div className="grid grid-cols-2 gap-3 pt-4 border-t border-slate-100 text-xs font-bold text-slate-800">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#00B060] shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-[#00874A] shrink-0" />
                 <span>1 Aluno por Computador</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#00B060] shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-[#00874A] shrink-0" />
                 <span>Professores Especialistas</span>
               </div>
             </div>
@@ -91,7 +91,7 @@ export const About: React.FC = () => {
 
           {/* Card 3: Certificado */}
           <div className="lg:col-span-4 bg-white/95 backdrop-blur-xl rounded-3xl p-6 sm:p-8 shadow-xl border border-white/40 space-y-4">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-[#00B060] flex items-center justify-center font-bold text-sm shadow-sm">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-[#00874A] flex items-center justify-center font-bold text-sm shadow-sm">
               <Award className="w-5 h-5" />
             </div>
             <h3 className="text-lg font-bold text-[#052e7f]">Certificado Válido Nacionalmente</h3>
