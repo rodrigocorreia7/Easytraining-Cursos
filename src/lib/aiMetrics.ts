@@ -18,41 +18,10 @@ export interface AiMetricsData {
 }
 
 const DEFAULT_METRICS: AiMetricsData = {
-  articlesGenerated: 3,
-  chatQuestionsAnswered: 42,
-  topicCounts: {
-    'Informática & Pacote Office': 16,
-    'Auxiliar Veterinário & Pet': 12,
-    'Valores, Bolsas & Matrículas': 8,
-    'Aulas aos Sábados & Horários': 4,
-    'Farmácia & Drogaria': 2
-  },
-  recentInquiries: [
-    {
-      id: 'inq-1',
-      question: 'Quais os dias e horários do curso de auxiliar de veterinário?',
-      category: 'Auxiliar Veterinário & Pet',
-      timestamp: 'Hoje às 18:40'
-    },
-    {
-      id: 'inq-2',
-      question: 'O curso de informática básica tem certificado para currículo?',
-      category: 'Informática & Pacote Office',
-      timestamp: 'Hoje às 17:15'
-    },
-    {
-      id: 'inq-3',
-      question: 'Vocês têm turmas aos sábados para quem trabalha durante a semana?',
-      category: 'Aulas aos Sábados & Horários',
-      timestamp: 'Hoje às 15:20'
-    },
-    {
-      id: 'inq-4',
-      question: 'Como funciona o desconto para matrícula presencial nos Pimentas?',
-      category: 'Valores, Bolsas & Matrículas',
-      timestamp: 'Ontem às 19:10'
-    }
-  ]
+  articlesGenerated: 0,
+  chatQuestionsAnswered: 0,
+  topicCounts: {},
+  recentInquiries: []
 };
 
 const DB_DIR = path.join(process.cwd(), 'src', 'data', 'db');
@@ -64,6 +33,14 @@ function ensureDbDir() {
   if (!fs.existsSync(DB_DIR)) {
     fs.mkdirSync(DB_DIR, { recursive: true });
   }
+}
+
+export function resetAiMetrics(): AiMetricsData {
+  const clean = { ...DEFAULT_METRICS };
+  saveLocalMetrics(clean);
+  const docRef = doc(db, FIRESTORE_COLLECTION, FIRESTORE_DOC);
+  setDoc(docRef, clean).catch(() => {});
+  return clean;
 }
 
 function getLocalMetrics(): AiMetricsData {

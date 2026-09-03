@@ -1,25 +1,49 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Bot, Send, X, MessageSquare, ExternalLink, Loader2, User } from 'lucide-react';
+import { 
+  Bot, Send, X, MessageSquare, ExternalLink, Loader2, 
+  Sparkles, CheckCircle2, User, Phone, BookOpen, Clock, ChevronRight
+} from 'lucide-react';
 
 interface ChatMessage {
   id: string;
-  sender: 'bot' | 'user';
+  sender: 'user' | 'bot';
   text: string;
-  whatsappUrl?: string;
   time: string;
+  whatsappUrl?: string;
+  isLeadConfirmation?: boolean;
 }
+
+const POPULAR_COURSES = [
+  'Auxiliar Veterinário',
+  'Informática Completa & Pacote Office',
+  'Banho e Tosa Higiênica',
+  'Auxiliar de Farmácia & Drogaria',
+  'Excel Avançado',
+  'Assistente Administrativo & RH',
+  'Designer Gráfico & Marketing Digital'
+];
 
 export const AiChatbot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  // Lead Form State
+  const [showLeadForm, setShowLeadForm] = useState(false);
+  const [leadName, setLeadName] = useState('');
+  const [leadPhone, setLeadPhone] = useState('');
+  const [leadCourse, setLeadCourse] = useState(POPULAR_COURSES[0]);
+  const [leadShift, setLeadShift] = useState('Sábados ou Domingos');
+  const [submittingLead, setSubmittingLead] = useState(false);
+  const [leadSuccess, setLeadSuccess] = useState(false);
+
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'welcome',
       sender: 'bot',
-      text: 'Olá! Sou o assistente virtual da EasyTraining. Como posso te ajudar com cursos, horários ou certificados hoje?',
+      text: 'Olá! Sou a Izzy, consultora virtual da EasyTraining. Como posso te ajudar com cursos, horários, bolsas ou certificados hoje?',
       time: 'Agora'
     }
   ]);
@@ -34,7 +58,19 @@ export const AiChatbot: React.FC = () => {
     if (isOpen) {
       scrollToBottom();
     }
-  }, [messages, isOpen]);
+  }, [messages, isOpen, showLeadForm]);
+
+  // Format phone number as user types (XX) XXXXX-XXXX
+  const handlePhoneChange = (val: string) => {
+    const clean = val.replace(/\D/g, '').slice(0, 11);
+    let formatted = clean;
+    if (clean.length > 2 && clean.length <= 7) {
+      formatted = `(${clean.slice(0, 2)}) ${clean.slice(2)}`;
+    } else if (clean.length > 7) {
+      formatted = `(${clean.slice(0, 2)}) ${clean.slice(2, 7)}-${clean.slice(7)}`;
+    }
+    setLeadPhone(formatted);
+  };
 
   const handleSend = async (textToSend?: string) => {
     const query = textToSend || input;
@@ -43,7 +79,7 @@ export const AiChatbot: React.FC = () => {
     const userMsg: ChatMessage = {
       id: `u-${Date.now()}`,
       sender: 'user',
-      text: query.trim(),
+      text: query,
       time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
     };
 
@@ -68,6 +104,15 @@ export const AiChatbot: React.FC = () => {
       };
 
       setMessages((prev) => [...prev, botMsg]);
+
+      // If user asks about price, registration or contact, prompt lead form
+      const lower = query.toLowerCase();
+      if (
+        (lower.includes('preço') || lower.includes('valor') || lower.includes('bolsa') || lower.includes('matrícula') || lower.includes('inscrição') || lower.includes('quanto')) &&
+        !leadSuccess && !showLeadForm
+      ) {
+        setTimeout(() => setShowLeadForm(true), 1200);
+      }
     } catch {
       setMessages((prev) => [
         ...prev,
@@ -75,7 +120,7 @@ export const AiChatbot: React.FC = () => {
           id: `err-${Date.now()}`,
           sender: 'bot',
           text: 'Tive uma oscilação temporária de conexão, mas você pode chamar nossa equipe no WhatsApp agora mesmo!',
-          whatsappUrl: 'https://wa.me/551123037983',
+          whatsappUrl: 'https://wa.me/5511970638888',
           time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
         }
       ]);
@@ -84,30 +129,79 @@ export const AiChatbot: React.FC = () => {
     }
   };
 
+  const handleLeadSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!leadName.trim() || leadPhone.replace(/\D/g, '').length < 10) return;
+
+    setSubmittingLead(true);
+    try {
+      const res = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: leadName,
+          phone: leadPhone,
+          courseInterest: leadCourse,
+          preferredShift: leadShift,
+          source: 'Chatbot Izzy'
+        })
+      });
+
+      if (res.ok) {
+        setLeadSuccess(true);
+        setShowLeadForm(false);
+
+        const cleanPhone = '55' + leadPhone.replace(/\D/g, '');
+        const directWhatsapp = `https://wa.me/5511970638888?text=${encodeURIComponent(
+          `Olá! Meu nome é ${leadName}. Acabei de deixar meu contato no site com a Izzy para o curso de ${leadCourse} (${leadShift}) e gostaria de garantir minha condição especial.`
+        )}`;
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `lead-ok-${Date.now()}`,
+            sender: 'bot',
+            text: `🎉 Perfeito, ${leadName}! Registrei seu interesse no curso de ${leadCourse} (${leadShift}).\n\nNossa secretaria aqui no bairro Pimentas já recebeu seus dados e vai te chamar no WhatsApp (${leadPhone}) para liberar sua condição de bolsa e tirar suas dúvidas.\n\nSe quiser falar agora mesmo, é só tocar no botão abaixo!`,
+            whatsappUrl: directWhatsapp,
+            isLeadConfirmation: true,
+            time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+          }
+        ]);
+      }
+    } catch (err) {
+      console.error('Erro ao enviar lead:', err);
+    } finally {
+      setSubmittingLead(false);
+    }
+  };
+
   const quickQuestions = [
     'Quais cursos vocês oferecem?',
-    'Tem aulas aos sábados?',
+    'Tem aulas aos sábados ou domingos?',
     'Como funciona o certificado?',
-    'Onde fica a escola em Guarulhos?'
+    'Onde fica a escola nos Pimentas?'
   ];
 
   return (
     <div className="fixed bottom-22 right-6 z-40">
       {/* Chat Window */}
       {isOpen && (
-        <div className="mb-3 w-[calc(100vw-2rem)] sm:w-96 h-[500px] max-h-[80vh] bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4">
+        <div className="mb-3 w-[calc(100vw-2rem)] sm:w-96 h-[540px] max-h-[82vh] bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4">
           
           {/* Header */}
           <div className="bg-gradient-to-r from-[#052e7f] to-[#0a3fa8] text-white p-4 flex items-center justify-between shadow-xs">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
+              <div className="w-10 h-10 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 relative">
                 <Bot className="w-5 h-5 text-emerald-400" />
+                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full border-2 border-[#052e7f]" />
               </div>
               <div>
-                <h3 className="text-sm font-bold leading-tight">Assistente EasyTraining</h3>
+                <h3 className="text-sm font-bold leading-tight flex items-center gap-1.5">
+                  <span>Izzy</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 font-semibold border border-emerald-400/30">IA</span>
+                </h3>
                 <div className="flex items-center gap-1.5 text-[11px] text-emerald-300">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>Online • Inteligência Artificial</span>
+                  <span>Consultora Virtual EasyTraining</span>
                 </div>
               </div>
             </div>
@@ -119,6 +213,121 @@ export const AiChatbot: React.FC = () => {
               <X className="w-5 h-5" />
             </button>
           </div>
+
+          {/* Quick Lead Action Strip */}
+          {!leadSuccess && !showLeadForm && (
+            <div className="bg-emerald-50 border-b border-emerald-100 px-3.5 py-2 flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-[11px] text-[#00874A] font-semibold">
+                <Sparkles className="w-3.5 h-3.5 text-[#00B060]" />
+                <span>Quer garantir sua bolsa de estudos?</span>
+              </div>
+              <button
+                onClick={() => setShowLeadForm(true)}
+                className="text-[11px] font-bold text-white bg-[#00874A] hover:bg-[#00703c] px-2.5 py-1 rounded-lg transition-colors cursor-pointer shadow-xs flex items-center gap-1"
+              >
+                <span>Preencher</span>
+                <ChevronRight className="w-3 h-3" />
+              </button>
+            </div>
+          )}
+
+          {/* Inline Lead Form Drawer */}
+          {showLeadForm && !leadSuccess && (
+            <div className="bg-gradient-to-b from-blue-50/90 to-white border-b border-blue-100 p-3.5 animate-in slide-in-from-top-2">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-[#052e7f]">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                  <span>Reserve sua Bolsa ou Aula Prática</span>
+                </div>
+                <button
+                  onClick={() => setShowLeadForm(false)}
+                  className="text-slate-400 hover:text-slate-600 text-xs cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+              <p className="text-[11px] text-slate-600 mb-2.5">
+                Preencha abaixo e nossa secretaria entrará em contato com a condição especial:
+              </p>
+
+              <form onSubmit={handleLeadSubmit} className="space-y-2">
+                <div className="relative">
+                  <User className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
+                  <input
+                    type="text"
+                    required
+                    value={leadName}
+                    onChange={(e) => setLeadName(e.target.value)}
+                    placeholder="Seu nome completo"
+                    className="w-full pl-8 pr-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-800 text-[11px] focus:outline-hidden focus:ring-1 focus:ring-[#00B060]"
+                  />
+                </div>
+
+                <div className="relative">
+                  <Phone className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
+                  <input
+                    type="tel"
+                    required
+                    value={leadPhone}
+                    onChange={(e) => handlePhoneChange(e.target.value)}
+                    placeholder="Seu WhatsApp: (11) 99999-9999"
+                    className="w-full pl-8 pr-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-800 text-[11px] focus:outline-hidden focus:ring-1 focus:ring-[#00B060]"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-1.5">
+                  <div className="relative">
+                    <select
+                      value={leadCourse}
+                      onChange={(e) => setLeadCourse(e.target.value)}
+                      className="w-full px-2 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-800 text-[10px] focus:outline-hidden focus:ring-1 focus:ring-[#00B060]"
+                    >
+                      {POPULAR_COURSES.map((c, i) => (
+                        <option key={i} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="relative">
+                    <select
+                      value={leadShift}
+                      onChange={(e) => setLeadShift(e.target.value)}
+                      className="w-full px-2 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-800 text-[10px] focus:outline-hidden focus:ring-1 focus:ring-[#00B060]"
+                    >
+                      <option value="Sábados ou Domingos">Sábado / Domingo</option>
+                      <option value="Semana - Manhã">Semana - Manhã</option>
+                      <option value="Semana - Tarde">Semana - Tarde</option>
+                      <option value="Semana - Noite">Semana - Noite</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 pt-1">
+                  <button
+                    type="submit"
+                    disabled={submittingLead || !leadName || leadPhone.length < 14}
+                    className="flex-1 py-1.5 px-3 rounded-lg bg-[#00874A] hover:bg-[#00703c] disabled:opacity-50 text-white font-bold text-[11px] transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    {submittingLead ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Garantir Condição Especial</span>
+                      </>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowLeadForm(false)}
+                    className="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] font-medium transition-colors cursor-pointer"
+                  >
+                    Agora não
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
 
           {/* Messages Area */}
           <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50 text-xs">
@@ -133,9 +342,11 @@ export const AiChatbot: React.FC = () => {
                   </div>
                 )}
                 <div
-                  className={`max-w-[82%] p-3 rounded-2xl shadow-xs leading-relaxed ${
+                  className={`max-w-[84%] p-3 rounded-2xl shadow-xs leading-relaxed ${
                     m.sender === 'user'
                       ? 'bg-[#052e7f] text-white rounded-tr-xs'
+                      : m.isLeadConfirmation
+                      ? 'bg-emerald-50 text-slate-800 border border-emerald-200 rounded-tl-xs'
                       : 'bg-white text-slate-800 border border-slate-200/80 rounded-tl-xs'
                   }`}
                 >
@@ -147,10 +358,10 @@ export const AiChatbot: React.FC = () => {
                         href={m.whatsappUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition-all shadow-xs"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#00874A] hover:bg-[#00703c] text-white font-bold text-[11px] transition-all shadow-xs"
                       >
                         <MessageSquare className="w-3.5 h-3.5" />
-                        <span>Falar com atendente no WhatsApp</span>
+                        <span>Chamar secretaria no WhatsApp</span>
                         <ExternalLink className="w-3 h-3" />
                       </a>
                     </div>
@@ -170,7 +381,7 @@ export const AiChatbot: React.FC = () => {
                 </div>
                 <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-2 text-slate-500">
                   <Loader2 className="w-3.5 h-3.5 animate-spin text-[#00B060]" />
-                  <span>Digitando resposta...</span>
+                  <span>Izzy digitando resposta...</span>
                 </div>
               </div>
             )}
@@ -179,7 +390,7 @@ export const AiChatbot: React.FC = () => {
           </div>
 
           {/* Quick Questions Chips */}
-          {messages.length < 3 && (
+          {messages.length < 3 && !showLeadForm && (
             <div className="p-2.5 bg-white border-t border-slate-100 flex items-center gap-1.5 overflow-x-auto text-[11px]">
               {quickQuestions.map((q, idx) => (
                 <button
@@ -205,14 +416,14 @@ export const AiChatbot: React.FC = () => {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Digite sua dúvida sobre os cursos..."
+              placeholder="Pergunte sobre cursos, horários..."
               className="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-100 text-slate-800 text-xs focus:outline-hidden focus:ring-2 focus:ring-[#00B060] transition-all"
             />
             <button
               type="submit"
               disabled={!input.trim() || loading}
-              className="p-2.5 rounded-xl bg-[#00B060] hover:bg-[#009b54] text-white disabled:opacity-40 transition-all cursor-pointer shadow-sm"
-              title="Enviar pergunta"
+              className="p-2.5 rounded-xl bg-[#00874A] hover:bg-[#00703c] text-white disabled:opacity-40 transition-all cursor-pointer shadow-sm"
+              title="Enviar mensagem"
             >
               <Send className="w-4 h-4" />
             </button>
@@ -232,7 +443,7 @@ export const AiChatbot: React.FC = () => {
           <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-[#052e7f]" />
         </div>
         <span className="hidden sm:inline-block text-xs font-bold tracking-tight">
-          {isOpen ? 'Fechar Assistente' : 'Atendente IA 24h'}
+          {isOpen ? 'Fechar Izzy' : 'Fale com a Izzy (IA)'}
         </span>
       </button>
     </div>

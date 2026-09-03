@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
       `- ${c.title} (${c.category}): Carga de ${c.duration}. ${c.shortDescription} Módulos principais: ${c.modules.slice(0, 3).map(m => m.title).join(', ')}.`
     ).join('\n');
 
-    const systemInstruction = `Você é o "Alex", consultor pedagógico e atendente virtual oficial da EasyTraining Formação Profissional em Guarulhos - SP (bairro Pimentas).
+    const systemInstruction = `Você é a "Izzy", consultora pedagógica e atendente virtual oficial da EasyTraining Formação Profissional em Guarulhos - SP (bairro Pimentas).
 Sua missão é responder dúvidas dos alunos com extrema simpatia, acolhimento, precisão e incentivo ao aprendizado.
 
 INFORMAÇÕES INSTITUCIONAIS DA ESCOLA:

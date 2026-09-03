@@ -74,3 +74,19 @@ export interface AdminUser {
   name: string;
   role: 'admin' | 'editor';
 }
+
+export type LeadStatus = 'novo' | 'contato' | 'visita' | 'matriculado' | 'perdido';
+
+export interface Lead {
+  id: string;
+  name: string;
+  phone: string;
+  email?: string;
+  courseInterest: string;
+  preferredShift?: string;
+  status: LeadStatus;
+  source: string;
+  notes?: string;
+  createdAt: string;
+  lastContactAt?: string;
+}
