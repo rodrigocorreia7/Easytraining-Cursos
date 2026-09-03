@@ -28,6 +28,17 @@ export const CookieConsent: React.FC = () => {
         type,
         timestamp: new Date().toISOString()
       }));
+
+      if (typeof window !== 'undefined' && (window as any).gtag) {
+        if (type === 'all') {
+          (window as any).gtag('consent', 'update', {
+            'ad_storage': 'granted',
+            'ad_user_data': 'granted',
+            'ad_personalization': 'granted',
+            'analytics_storage': 'granted'
+          });
+        }
+      }
     } catch {}
     setShowBanner(false);
   };
