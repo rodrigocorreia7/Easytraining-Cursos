@@ -148,12 +148,12 @@ export const AiChatbot: React.FC = () => {
 
   return (
     <div className="fixed bottom-20 sm:bottom-22 right-3 sm:right-6 z-40 flex flex-col items-end">
-      {/* Chat Window */}
+      {/* Chat Window - DARK MODE HIGH CONTRAST */}
       {isOpen && (
-        <div className="mb-3 w-[calc(100vw-1.5rem)] sm:w-96 h-[520px] sm:h-[540px] max-h-[78vh] sm:max-h-[82vh] bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4">
+        <div className="mb-3 w-[calc(100vw-1.5rem)] sm:w-96 h-[520px] sm:h-[540px] max-h-[78vh] sm:max-h-[82vh] bg-[#0A1628] rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] border border-slate-700/80 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4">
           
           {/* Header */}
-          <div className="bg-gradient-to-r from-[#052e7f] to-[#0a3fa8] text-white p-4 flex items-center justify-between shadow-xs">
+          <div className="bg-gradient-to-r from-[#031b4e] via-[#052e7f] to-[#0A2540] text-white p-4 flex items-center justify-between shadow-md border-b border-white/10">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 relative">
                 <Bot className="w-5 h-5 text-emerald-400" />
@@ -178,38 +178,38 @@ export const AiChatbot: React.FC = () => {
             </button>
           </div>
 
-          {/* Quick Lead Action Strip */}
+          {/* Quick Lead Action Strip (Dark) */}
           {!leadSuccess && !showLeadForm && (
-            <div className="bg-emerald-50 border-b border-emerald-100 px-3.5 py-2 flex items-center justify-between">
-              <div className="flex items-center gap-1.5 text-[11px] text-[#00874A] font-semibold">
-                <Sparkles className="w-3.5 h-3.5 text-[#00B060]" />
+            <div className="bg-[#0D223F] border-b border-emerald-500/20 px-3.5 py-2 flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-[11px] text-emerald-300 font-semibold">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                 <span>Quer garantir sua bolsa de estudos?</span>
               </div>
               <button
                 onClick={() => setShowLeadForm(true)}
-                className="text-[10.5px] font-bold text-white bg-[#00874A] hover:bg-[#00703c] px-2.5 py-1 rounded-full shadow-2xs transition-transform active:scale-95 cursor-pointer"
+                className="text-[10.5px] font-bold text-white bg-[#00874A] hover:bg-[#00703c] px-2.5 py-1 rounded-full shadow-xs transition-transform active:scale-95 cursor-pointer"
               >
                 Garantir Bolsa
               </button>
             </div>
           )}
 
-          {/* Inline Lead Form Drawer */}
+          {/* Inline Lead Form Drawer (Dark) */}
           {showLeadForm && !leadSuccess && (
-            <div className="bg-gradient-to-b from-blue-50/90 to-white border-b border-blue-100 p-3.5 animate-in slide-in-from-top-2">
+            <div className="bg-[#0D1D35] border-b border-slate-700/80 p-3.5 animate-in slide-in-from-top-2 text-slate-200">
               <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-[#052e7f]">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                   <span>Reserve sua Bolsa ou Aula Prática</span>
                 </div>
                 <button
                   onClick={() => setShowLeadForm(false)}
-                  className="text-slate-400 hover:text-slate-600 text-xs cursor-pointer"
+                  className="text-slate-400 hover:text-white text-xs cursor-pointer"
                 >
                   ✕
                 </button>
               </div>
-              <p className="text-[11px] text-slate-600 mb-2.5">
+              <p className="text-[11px] text-slate-300 mb-2.5">
                 Preencha abaixo e nossa secretaria entrará em contato com a condição especial:
               </p>
 
@@ -222,7 +222,7 @@ export const AiChatbot: React.FC = () => {
                     value={leadName}
                     onChange={(e) => setLeadName(e.target.value)}
                     placeholder="Seu nome completo"
-                    className="w-full pl-8 pr-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-800 text-[11px] focus:outline-hidden focus:ring-1 focus:ring-[#00B060]"
+                    className="w-full pl-8 pr-2.5 py-1.5 rounded-lg bg-[#071324] border border-slate-700 text-white placeholder-slate-400 text-[11px] focus:outline-hidden focus:ring-1 focus:ring-[#00B060]"
                   />
                 </div>
 
@@ -234,7 +234,7 @@ export const AiChatbot: React.FC = () => {
                     value={leadPhone}
                     onChange={(e) => handlePhoneChange(e.target.value)}
                     placeholder="Seu WhatsApp: (11) 99999-9999"
-                    className="w-full pl-8 pr-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-800 text-[11px] focus:outline-hidden focus:ring-1 focus:ring-[#00B060]"
+                    className="w-full pl-8 pr-2.5 py-1.5 rounded-lg bg-[#071324] border border-slate-700 text-white placeholder-slate-400 text-[11px] focus:outline-hidden focus:ring-1 focus:ring-[#00B060]"
                   />
                 </div>
 
@@ -243,10 +243,10 @@ export const AiChatbot: React.FC = () => {
                     <select
                       value={leadCourse}
                       onChange={(e) => setLeadCourse(e.target.value)}
-                      className="w-full px-2 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-800 text-[10px] focus:outline-hidden focus:ring-1 focus:ring-[#00B060]"
+                      className="w-full px-2 py-1.5 rounded-lg bg-[#071324] border border-slate-700 text-white text-[10px] focus:outline-hidden focus:ring-1 focus:ring-[#00B060]"
                     >
                       {POPULAR_COURSES.map((c, i) => (
-                        <option key={i} value={c}>{c}</option>
+                        <option key={i} value={c} className="bg-[#071324] text-white">{c}</option>
                       ))}
                     </select>
                   </div>
@@ -255,18 +255,18 @@ export const AiChatbot: React.FC = () => {
                     <select
                       value={leadShift}
                       onChange={(e) => setLeadShift(e.target.value)}
-                      className="w-full px-2 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-800 text-[10px] focus:outline-hidden focus:ring-1 focus:ring-[#00B060]"
+                      className="w-full px-2 py-1.5 rounded-lg bg-[#071324] border border-slate-700 text-white text-[10px] focus:outline-hidden focus:ring-1 focus:ring-[#00B060]"
                     >
-                      <option value="Segunda a Sexta - Manhã">Segunda a Sexta - Manhã</option>
-                      <option value="Segunda a Sexta - Tarde">Segunda a Sexta - Tarde</option>
-                      <option value="Segunda a Sexta - Noite">Segunda a Sexta - Noite</option>
-                      <option value="Segunda a Sexta - Horário Flexível">Segunda a Sexta - Flexível</option>
+                      <option value="Segunda a Sexta - Manhã" className="bg-[#071324] text-white">Segunda a Sexta - Manhã</option>
+                      <option value="Segunda a Sexta - Tarde" className="bg-[#071324] text-white">Segunda a Sexta - Tarde</option>
+                      <option value="Segunda a Sexta - Noite" className="bg-[#071324] text-white">Segunda a Sexta - Noite</option>
+                      <option value="Segunda a Sexta - Horário Flexível" className="bg-[#071324] text-white">Segunda a Sexta - Flexível</option>
                     </select>
                   </div>
                 </div>
 
                 {leadError && (
-                  <p className="text-[10px] text-red-600 bg-red-50 border border-red-200 px-2.5 py-1.5 rounded-lg font-semibold animate-in fade-in">
+                  <p className="text-[10px] text-red-400 bg-red-950/60 border border-red-800 px-2.5 py-1.5 rounded-lg font-semibold animate-in fade-in">
                     {leadError}
                   </p>
                 )}
@@ -292,7 +292,7 @@ export const AiChatbot: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setShowLeadForm(false)}
-                    className="px-2.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] font-medium transition-colors cursor-pointer"
+                    className="px-2.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-medium transition-colors cursor-pointer border border-slate-700"
                   >
                     Agora não
                   </button>
@@ -301,35 +301,35 @@ export const AiChatbot: React.FC = () => {
             </div>
           )}
 
-          {/* Messages Area */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50 text-xs">
+          {/* Messages Area (Dark High-Contrast) */}
+          <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-[#071324] text-xs">
             {messages.map((m) => (
               <div
                 key={m.id}
                 className={`flex gap-2.5 ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {m.role === 'assistant' && (
-                  <div className="w-7 h-7 rounded-xl bg-[#052e7f] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
-                    <Bot className="w-4 h-4 text-emerald-300" />
+                  <div className="w-7 h-7 rounded-xl bg-[#052e7f] text-emerald-300 border border-white/10 flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+                    <Bot className="w-4 h-4" />
                   </div>
                 )}
                 <div
-                  className={`max-w-[84%] p-3 rounded-2xl shadow-xs leading-relaxed ${
+                  className={`max-w-[84%] p-3 rounded-2xl shadow-sm leading-relaxed ${
                     m.role === 'user'
-                      ? 'bg-[#052e7f] text-white rounded-tr-xs'
-                      : 'bg-white text-slate-800 border border-slate-200/80 rounded-tl-xs'
+                      ? 'bg-[#00874A] text-white rounded-tr-xs shadow-md'
+                      : 'bg-[#112240] text-slate-100 border border-slate-700/70 rounded-tl-xs shadow-md'
                   }`}
                 >
                   <p className="whitespace-pre-line">{m.content}</p>
                   
                   {/* WhatsApp CTA button on assistant answers */}
                   {m.role === 'assistant' && m.id !== 'welcome' && (
-                    <div className="mt-2.5 pt-2 border-t border-slate-100">
+                    <div className="mt-2.5 pt-2 border-t border-slate-700/60">
                       <a
                         href={`https://wa.me/5511970638888?text=${encodeURIComponent('Olá! Estive conversando com a Izzy no site e gostaria de falar com a equipe da EasyTraining.')}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#00874A] hover:bg-[#00703c] text-white font-bold text-[11px] transition-all shadow-xs"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#00874A] hover:bg-[#00703c] text-white font-bold text-[11px] transition-all shadow-md"
                       >
                         <MessageSquare className="w-3.5 h-3.5" />
                         <span>Chamar secretaria no WhatsApp</span>
@@ -341,13 +341,13 @@ export const AiChatbot: React.FC = () => {
               </div>
             ))}
 
-            {/* Live Typing Indicator */}
+            {/* Live Typing Indicator (Dark) */}
             {isLoading && (
               <div className="flex gap-2.5 justify-start animate-in fade-in">
-                <div className="w-7 h-7 rounded-xl bg-[#052e7f] text-white flex items-center justify-center shrink-0">
-                  <Bot className="w-4 h-4 text-emerald-300" />
+                <div className="w-7 h-7 rounded-xl bg-[#052e7f] text-emerald-300 border border-white/10 flex items-center justify-center shrink-0">
+                  <Bot className="w-4 h-4" />
                 </div>
-                <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-2 text-slate-500">
+                <div className="bg-[#112240] p-3 rounded-2xl border border-slate-700/70 shadow-xs flex items-center gap-2 text-slate-300">
                   <Loader2 className="w-3.5 h-3.5 animate-spin text-[#00B060]" />
                   <span className="text-[11px] font-medium animate-pulse">Izzy digitando resposta...</span>
                 </div>
@@ -357,14 +357,14 @@ export const AiChatbot: React.FC = () => {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Quick Questions Chips */}
+          {/* Quick Questions Chips (Dark) */}
           {messages.length < 3 && !showLeadForm && (
-            <div className="p-2.5 bg-white border-t border-slate-100 flex items-center gap-1.5 overflow-x-auto text-[11px]">
+            <div className="p-2.5 bg-[#0A1628] border-t border-slate-800 flex items-center gap-1.5 overflow-x-auto text-[11px]">
               {quickQuestions.map((q, idx) => (
                 <button
                   key={idx}
                   onClick={() => append({ role: 'user', content: q })}
-                  className="whitespace-nowrap px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-colors cursor-pointer"
+                  className="whitespace-nowrap px-2.5 py-1 rounded-full bg-[#112240] hover:bg-[#19325c] text-slate-200 border border-slate-700/60 font-medium transition-colors cursor-pointer shadow-xs"
                 >
                   {q}
                 </button>
@@ -372,22 +372,22 @@ export const AiChatbot: React.FC = () => {
             </div>
           )}
 
-          {/* Input Form with useChat handleSubmit */}
+          {/* Input Form with useChat handleSubmit (Dark) */}
           <form
             onSubmit={handleSubmit}
-            className="p-3 bg-white border-t border-slate-200 flex items-center gap-2"
+            className="p-3 bg-[#0A1628] border-t border-slate-800 flex items-center gap-2"
           >
             <input
               type="text"
               value={input}
               onChange={handleInputChange}
               placeholder="Pergunte sobre cursos, horários..."
-              className="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-100 text-slate-800 text-xs focus:outline-hidden focus:ring-2 focus:ring-[#00B060] transition-all"
+              className="flex-1 px-3.5 py-2.5 rounded-xl bg-[#071324] border border-slate-700/80 text-white placeholder-slate-400 text-xs focus:outline-hidden focus:ring-2 focus:ring-[#00B060] transition-all"
             />
             <button
               type="submit"
               disabled={!input.trim() || isLoading}
-              className="p-2.5 rounded-xl bg-[#00874A] hover:bg-[#00703c] text-white disabled:opacity-40 transition-all cursor-pointer shadow-sm"
+              className="p-2.5 rounded-xl bg-[#00874A] hover:bg-[#00703c] text-white disabled:opacity-40 transition-all cursor-pointer shadow-md"
               title="Enviar mensagem"
             >
               <Send className="w-4 h-4" />
