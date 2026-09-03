@@ -3,6 +3,7 @@
 import React from 'react';
 import { Clock, Calendar, ArrowRight, BookOpen } from 'lucide-react';
 import { BlogPost } from '../../types';
+import { formatShortDate } from '../../lib/dateUtils';
 
 interface BlogCardProps {
   post: BlogPost;
@@ -10,11 +11,7 @@ interface BlogCardProps {
 }
 
 export const BlogCard: React.FC<BlogCardProps> = ({ post, featured = false }) => {
-  const formattedDate = new Date(post.date).toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
-  });
+  const formattedDate = formatShortDate(post.date);
 
   return (
     <article
@@ -57,7 +54,7 @@ export const BlogCard: React.FC<BlogCardProps> = ({ post, featured = false }) =>
       >
         <div className="space-y-3">
           <div className="flex items-center gap-4 text-xs text-slate-500 font-medium">
-            <span className="flex items-center gap-1">
+            <span suppressHydrationWarning className="flex items-center gap-1">
               <Calendar className="w-3.5 h-3.5 text-[#FFB800]" />
               {formattedDate}
             </span>

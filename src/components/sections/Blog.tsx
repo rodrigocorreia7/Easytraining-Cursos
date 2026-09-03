@@ -6,6 +6,7 @@ import { BlogPost } from '../../types';
 import { BlogService } from '../../services/blogService';
 import { Calendar, Clock, ArrowRight, Newspaper, BookOpen } from 'lucide-react';
 import SplitText from '../ui/SplitText';
+import { formatShortDate } from '../../lib/dateUtils';
 
 export const BlogSection: React.FC = () => {
   const [posts, setPosts] = useState<BlogPost[]>(defaultPosts);
@@ -55,11 +56,7 @@ export const BlogSection: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           {featuredPosts.map((post) => {
-            const formattedDate = new Date(post.date).toLocaleDateString('pt-BR', {
-              day: '2-digit',
-              month: 'short',
-              year: 'numeric'
-            });
+            const formattedDate = formatShortDate(post.date);
 
             return (
               <article
@@ -82,7 +79,7 @@ export const BlogSection: React.FC = () => {
                   </div>
 
                   <div className="flex items-center gap-3 text-xs text-slate-500 mb-3 font-medium">
-                    <span className="flex items-center gap-1">
+                    <span suppressHydrationWarning className="flex items-center gap-1">
                       <Calendar className="w-3.5 h-3.5 text-[#FFB800]" />
                       {formattedDate}
                     </span>

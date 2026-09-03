@@ -11,6 +11,7 @@ import { CoursePromoBanner } from './CoursePromoBanner';
 import { ShareButtons } from './ShareButtons';
 import { ArticleFaq } from './ArticleFaq';
 import { BlogCard } from './BlogCard';
+import { formatLongDate } from '../../lib/dateUtils';
 
 interface PostDetailViewProps {
   post: BlogPost;
@@ -18,11 +19,7 @@ interface PostDetailViewProps {
 }
 
 export const PostDetailView: React.FC<PostDetailViewProps> = ({ post, relatedPosts = [] }) => {
-  const formattedDate = new Date(post.date).toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric'
-  });
+  const formattedDate = formatLongDate(post.date);
 
   const articleJsonLd = {
     '@context': 'https://schema.org',
@@ -101,7 +98,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ post, relatedPos
               </div>
 
               <div className="flex items-center gap-4 font-medium">
-                <span className="flex items-center gap-1.5">
+                <span suppressHydrationWarning className="flex items-center gap-1.5">
                   <Calendar className="w-4 h-4 text-[#FFB800]" />
                   {formattedDate}
                 </span>
