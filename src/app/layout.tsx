@@ -114,7 +114,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/logo1.png" />
         <link rel="dns-prefetch" href="https://wa.me" />
         <link rel="dns-prefetch" href="https://api.whatsapp.com" />
-        <link rel="preload" as="image" href="/images/robot/image-hero.webp" type="image/webp" />
+        <link rel="preload" as="image" href="/images/robot/image-hero.webp" type="image/webp" fetchPriority="high" />
         {/* Agentic Navigation & LLM discovery */}
         <link rel="llms" href="/llms.txt" />
         <link rel="llms-txt" href="/llms.txt" />

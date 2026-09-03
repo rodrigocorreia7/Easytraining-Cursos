@@ -168,8 +168,11 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ initialCategory 
                     <img
                       src={course.image || '/images/default-course.webp'}
                       alt={course.title}
+                      width={400}
+                      height={200}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"
+                      decoding="async"
                     />
                     <div className="absolute top-3 left-3">
                       <span className="px-2.5 py-1 bg-white/95 backdrop-blur-md text-[11px] font-bold text-[#052e7f] rounded-full uppercase tracking-wider shadow-sm">
