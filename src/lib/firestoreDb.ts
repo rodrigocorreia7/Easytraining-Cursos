@@ -1,11 +1,4 @@
-import { db } from './firebase';
-import {
-  collection,
-  doc,
-  getDocs,
-  setDoc,
-  deleteDoc
-} from 'firebase/firestore';
+﻿import { adminDb } from './firebaseAdmin';
 import { Course, BlogPost } from '../types';
 import { getStoredCourses, getStoredPosts, getStoredSiteConfig, type SiteConfigType } from './db';
 
@@ -16,7 +9,7 @@ const SITE_CONFIG_DOC = 'siteConfig';
 
 let isFirestoreOperational: boolean | null = null;
 
-async function withTimeout<T>(promise: Promise<T>, ms = 3000): Promise<T> {
+async function withTimeout<T>(promise: Promise<T>, ms = 4000): Promise<T> {
   let timer: any;
   const timeout = new Promise<never>((_, reject) => {
     timer = setTimeout(() => reject(new Error('Firestore timeout')), ms);
@@ -32,8 +25,8 @@ export async function getCoursesFromFirestore(): Promise<Course[]> {
   const localCourses = getStoredCourses();
 
   try {
-    const fetchPromise = getDocs(collection(db, COURSES_COLLECTION));
-    const snapshot = await withTimeout(fetchPromise, 3000);
+    const fetchPromise = adminDb.collection(COURSES_COLLECTION).get();
+    const snapshot = await withTimeout(fetchPromise, 4000);
 
     isFirestoreOperational = true;
 
@@ -62,33 +55,37 @@ export async function getCoursesFromFirestore(): Promise<Course[]> {
 
 export async function saveCourseToFirestore(course: Course): Promise<void> {
   try {
-    const docRef = doc(db, COURSES_COLLECTION, String(course.id));
-    await withTimeout(setDoc(docRef, course, { merge: true }), 4000);
+    const docRef = adminDb.collection(COURSES_COLLECTION).doc(String(course.id));
+    await withTimeout(docRef.set(course, { merge: true }), 5000);
     isFirestoreOperational = true;
-  } catch (error) {
-    console.warn('Não foi possível sincronizar curso no Firestore:', error);
+  } catch (error: any) {
+    console.error('Erro crítico ao salvar curso no Firestore via Admin SDK:', error?.message);
+    throw new Error(`Falha ao persistir curso no Firestore: ${error?.message || 'Erro desconhecido'}`);
   }
 }
 
 export async function deleteCourseFromFirestore(id: string | number): Promise<void> {
   try {
-    const docRef = doc(db, COURSES_COLLECTION, String(id));
-    await withTimeout(deleteDoc(docRef), 4000);
+    const docRef = adminDb.collection(COURSES_COLLECTION).doc(String(id));
+    await withTimeout(docRef.delete(), 5000);
     isFirestoreOperational = true;
-  } catch (error) {
-    console.warn('Não foi possível deletar curso no Firestore:', error);
+  } catch (error: any) {
+    console.error('Erro crítico ao excluir curso no Firestore via Admin SDK:', error?.message);
+    throw new Error(`Falha ao excluir curso no Firestore: ${error?.message || 'Erro desconhecido'}`);
   }
 }
 
 export async function seedCoursesToFirestore(coursesList: Course[]): Promise<void> {
   try {
+    const batch = adminDb.batch();
     for (const c of coursesList) {
-      const docRef = doc(db, COURSES_COLLECTION, String(c.id));
-      await setDoc(docRef, c, { merge: true });
+      const docRef = adminDb.collection(COURSES_COLLECTION).doc(String(c.id));
+      batch.set(docRef, c, { merge: true });
     }
+    await batch.commit();
     isFirestoreOperational = true;
-  } catch (error) {
-    console.warn('Não foi possível semear cursos no Firestore:', error);
+  } catch (error: any) {
+    console.warn('Não foi possível semear cursos no Firestore:', error?.message);
   }
 }
 
@@ -121,8 +118,8 @@ export async function getPostsFromFirestore(): Promise<BlogPost[]> {
   const localPosts = getStoredPosts();
 
   try {
-    const fetchPromise = getDocs(collection(db, POSTS_COLLECTION));
-    const snapshot = await withTimeout(fetchPromise, 3000);
+    const fetchPromise = adminDb.collection(POSTS_COLLECTION).get();
+    const snapshot = await withTimeout(fetchPromise, 4000);
 
     isFirestoreOperational = true;
 
@@ -132,9 +129,7 @@ export async function getPostsFromFirestore(): Promise<BlogPost[]> {
     }
 
     const postsMap = new Map<string, BlogPost>();
-    // 1. Base prévia local
     localPosts.forEach((p) => postsMap.set(String(p.slug).toLowerCase(), sanitizePostMedia(p)));
-    // 2. Mescla e prioriza novos posts e edições vindos do Firestore
     snapshot.forEach((d) => {
       const data = d.data() as BlogPost;
       if (data && data.slug) {
@@ -153,33 +148,37 @@ export async function getPostsFromFirestore(): Promise<BlogPost[]> {
 
 export async function savePostToFirestore(post: BlogPost): Promise<void> {
   try {
-    const docRef = doc(db, POSTS_COLLECTION, String(post.slug || post.id));
-    await withTimeout(setDoc(docRef, post, { merge: true }), 4000);
+    const docRef = adminDb.collection(POSTS_COLLECTION).doc(String(post.slug || post.id));
+    await withTimeout(docRef.set(post, { merge: true }), 5000);
     isFirestoreOperational = true;
-  } catch (error) {
-    console.warn('Não foi possível salvar post no Firestore:', error);
+  } catch (error: any) {
+    console.error('Erro crítico ao salvar post no Firestore via Admin SDK:', error?.message);
+    throw new Error(`Falha ao persistir artigo no Firestore: ${error?.message || 'Erro desconhecido'}`);
   }
 }
 
-export async function deletePostFromFirestore(id: string | number): Promise<void> {
+export async function deletePostFromFirestore(idOrSlug: string | number): Promise<void> {
   try {
-    const docRef = doc(db, POSTS_COLLECTION, String(id));
-    await withTimeout(deleteDoc(docRef), 4000);
+    const docRef = adminDb.collection(POSTS_COLLECTION).doc(String(idOrSlug));
+    await withTimeout(docRef.delete(), 5000);
     isFirestoreOperational = true;
-  } catch (error) {
-    console.warn('Não foi possível excluir post no Firestore:', error);
+  } catch (error: any) {
+    console.error('Erro crítico ao excluir post no Firestore via Admin SDK:', error?.message);
+    throw new Error(`Falha ao excluir artigo no Firestore: ${error?.message || 'Erro desconhecido'}`);
   }
 }
 
 export async function seedPostsToFirestore(postsList: BlogPost[]): Promise<void> {
   try {
+    const batch = adminDb.batch();
     for (const p of postsList) {
-      const docRef = doc(db, POSTS_COLLECTION, String(p.slug || p.id));
-      await setDoc(docRef, p, { merge: true });
+      const docRef = adminDb.collection(POSTS_COLLECTION).doc(String(p.slug || p.id));
+      batch.set(docRef, p, { merge: true });
     }
+    await batch.commit();
     isFirestoreOperational = true;
-  } catch (error) {
-    console.warn('Não foi possível semear posts no Firestore:', error);
+  } catch (error: any) {
+    console.warn('Não foi possível semear posts no Firestore:', error?.message);
   }
 }
 
@@ -194,21 +193,14 @@ export async function getSiteConfigFromFirestore(): Promise<SiteConfigType> {
   }
 
   try {
-    const snap = await withTimeout(getDocs(collection(db, CONFIG_COLLECTION)), 800);
+    const doc = await withTimeout(adminDb.collection(CONFIG_COLLECTION).doc(SITE_CONFIG_DOC).get(), 1500);
 
-    if (snap.empty) {
+    if (!doc.exists) {
       saveSiteConfigToFirestore(localConfig).catch(() => {});
       return localConfig;
     }
 
-    let found: SiteConfigType | null = null;
-    snap.forEach(d => {
-      if (d.id === SITE_CONFIG_DOC) {
-        found = d.data() as SiteConfigType;
-      }
-    });
-
-    return found || localConfig;
+    return (doc.data() as SiteConfigType) || localConfig;
   } catch (error) {
     isFirestoreOperational = false;
     return localConfig;
@@ -216,11 +208,12 @@ export async function getSiteConfigFromFirestore(): Promise<SiteConfigType> {
 }
 
 export async function saveSiteConfigToFirestore(config: SiteConfigType): Promise<void> {
-  if (isFirestoreOperational === false) return;
   try {
-    const docRef = doc(db, CONFIG_COLLECTION, SITE_CONFIG_DOC);
-    await withTimeout(setDoc(docRef, config, { merge: true }), 800);
-  } catch (error) {
-    console.warn('Não foi possível salvar siteConfig no Firestore:', error);
+    const docRef = adminDb.collection(CONFIG_COLLECTION).doc(SITE_CONFIG_DOC);
+    await withTimeout(docRef.set(config, { merge: true }), 4000);
+    isFirestoreOperational = true;
+  } catch (error: any) {
+    console.error('Erro crítico ao salvar siteConfig no Firestore via Admin SDK:', error?.message);
+    throw new Error(`Falha ao persistir configurações no Firestore: ${error?.message || 'Erro desconhecido'}`);
   }
 }

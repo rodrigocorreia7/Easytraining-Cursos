@@ -1,0 +1,15 @@
+﻿rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Leitura pública liberada exclusivamente para imagens em uploads/
+    match /uploads/{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Bloqueio padrão para todas as outras pastas e arquivos
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

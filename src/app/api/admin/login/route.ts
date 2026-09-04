@@ -55,8 +55,7 @@ export async function POST(request: NextRequest) {
       user: {
         ...adminUser,
         role: 'admin'
-      },
-      token
+      }
     });
 
     // Cookie seguro HttpOnly

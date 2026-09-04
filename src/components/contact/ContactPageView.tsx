@@ -52,6 +52,22 @@ export const ContactPageView: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (name.trim() && phone.trim()) {
+      fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name.trim(),
+          phone: phone.trim(),
+          courseInterest: course,
+          preferredShift: shift || 'Qualquer',
+          notes: message ? message.trim() : 'Enviado pela página dedicada de contato /contato',
+          source: 'Página Contato (/contato)'
+        })
+      }).catch(err => console.error('Erro ao enviar lead para API a partir de /contato:', err));
+    }
+
     const text = `Olá! Meu nome é ${name}, telefone ${phone}.\nTenho interesse no curso de *${course}* no turno *${shift}*.\n${message ? `Mensagem/Dúvida: ${message}` : 'Gostaria de receber informações sobre turmas, grade e valores.'}`;
     window.open(`https://wa.me/${siteConfig.whatsappClean}?text=${encodeURIComponent(text)}`, '_blank');
   };

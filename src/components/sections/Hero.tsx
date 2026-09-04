@@ -137,11 +137,11 @@ export const Hero: React.FC = () => {
           <span>Matrículas Abertas • Guarulhos (Pimentas)</span>
         </div>
 
-        {/* 1.2 Main Headline H1 */}
-        <h1 className="text-[28px] sm:text-[32px] font-black tracking-tight leading-[1.12] text-left w-full">
+        {/* 1.2 Main Headline (Mobile visual title) */}
+        <div className="text-[28px] sm:text-[32px] font-black tracking-tight leading-[1.12] text-left w-full">
           <span className="text-[#052e7f]">Easytraining - </span>
           <span className="text-[#00874A]">Cursos de Informática e Profissionalizantes em Guarulhos-SP</span>
-        </h1>
+        </div>
 
         {/* 1.3 Centered Hero Robot */}
         <div className="w-full flex justify-center items-center py-0 my-0">

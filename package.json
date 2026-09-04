@@ -7,7 +7,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "tsc --noEmit"
+  },
+  "overrides": {
+    "jsondiffpatch": "^0.7.6"
   },
   "dependencies": {
     "@ai-sdk/google": "^1.1.20",
@@ -16,6 +19,7 @@
     "ai": "^4.1.50",
     "clsx": "^2.1.1",
     "firebase": "^12.18.0",
+    "firebase-admin": "^14.3.0",
     "gsap": "^3.15.0",
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",

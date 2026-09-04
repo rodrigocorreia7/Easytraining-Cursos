@@ -1,18 +1,16 @@
-import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 import crypto from 'crypto';
 import { verifyAdminSession } from '@/lib/authServer';
-import { storage } from '@/lib/firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { adminStorage } from '@/lib/firebaseAdmin';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
+// Lista restrita a imagens binárias seguras (SVG removido para blindagem contra XSS)
 const ALLOWED_MIME_TYPES = new Set([
   'image/jpeg',
   'image/png',
   'image/webp',
-  'image/svg+xml',
   'image/gif'
 ]);
 
@@ -21,7 +19,6 @@ const ALLOWED_EXTENSIONS = new Set([
   '.jpeg',
   '.png',
   '.webp',
-  '.svg',
   '.gif'
 ]);
 
@@ -45,14 +42,6 @@ function isValidImageSignature(buffer: Buffer, ext: string): boolean {
   if (ext === '.gif') {
     return buffer.subarray(0, 3).toString('ascii') === 'GIF';
   }
-  if (ext === '.svg') {
-    // Para SVG (texto XML), verificar se contém tags de script perigosas
-    const content = buffer.toString('utf-8', 0, Math.min(buffer.length, 2048));
-    if (/<script|javascript:|onload|onerror/i.test(content)) {
-      return false; // Bloqueia SVG com vetores de XSS
-    }
-    return content.includes('<svg');
-  }
 
   return false;
 }
@@ -71,7 +60,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Nenhum arquivo enviado.' }, { status: 400 });
     }
 
-    // 1. Validação de Tamanho Máximo
+    // 1. Validação de Tamanho Máximo (5MB)
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
         { error: 'Arquivo muito grande. O limite máximo permitido é de 5MB.' }, 
@@ -82,7 +71,7 @@ export async function POST(request: NextRequest) {
     // 2. Validação do Tipo MIME
     if (!ALLOWED_MIME_TYPES.has(file.type.toLowerCase())) {
       return NextResponse.json(
-        { error: 'Tipo de arquivo não permitido. Apenas imagens (WebP, PNG, JPG, SVG) são aceitas.' }, 
+        { error: 'Tipo de arquivo não permitido. Apenas imagens rasterizadas (WebP, PNG, JPG, GIF) são aceitas.' }, 
         { status: 415 }
       );
     }
@@ -106,33 +95,36 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 5. Upload seguro para Firebase Storage (compatível com Vercel Serverless)
+    // 5. Upload seguro exclusivo para Firebase Storage via Admin SDK (Sem disco local efêmero)
     const randomHash = crypto.randomBytes(16).toString('hex');
     const safeFileName = `upload-${randomHash}${ext}`;
 
-    let publicUrl = '';
     try {
-      const storageRef = ref(storage, `uploads/${safeFileName}`);
-      const uploadResult = await uploadBytes(storageRef, new Uint8Array(buffer), {
-        contentType: file.type || 'image/webp'
-      });
-      publicUrl = await getDownloadURL(uploadResult.ref);
-    } catch (storageErr: any) {
-      console.warn('Aviso: Falha ao enviar para Firebase Storage, utilizando contingência local:', storageErr?.message);
-      const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-      }
-      const filePath = path.join(uploadDir, safeFileName);
-      fs.writeFileSync(filePath, buffer);
-      publicUrl = `/uploads/${safeFileName}`;
-    }
+      const bucket = adminStorage.bucket();
+      const fileRef = bucket.file(`uploads/${safeFileName}`);
 
-    return NextResponse.json({ 
-      success: true, 
-      url: publicUrl,
-      fileName: safeFileName
-    });
+      await fileRef.save(buffer, {
+        contentType: file.type || 'image/webp',
+        public: true,
+        metadata: {
+          cacheControl: 'public, max-age=31536000, immutable'
+        }
+      });
+
+      const publicUrl = `https://storage.googleapis.com/${bucket.name}/uploads/${safeFileName}`;
+
+      return NextResponse.json({ 
+        success: true, 
+        url: publicUrl,
+        fileName: safeFileName
+      });
+    } catch (storageErr: any) {
+      console.error('Erro crítico no upload para Firebase Storage via Admin SDK:', storageErr?.message);
+      return NextResponse.json(
+        { error: 'Serviço de armazenamento em nuvem indisponível. Tente novamente mais tarde.' },
+        { status: 503 }
+      );
+    }
   } catch (error) {
     console.error('Erro de segurança no upload:', error);
     return NextResponse.json(

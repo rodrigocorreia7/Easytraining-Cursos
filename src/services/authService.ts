@@ -224,12 +224,7 @@ export const AuthService = {
         const sessionRes = await fetch('/api/admin/google-session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            idToken,
-            email: emailLower,
-            name: fbUser.displayName || '',
-            uid: fbUser.uid
-          })
+          body: JSON.stringify({ idToken })
         });
 
         if (!sessionRes.ok) {

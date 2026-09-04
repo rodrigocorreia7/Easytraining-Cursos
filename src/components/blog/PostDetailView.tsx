@@ -38,12 +38,12 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ post, relatedPos
       name: 'EasyTraining - Cursos Profissionalizantes',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://easytraining.com.br/images/logos/logo-easytraining.webp'
+        url: 'https://www.easytraining.com.br/images/logos/logo-easytraining.webp'
       }
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': `https://easytraining.com.br/${post.slug}`
+      '@id': `https://www.easytraining.com.br/blog/${post.slug}`
     }
   };
 

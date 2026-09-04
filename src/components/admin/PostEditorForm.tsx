@@ -322,7 +322,7 @@ export const PostEditorForm: React.FC<PostEditorFormProps> = ({ initialPost, isE
         <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-4 sm:p-8">
           <div className="mb-4 pb-3 border-b border-slate-100 flex items-center justify-between text-xs text-slate-500">
             <span className="font-bold text-[#00B060]">Modo de Pré-visualização em Tempo Real</span>
-            <span>URL: https://easytraining.com.br/{slug}</span>
+            <span>URL: https://www.easytraining.com.br/blog/{slug}</span>
           </div>
           <PostDetailView post={previewPost} />
         </div>
@@ -355,7 +355,7 @@ export const PostEditorForm: React.FC<PostEditorFormProps> = ({ initialPost, isE
                 </label>
                 <div className="flex items-center">
                   <span className="px-3.5 py-2.5 bg-slate-100 text-slate-500 rounded-l-2xl border border-r-0 border-slate-200 text-xs font-mono">
-                    https://easytraining.com.br/
+                    https://www.easytraining.com.br/blog/
                   </span>
                   <input
                     type="text"
