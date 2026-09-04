@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: 'Termos de Uso e Condições Gerais | EasyTraining',
   description: 'Confira os Termos de Uso e Condições Gerais de navegação e serviços educacionais da EasyTraining Cursos Profissionalizantes em Guarulhos.',
   alternates: {
-    canonical: 'https://easytraining.com.br/termos-de-uso'
+    canonical: 'https://www.easytraining.com.br/termos-de-uso'
   }
 };
 

@@ -1,14 +1,14 @@
 [
   {
-    "id": "lead-1788400857212",
-    "name": "Rodrigo Correia",
-    "phone": "(11) 96609-0133",
-    "email": "",
+    "id": "lead-exemplo-2",
+    "name": "Carlos Eduardo (Exemplo)",
+    "phone": "(11) 98765-4321",
+    "email": "carlos.exemplo@easytraining.com.br",
     "courseInterest": "Assistente Administrativo & RH",
     "preferredShift": "Segunda a Sexta - Manhã",
     "status": "novo",
-    "source": "Chatbot Izzy",
-    "notes": "",
+    "source": "Site Institucional",
+    "notes": "Lead de demonstração para testes de CRM.",
     "isDeleted": false,
     "createdAt": "2026-09-03T02:00:57.212Z"
   },

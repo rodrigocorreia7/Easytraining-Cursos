@@ -1,0 +1,31 @@
+﻿rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Catálogo de Cursos e Blog (Leitura pública, escrita estritamente bloqueada no cliente)
+    match /courses/{courseId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /posts/{postId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /config/{configId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // 2. Leads de Alunos (Proteção LGPD Máxima)
+    // Permite criação legítima pelo formulário público, mas BLOQUEIA leitura, alteração e exclusão pelo navegador
+    match /leads/{leadId} {
+      allow create: if request.resource.data.name is string 
+                    && request.resource.data.phone is string;
+      allow read, update, delete: if false;
+    }
+
+    // 3. Métricas e Auditoria Interna (Bloqueio total ao público)
+    match /metrics/{metricId} {
+      allow read, write: if false;
+    }
+  }
+}

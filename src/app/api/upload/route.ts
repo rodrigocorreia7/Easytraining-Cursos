@@ -3,6 +3,8 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { verifyAdminSession } from '@/lib/authServer';
+import { storage } from '@/lib/firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -104,19 +106,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 5. Nome Seguro Criptográfico (Prevenção total de Path Traversal)
+    // 5. Upload seguro para Firebase Storage (compatível com Vercel Serverless)
     const randomHash = crypto.randomBytes(16).toString('hex');
     const safeFileName = `upload-${randomHash}${ext}`;
 
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
+    let publicUrl = '';
+    try {
+      const storageRef = ref(storage, `uploads/${safeFileName}`);
+      const uploadResult = await uploadBytes(storageRef, new Uint8Array(buffer), {
+        contentType: file.type || 'image/webp'
+      });
+      publicUrl = await getDownloadURL(uploadResult.ref);
+    } catch (storageErr: any) {
+      console.warn('Aviso: Falha ao enviar para Firebase Storage, utilizando contingência local:', storageErr?.message);
+      const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+      const filePath = path.join(uploadDir, safeFileName);
+      fs.writeFileSync(filePath, buffer);
+      publicUrl = `/uploads/${safeFileName}`;
     }
-
-    const filePath = path.join(uploadDir, safeFileName);
-    fs.writeFileSync(filePath, buffer);
-
-    const publicUrl = `/uploads/${safeFileName}`;
 
     return NextResponse.json({ 
       success: true, 

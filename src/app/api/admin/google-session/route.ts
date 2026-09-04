@@ -14,25 +14,67 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const email = sanitizeString(body.email || '', 120).toLowerCase().trim();
-    const name = sanitizeString(body.name || '', 120).trim();
-    const uid = sanitizeString(body.uid || '', 120).trim();
+    const idToken = typeof body.idToken === 'string' ? body.idToken.trim() : '';
 
-    if (!email || !uid) {
-      return NextResponse.json({ error: 'Dados de autenticação Google inválidos.' }, { status: 400 });
+    if (!idToken) {
+      return NextResponse.json(
+        { error: 'Token de autenticação Google não fornecido ou inválido.' },
+        { status: 400 }
+      );
     }
 
-    if (!ALLOWED_ADMIN_EMAILS.includes(email)) {
+    // 1. Validação Criptográfica do ID Token diretamente na API oficial do Firebase/Google
+    const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || process.env.FIREBASE_API_KEY;
+    if (!apiKey) {
       return NextResponse.json(
-        { error: `O e-mail Google (${email}) não possui permissão de administrador.` },
+        { error: 'Configuração de autenticação não encontrada no servidor.' },
+        { status: 500 }
+      );
+    }
+
+    const verifyRes = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+        signal: AbortSignal.timeout(6000)
+      }
+    );
+
+    if (!verifyRes.ok) {
+      return NextResponse.json(
+        { error: 'Token de autenticação Google inválido, expirado ou forjado.' },
+        { status: 401 }
+      );
+    }
+
+    const verifyData = await verifyRes.json();
+    const verifiedUser = verifyData?.users?.[0];
+
+    if (!verifiedUser || !verifiedUser.email) {
+      return NextResponse.json(
+        { error: 'Não foi possível validar as credenciais do usuário Google.' },
+        { status: 401 }
+      );
+    }
+
+    const verifiedEmail = sanitizeString(verifiedUser.email, 120).toLowerCase().trim();
+    const verifiedUid = sanitizeString(verifiedUser.localId || body.uid || '', 120).trim();
+    const verifiedName = sanitizeString(verifiedUser.displayName || body.name || '', 120).trim();
+
+    // 2. Verificação contra a Allowlist de Administradores Oficiais
+    if (!ALLOWED_ADMIN_EMAILS.includes(verifiedEmail)) {
+      return NextResponse.json(
+        { error: `O e-mail Google (${verifiedEmail}) não possui permissão de administrador.` },
         { status: 403 }
       );
     }
 
     const adminUser = {
-      uid,
-      email,
-      name: name || (email.includes('rac') ? 'Rodrigo Correia' : 'Administrador EasyTraining')
+      uid: verifiedUid,
+      email: verifiedEmail,
+      name: verifiedName || (verifiedEmail.includes('rac') ? 'Rodrigo Correia' : 'Administrador EasyTraining')
     };
 
     const token = signAdminToken(adminUser);

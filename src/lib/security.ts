@@ -26,10 +26,9 @@ export function sanitizeString(input: unknown, maxLength = 255): string {
     // Remove sequências perigosas de scripts e eventos inline
     .replace(/javascript:/gi, '')
     .replace(/on\w+=/gi, '')
-    // Remove operadores de injeção NoSQL e comandos SQL clássicos
+    // Remove operadores de injeção NoSQL no estilo MongoDB
     .replace(/(\$where|\$gt|\$lt|\$ne|\$regex|\$or|\$and)/gi, '')
-    .replace(/(--|;|\/\*|\*\/)/g, '')
-    // Normaliza caracteres de controle
+    // Normaliza caracteres de controle nulos
     .replace(/[\u0000-\u0008\u000B-\u000C\u000E-\u001F]/g, '');
 }
 

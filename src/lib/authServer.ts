@@ -1,15 +1,16 @@
 import { NextRequest } from 'next/server';
 import crypto from 'crypto';
 
-const SESSION_SECRET = 
-  process.env.ADMIN_SESSION_SECRET || 
-  process.env.NEXTAUTH_SECRET || 
-  (process.env.NODE_ENV === 'production'
-    ? (() => {
-        console.warn('⚠️ ALERTA DE SEGURANÇA: ADMIN_SESSION_SECRET não configurada no ambiente de produção.');
-        return 'easytraining_enterprise_admin_secret_2026_guarulhos';
-      })()
-    : 'easytraining_enterprise_admin_secret_2026_guarulhos');
+function getSessionSecret(): string {
+  const secret = process.env.ADMIN_SESSION_SECRET || process.env.NEXTAUTH_SECRET;
+  if (secret && secret.trim().length >= 16) {
+    return secret.trim();
+  }
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('CONFIGURAÇÃO CRÍTICA AUSENTE: ADMIN_SESSION_SECRET é obrigatória em ambiente de produção.');
+  }
+  return 'easytraining_dev_secret_local_only_never_use_in_prod';
+}
 
 export const ALLOWED_ADMIN_EMAILS = [
   'admin@easytraining.com.br',
@@ -41,7 +42,7 @@ export function signAdminToken(user: { uid: string; email: string; name: string 
 
   const b64Payload = Buffer.from(payload).toString('base64url');
   const signature = crypto
-    .createHmac('sha256', SESSION_SECRET)
+    .createHmac('sha256', getSessionSecret())
     .update(b64Payload)
     .digest('base64url');
 
@@ -59,7 +60,7 @@ export function verifyAdminToken(token: string): { valid: boolean; user?: AdminS
     if (!b64Payload || !signature) return { valid: false };
 
     const expectedSig = crypto
-      .createHmac('sha256', SESSION_SECRET)
+      .createHmac('sha256', getSessionSecret())
       .update(b64Payload)
       .digest('base64url');
 

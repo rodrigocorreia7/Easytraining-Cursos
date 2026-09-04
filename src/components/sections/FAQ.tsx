@@ -52,8 +52,25 @@ export const FAQSection: React.FC = () => {
     },
   ];
 
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.a
+      }
+    }))
+  };
+
   return (
     <section className="py-20 sm:py-28 bg-slate-50 relative">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       <div className="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="text-center mb-12 space-y-3">

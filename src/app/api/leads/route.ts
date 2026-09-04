@@ -38,7 +38,15 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
-    // 2. Sanitização Rigorosa de Entrada (Anti-XSS & Anti-Injection)
+    // 2. Proteção Anti-Bot Honeypot (descarte silencioso para spammers)
+    if (body.b_field || body.website_url || body.company_name) {
+      return NextResponse.json(
+        { id: `mock-${Date.now()}`, message: 'Contato recebido com sucesso.' },
+        { status: 200 }
+      );
+    }
+
+    // 3. Sanitização Rigorosa de Entrada (Anti-XSS & Anti-Injection)
     const rawName = sanitizeString(body.name, 100);
     const rawPhone = sanitizePhone(body.phone);
     const rawCourse = sanitizeString(body.courseInterest, 100) || 'Interesse Geral';

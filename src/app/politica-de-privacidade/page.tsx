@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: 'Política de Privacidade e Proteção de Dados (LGPD) | EasyTraining',
   description: 'Conheça as diretrizes de privacidade e tratamento de dados pessoais da EasyTraining em total conformidade com a Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/2018).',
   alternates: {
-    canonical: 'https://easytraining.com.br/politica-de-privacidade'
+    canonical: 'https://www.easytraining.com.br/politica-de-privacidade'
   }
 };
 

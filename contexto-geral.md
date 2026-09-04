@@ -250,3 +250,40 @@ Todas as operações de alteração ou exclusão de dados nos Route Handlers do 
 - **25 Testes Automatizados**: 25/25 passaram com sucesso (bloqueio 401 de rotas protegidas, bloqueio 403 para Google login não autorizado, validação de login master, acesso com cookie seguro, duração do curso e captura pública de leads).
 - **Compilação de Produção**: `npm run build` com Turbopack concluído com sucesso, gerando todas as 34 páginas estáticas e zero erros de TypeScript.
 - **Commit & Deploy**: Todas as alterações foram comitadas e enviadas ao repositório remoto (`bc0e940`) no branch `main`.
+
+---
+
+## 12. Blindagem Final Pós-Auditoria Externa Spark (Setembro/2026)
+
+Em resposta à auditoria externa técnica de segurança e SEO ("Auditoria site Spark"), foram implementadas as correções definitivas nos itens críticos e de alto impacto:
+
+### 12.1. Blindagem Criptográfica do Login Google (`/api/admin/google-session`)
+- **Problema Anterior**: O endpoint confiava no e-mail enviado no corpo da requisição JSON, permitindo forja com ferramentas como curl.
+- **Solução Implementada**: 
+  - O cliente (`authService.ts`) envia o `idToken` real emitido pelo Firebase Auth (`await fbUser.getIdToken(true)`).
+  - O backend valida criptograficamente o `idToken` no Google Identity Toolkit (`identitytoolkit.googleapis.com`), extrai o e-mail verificado diretamente pelo Google e valida contra a allowlist (`ALLOWED_ADMIN_EMAILS`).
+  - Requisições sem token retornam `400`, e tokens falsos/expirados retornam `401`.
+
+### 12.2. Eliminação de Segredos e Senhas em Fallback Hardcoded
+- `src/lib/authServer.ts`: Removido o segredo de fallback estático em produção. Se `ADMIN_SESSION_SECRET` não estiver presente em produção, a aplicação bloqueia a execução por segurança em vez de usar chave conhecida.
+- `src/app/api/admin/login/route.ts`: Exige obrigatoriamente a variável de ambiente `ADMIN_PASSWORD`. Se ausente, retorna HTTP 503 com erro seguro.
+
+### 12.3. Upload em Nuvem Resiliente (Firebase Storage)
+- `src/lib/firebase.ts`: Exportada a instância oficial do `storage`.
+- `src/app/api/upload/route.ts`: Migrado para gravar arquivos no **Firebase Storage** (`easytraining-cursos.firebasestorage.app`), retornando URLs públicas permanentes e eliminando falhas em contêineres efêmeros da Vercel.
+
+### 12.4. Proteção LGPD, Sanitização e Anti-Spam
+- `src/data/db/leads.json`: PII real removido do repositório, mantendo apenas dados de demonstração.
+- `firestore.rules`: Arquivo de regras criado para publicação no Firebase Console, bloqueando leitura e exclusão pública da coleção `/leads`, permitindo apenas criação de contatos.
+- `src/app/api/leads/route.ts`: Adicionado campo Honeypot (`b_field` / `website_url`). Bots que preencherem o campo recebem resposta de sucesso simulada sem gravar no banco nem acionar webhooks.
+- `src/lib/security.ts`: Removida regex que apagava `;` e `--`, preservando o texto em português de mensagens legítimas.
+
+### 12.5. Reestruturação SSR do Blog & SEO Avançado
+- `src/app/blog/page.tsx`: Convertido em **Server Component** nativo com Server-Side Rendering (SSR). Exporta metadados completos (`title`, `description`, `canonical` e OpenGraph) diretamente no HTML inicial para o Googlebot.
+- `src/components/blog/BlogArchiveClient.tsx`: Criado componente cliente isolado para pesquisa interativa e filtro por categorias.
+- `src/app/sitemap.ts`: Gerador dinâmico nativo do Next.js App Router, indexando rotas estáticas, catálogo de cursos e artigos com `lastModified` e `priority`.
+- `src/components/sections/FAQ.tsx`: Inserido Schema.org `FAQPage` estruturado em JSON-LD para exibição de rich snippets sanfonados na busca do Google.
+- `src/app/layout.tsx`: Removido canonical estático fixo para que cada rota defina seu próprio canonical sem conflitos.
+- `vercel.json`: Removidos cabeçalhos legados obsoletos (`SAMEORIGIN` e `X-XSS-Protection`) para manter conformidade com `next.config.mjs`.
+- `package.json`: Desinstalado `puppeteer-core`, reduzindo dependências.
+
