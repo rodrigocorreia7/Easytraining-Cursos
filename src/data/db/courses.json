@@ -867,12 +867,12 @@
   },
   {
     "id": 19,
-    "title": "Formação Completa em Informática",
+    "title": "Curso de Informática em Guarulhos",
     "slug": "informatica",
     "category": "TECNOLOGIA & INFORMÁTICA",
     "categorySlug": "tecnologia",
     "shortDescription": "Programa completo do básico ao avançado, cobrindo digitação, Windows, Office completo e ferramentas digitais corporativas.",
-    "fullDescription": "A formação mais completa da EasyTraining: você entra sem saber nada e sai preparado para qualquer desafio de escritório, atendimento ou gestão que exija domínio pleno do computador e das ferramentas do Pacote Office.",
+    "fullDescription": "Curso de Informática em Guarulhos com formação 100% prática e presencial na EasyTraining: aprenda do zero ao avançado digitação, Windows, Pacote Office completo e ferramentas corporativas com certificado reconhecido.",
     "duration": "6 a 12 meses",
     "modality": "100% Prático no Computador",
     "certificate": true,
@@ -907,6 +907,6 @@
       "Atendimento e Recepção Comercial",
       "Cargos Corporativos e Concursos Públicos"
     ],
-    "whatsappMessage": "Olá! Gostaria de informações sobre a Formação Completa em Informática."
+    "whatsappMessage": "Olá! Gostaria de informações sobre o Curso de Informática em Guarulhos."
   }
 ]

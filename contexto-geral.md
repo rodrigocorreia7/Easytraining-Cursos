@@ -191,3 +191,23 @@ Implementação estratégica para potencializar o **Domain Authority (DA)** do d
   - `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` (Config)
   - `GEMINI_API_KEY` (Secret)
   - `N8N_WEBHOOK_URL` (Secret / Config)
+  - `ADMIN_PASSWORD` (Secret - Senha mestre server-side para login do painel)
+  - `ADMIN_SESSION_SECRET` (Secret - Chave HMAC para assinatura de tokens de sessão)
+
+---
+
+## 10. Blindagem de Segurança da API de Leads & Arquitetura de SEO Canônico
+
+### 10.1. Blindagem da API de Leads (LGPD & OWASP)
+- **Bloqueio de Leitura Não Autorizada (`GET /api/leads`)**: Exige autenticação de administrador via `verifyAdminSession(request)`. Requisições anônimas recebem `401 Unauthorized`.
+- **Bloqueio de Exclusão & Edição (`DELETE /api/leads`, `PUT/DELETE /api/leads/[id]`)**: Protegidos contra acesso não autorizado.
+- **Formulário de Entrada Aberto (`POST /api/leads`)**: Permanece público com rate limiting de 30 envios/10min por IP e sanitização rigorosa anti-XSS para recebimento seguro de contatos.
+- **Login Server-Side (`/api/admin/login`)**: O navegador envia as credenciais via HTTPS; a validação ocorre estritamente no servidor, gerando token assinado criptograficamente (HMAC-SHA256) em cookie seguro `HttpOnly; SameSite=Strict; Secure`.
+- **Eliminação de Senhas no Frontend**: Nenhuma credencial em texto puro reside no código JavaScript do cliente (`authService.ts`).
+
+### 10.2. Arquitetura de SEO e Domínio Canônico
+- **Domínio Canônico Unificado**: Padronizado para `https://www.easytraining.com.br` (com `www`), alinhado com o domínio primário configurado na Vercel e eliminando loops de redirecionamento no Google Search Console.
+- **Restauração do Título Clássico**: Curso de Informática restaurado para `Curso de Informática em Guarulhos` (recuperando a palavra-chave histórica mais forte do WordPress).
+- **Eliminação de Duplicação de Título**: Removido sufixo redundante (`| EasyTraining | EasyTraining Guarulhos`).
+- **Redirecionamento 301 de Artigos Antigos**: Requisições para artigos na raiz `/{slug}` são redirecionadas permanentemente (HTTP 308/301) para `/blog/{slug}`, transferindo 100% da autoridade de backlinks legados.
+- **Sitemap.xml & Robots.txt**: Todas as 33 URLs oficiais foram regeneradas e apontam diretamente para `https://www.easytraining.com.br`.

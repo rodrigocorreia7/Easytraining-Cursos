@@ -6,9 +6,11 @@ import { siteConfig as defaultSiteConfig } from '../data/siteConfig';
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || 
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://easytraining-cursos.vercel.app')
+    process.env.NEXT_PUBLIC_SITE_URL || 'https://www.easytraining.com.br'
   ),
+  alternates: {
+    canonical: 'https://www.easytraining.com.br/',
+  },
   title: {
     default: 'Easytraining - Cursos de Informática e Profissionalizantes em Guarulhos-SP',
     template: '%s | EasyTraining Guarulhos'
@@ -28,7 +30,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'pt_BR',
-    url: 'https://easytraining-cursos.vercel.app',
+    url: 'https://www.easytraining.com.br',
     siteName: 'EasyTraining - Cursos Profissionalizantes',
     title: 'Easytraining - Cursos de Informática e Profissionalizantes em Guarulhos-SP',
     description: 'Transforme seu futuro profissional com cursos 100% práticos e certificados reconhecidos em Guarulhos.',

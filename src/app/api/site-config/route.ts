@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSiteConfigFromFirestore, saveSiteConfigToFirestore } from '@/lib/firestoreDb';
 import { getStoredSiteConfig, saveStoredSiteConfig } from '@/lib/db';
+import { verifyAdminSession } from '@/lib/authServer';
 
 export async function GET() {
   try {
@@ -14,6 +15,11 @@ export async function GET() {
 
 export async function PUT(request: NextRequest) {
   try {
+    const auth = verifyAdminSession(request);
+    if (!auth.authorized) {
+      return NextResponse.json({ error: 'Acesso não autorizado.' }, { status: 401 });
+    }
+
     const body = await request.json();
     const currentConfig = await getSiteConfigFromFirestore();
 

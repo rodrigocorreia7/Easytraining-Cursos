@@ -7,16 +7,16 @@ export const metadata: Metadata = {
   title: 'Fale Conosco | EasyTraining Guarulhos - Cursos Profissionalizantes',
   description: 'Entre em contato com a EasyTraining no Parque Jurema, Guarulhos. Tire dúvidas sobre cursos, valores, matrículas e horários. Telefone e WhatsApp: (11) 2303-7983.',
   alternates: {
-    canonical: 'https://easytraining.com.br/contato',
+    canonical: 'https://www.easytraining.com.br/contato',
   },
   openGraph: {
     title: 'Fale Conosco | EasyTraining Guarulhos',
     description: 'Atendimento e Matrículas da EasyTraining Cursos Profissionalizantes no Parque Jurema, Guarulhos-SP.',
-    url: 'https://easytraining.com.br/contato',
+    url: 'https://www.easytraining.com.br/contato',
     type: 'website',
     images: [
       {
-        url: 'https://easytraining.com.br/images/logos/logo-easytraining.webp',
+        url: 'https://www.easytraining.com.br/images/logos/logo-easytraining.webp',
         alt: 'EasyTraining Cursos Profissionalizantes em Guarulhos',
       },
     ],
@@ -29,11 +29,11 @@ export default function ContatoPage() {
     '@type': ['EducationalOrganization', 'LocalBusiness'],
     name: 'EasyTraining Cursos Profissionalizantes',
     description: siteConfig.description,
-    url: 'https://easytraining.com.br/contato',
+    url: 'https://www.easytraining.com.br/contato',
     telephone: '+55 11 2303-7983',
     email: siteConfig.email,
-    logo: 'https://easytraining.com.br/images/logos/logo-easytraining.webp',
-    image: 'https://easytraining.com.br/images/courses/Teoria-e-bom-mas-a-pratica-e-o-que-te-leva-ao-emprego-Na-Easytraining-voce-aprende-fazendo-em-nossos-laboratorios-moderno-no-Pimentas-1.png',
+    logo: 'https://www.easytraining.com.br/images/logos/logo-easytraining.webp',
+    image: 'https://www.easytraining.com.br/images/courses/Teoria-e-bom-mas-a-pratica-e-o-que-te-leva-ao-emprego-Na-Easytraining-voce-aprende-fazendo-em-nossos-laboratorios-moderno-no-Pimentas-1.png',
     address: {
       '@type': 'PostalAddress',
       streetAddress: siteConfig.address.street,

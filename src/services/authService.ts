@@ -113,7 +113,34 @@ export const AuthService = {
       };
     }
 
-    // 2. Tenta autenticação real com Firebase Authentication
+    // 2. Autenticação via endpoint seguro no servidor (sem credenciais expostas no front)
+    try {
+      const serverRes = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: normalizedEmail, password: pass })
+      });
+
+      if (serverRes.ok) {
+        const data = await serverRes.json();
+        const adminUser: AdminUser = data.user;
+        this.resetLoginAttempts();
+
+        if (typeof window !== 'undefined') {
+          const sessionData: StoredSession = {
+            user: adminUser,
+            lastActive: Date.now()
+          };
+          localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(sessionData));
+        }
+
+        return { success: true, user: adminUser };
+      }
+    } catch (apiErr) {
+      console.warn('Tentativa via API server-side falhou, verificando Firebase Auth...');
+    }
+
+    // 3. Fallback para Firebase Authentication
     try {
       const userCredential = await signInWithEmailAndPassword(auth, normalizedEmail, pass);
       const fbUser = userCredential.user;
@@ -133,40 +160,10 @@ export const AuthService = {
           lastActive: Date.now()
         };
         localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(sessionData));
-
-        const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
-        document.cookie = `admin_token=valid_session_token; path=/; max-age=7200; SameSite=Strict${secureFlag}`;
       }
 
       return { success: true, user: adminUser };
     } catch (fbErr: any) {
-      // 3. Fallback de contingência para administradores autorizados com credencial mestra
-      const isAllowedAdmin = ALLOWED_ADMIN_EMAILS.includes(normalizedEmail);
-      const isMasterPass = pass === 'Easytraining2026#' || pass === 'easytraining2026' || pass === 'admin123';
-
-      if (isAllowedAdmin && isMasterPass) {
-        this.resetLoginAttempts();
-
-        const fallbackUser: AdminUser = {
-          id: normalizedEmail === 'admin@easytraining.com.br' ? 'admin-01' : 'admin-rodrigo',
-          email: normalizedEmail,
-          name: normalizedEmail.includes('rac') ? 'Rodrigo Correia' : 'Administrador EasyTraining',
-          role: 'admin'
-        };
-
-        if (typeof window !== 'undefined') {
-          const sessionData: StoredSession = {
-            user: fallbackUser,
-            lastActive: Date.now()
-          };
-          localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(sessionData));
-
-          const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
-          document.cookie = `admin_token=valid_session_token; path=/; max-age=7200; SameSite=Strict${secureFlag}`;
-        }
-        return { success: true, user: fallbackUser };
-      }
-
       // 4. Falha na autenticação -> registra tentativa de rate limiting
       const failureStatus = this.registerFailedAttempt();
       if (failureStatus.locked) {
@@ -282,6 +279,7 @@ export const AuthService = {
   logout(): void {
     if (typeof window !== 'undefined') {
       try {
+        fetch('/api/admin/logout', { method: 'POST' }).catch(() => {});
         fbSignOut(auth).catch(() => {});
       } catch (_) {}
       localStorage.removeItem(ADMIN_STORAGE_KEY);

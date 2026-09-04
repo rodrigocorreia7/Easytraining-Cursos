@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { updateLeadStatus, trashLead, restoreLead, permanentDeleteLead } from '@/lib/leadsDb';
 import { sanitizeString } from '@/lib/security';
+import { verifyAdminSession } from '@/lib/authServer';
 
 function isValidId(id: string): boolean {
   return /^[a-zA-Z0-9_-]{3,64}$/.test(id);
@@ -11,6 +12,11 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = verifyAdminSession(request);
+    if (!auth.authorized) {
+      return NextResponse.json({ error: 'Acesso não autorizado.' }, { status: 401 });
+    }
+
     const { id } = await params;
     if (!isValidId(id)) {
       return NextResponse.json({ error: 'Identificador inválido.' }, { status: 400 });
@@ -51,6 +57,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = verifyAdminSession(request);
+    if (!auth.authorized) {
+      return NextResponse.json({ error: 'Acesso não autorizado.' }, { status: 401 });
+    }
+
     const { id } = await params;
     if (!isValidId(id)) {
       return NextResponse.json({ error: 'Identificador inválido.' }, { status: 400 });

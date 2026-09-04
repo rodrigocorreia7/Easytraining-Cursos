@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getLeadsFromDb, createLead, emptyTrash } from '@/lib/leadsDb';
 import { sanitizeString, sanitizePhone, checkRateLimit, getClientIp } from '@/lib/security';
+import { verifyAdminSession } from '@/lib/authServer';
 
 export async function GET(request: NextRequest) {
   try {
+    const auth = verifyAdminSession(request);
+    if (!auth.authorized) {
+      return NextResponse.json(
+        { error: 'Acesso não autorizado aos dados de leads.' },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const isTrash = searchParams.get('trash') === 'true';
 
@@ -66,6 +75,14 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    const auth = verifyAdminSession(request);
+    if (!auth.authorized) {
+      return NextResponse.json(
+        { error: 'Acesso não autorizado para esvaziar a lixeira.' },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     if (searchParams.get('emptyTrash') === 'true') {
       await emptyTrash();

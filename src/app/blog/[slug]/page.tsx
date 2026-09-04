@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title: post.title,
       description: post.excerpt,
-      url: `https://easytraining.com.br/blog/${post.slug}`,
+      url: `https://www.easytraining.com.br/blog/${post.slug}`,
       type: 'article',
       publishedTime: post.date,
       authors: [post.author || 'EasyTraining'],
@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       ],
     },
     alternates: {
-      canonical: `https://easytraining.com.br/${post.slug}`,
+      canonical: `https://www.easytraining.com.br/blog/${post.slug}`,
     },
   };
 }

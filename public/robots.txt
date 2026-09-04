@@ -22,4 +22,4 @@ Allow: /
 User-agent: Applebot-Extended
 Allow: /
 
-Sitemap: https://easytraining.com.br/sitemap.xml
+Sitemap: https://www.easytraining.com.br/sitemap.xml

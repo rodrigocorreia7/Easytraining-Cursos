@@ -1,8 +1,6 @@
-import React from 'react';
-import { notFound } from 'next/navigation';
+import { notFound, redirect, RedirectType } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getStoredPosts } from '../../lib/db';
-import { PostDetailView } from '../../components/blog/PostDetailView';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -21,24 +19,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   return {
-    title: `${post.title} | EasyTraining Guarulhos`,
-    description: post.excerpt,
-    openGraph: {
-      title: post.title,
-      description: post.excerpt,
-      url: `https://easytraining.com.br/${post.slug}`,
-      type: 'article',
-      publishedTime: post.date,
-      authors: [post.author || 'EasyTraining'],
-      images: [
-        {
-          url: post.image,
-          alt: post.title,
-        },
-      ],
-    },
+    title: `${post.title} | Blog EasyTraining`,
     alternates: {
-      canonical: `https://easytraining.com.br/${post.slug}`,
+      canonical: `https://www.easytraining.com.br/blog/${post.slug}`,
     },
   };
 }
@@ -53,9 +36,6 @@ export default async function RootSlugPageRoute({ params }: PageProps) {
     notFound();
   }
 
-  const related = posts
-    .filter(p => p.slug.toLowerCase() !== cleanSlug && (!post.category || p.category === post.category))
-    .slice(0, 3);
-
-  return <PostDetailView post={post} relatedPosts={related} />;
+  // Redirecionamento permanente 301/308 do artigo legado na raiz para /blog/[slug]
+  redirect(`/blog/${post.slug}`, RedirectType.replace);
 }

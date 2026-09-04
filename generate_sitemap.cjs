@@ -41,31 +41,31 @@ const today = new Date().toISOString().split('T')[0];
 let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://easytraining.com.br/</loc>
+    <loc>https://www.easytraining.com.br/</loc>
     <lastmod>${today}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://easytraining.com.br/contato</loc>
+    <loc>https://www.easytraining.com.br/contato</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://easytraining.com.br/blog</loc>
+    <loc>https://www.easytraining.com.br/blog</loc>
     <lastmod>${today}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://easytraining.com.br/politica-de-privacidade</loc>
+    <loc>https://www.easytraining.com.br/politica-de-privacidade</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://easytraining.com.br/termos-de-uso</loc>
+    <loc>https://www.easytraining.com.br/termos-de-uso</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -74,7 +74,7 @@ let xml = `<?xml version="1.0" encoding="UTF-8"?>
 
 courses.forEach(slug => {
   xml += `  <url>
-    <loc>https://easytraining.com.br/curso/${slug}</loc>
+    <loc>https://www.easytraining.com.br/curso/${slug}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
@@ -84,7 +84,7 @@ courses.forEach(slug => {
 
 blogSlugs.forEach(slug => {
   xml += `  <url>
-    <loc>https://easytraining.com.br/${slug}</loc>
+    <loc>https://www.easytraining.com.br/blog/${slug}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>

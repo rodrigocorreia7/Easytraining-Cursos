@@ -78,10 +78,12 @@ export async function generateMetadata({
     };
   }
 
-  const url = `https://easytraining.com.br/curso/${course.slug}`;
+  const hasGuarulhos = course.title.toLowerCase().includes('guarulhos');
+  const baseTitle = hasGuarulhos ? course.title : `${course.title} em Guarulhos`;
+  const url = `https://www.easytraining.com.br/curso/${course.slug}`;
 
   return {
-    title: `${course.title} em Guarulhos | EasyTraining`,
+    title: baseTitle,
     description: course.shortDescription,
     keywords: [
       course.title.toLowerCase(),
@@ -91,7 +93,7 @@ export async function generateMetadata({
       course.category.toLowerCase()
     ],
     openGraph: {
-      title: `${course.title} em Guarulhos | Certificado Reconhecido`,
+      title: `${baseTitle} | Certificado Reconhecido`,
       description: course.fullDescription,
       url,
       images: [
