@@ -321,7 +321,6 @@ export const ContactPageView: React.FC = () => {
                     type="checkbox"
                     id="contato-lgpd"
                     name="contato-lgpd"
-                    defaultChecked
                     required
                     className="mt-0.5 rounded-sm border-slate-300 text-[#00874A] focus:ring-[#00874A] cursor-pointer"
                   />

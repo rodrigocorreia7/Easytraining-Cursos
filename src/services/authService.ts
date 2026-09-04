@@ -21,7 +21,8 @@ interface StoredSession {
 export const ALLOWED_ADMIN_EMAILS = [
   'raccorreia@gmail.com',
   'rac2digital@gmail.com',
-  'admin@easytraining.com.br'
+  'admin@easytraining.com.br',
+  'easytraining.cursos@gmail.com'
 ];
 
 const MOCK_ADMIN: AdminUser = {
@@ -217,15 +218,36 @@ export const AuthService = {
 
       this.resetLoginAttempts();
 
+      // Emite sessão assinada no servidor com cookie HttpOnly seguro
+      try {
+        const sessionRes = await fetch('/api/admin/google-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: emailLower,
+            name: fbUser.displayName || '',
+            uid: fbUser.uid
+          })
+        });
+
+        if (!sessionRes.ok) {
+          const errData = await sessionRes.json().catch(() => ({}));
+          await fbSignOut(auth);
+          return {
+            success: false,
+            error: errData.error || 'Falha ao autenticar sessão com a conta Google.'
+          };
+        }
+      } catch (sessErr) {
+        console.warn('Falha na requisição para /api/admin/google-session:', sessErr);
+      }
+
       if (typeof window !== 'undefined') {
         const sessionData: StoredSession = {
           user: adminUser,
           lastActive: Date.now()
         };
         localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(sessionData));
-
-        const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
-        document.cookie = `admin_token=valid_session_token; path=/; max-age=7200; SameSite=Strict${secureFlag}`;
       }
 
       return { success: true, user: adminUser };

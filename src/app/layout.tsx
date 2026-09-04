@@ -80,9 +80,9 @@ export default function RootLayout({
     '@type': 'EducationalOrganization',
     name: 'EasyTraining - Cursos Profissionalizantes',
     description: 'Cursos Profissionalizantes e de Informática em Guarulhos - SP. Mais de 5.000 alunos formados.',
-    url: 'https://easytraining.com.br',
-    logo: 'https://easytraining.com.br/logo1.svg',
-    image: 'https://easytraining.com.br/images/robot/image-hero.webp',
+    url: 'https://www.easytraining.com.br',
+    logo: 'https://www.easytraining.com.br/logo1.svg',
+    image: 'https://www.easytraining.com.br/images/robot/image-hero.webp',
     address: {
       '@type': 'PostalAddress',
       streetAddress: config?.address?.street || 'Av. Jurema, 814 - Parque Jurema',

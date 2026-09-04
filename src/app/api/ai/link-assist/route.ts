@@ -2,9 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ai, GEMINI_MODEL, GEMINI_FALLBACK_MODEL } from '@/lib/gemini';
 import { sanitizeString } from '@/lib/security';
 import { getStoredCourses } from '@/lib/db';
+import { verifyAdminSession } from '@/lib/authServer';
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = verifyAdminSession(request);
+    if (!auth.authorized) {
+      return NextResponse.json({ error: 'Acesso não autorizado. Faça login como administrador.' }, { status: 401 });
+    }
+
     const { contentHtml, category } = await request.json();
     if (!contentHtml || typeof contentHtml !== 'string') {
       return NextResponse.json(

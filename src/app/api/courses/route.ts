@@ -3,6 +3,7 @@ import { getCoursesFromFirestore, saveCourseToFirestore } from '@/lib/firestoreD
 import { saveStoredCourses } from '@/lib/db';
 import { Course } from '@/types';
 import { sanitizeString, sanitizeObject, sanitizeHtmlContent } from '@/lib/security';
+import { verifyAdminSession } from '@/lib/authServer';
 
 export async function GET(request: NextRequest) {
   try {
@@ -35,6 +36,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = verifyAdminSession(request);
+    if (!auth.authorized) {
+      return NextResponse.json({ error: 'Acesso não autorizado. Faça login como administrador.' }, { status: 401 });
+    }
+
     const rawBody = await request.json();
     const body = sanitizeObject<Record<string, any>>(rawBody);
 

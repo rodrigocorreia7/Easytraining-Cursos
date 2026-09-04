@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { resetStoredCourses, resetStoredPosts, resetStoredSiteConfig } from '@/lib/db';
+import { verifyAdminSession } from '@/lib/authServer';
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = verifyAdminSession(request);
+    if (!auth.authorized) {
+      return NextResponse.json({ error: 'Acesso não autorizado. Faça login como administrador.' }, { status: 401 });
+    }
+
     const { target } = await request.json().catch(() => ({ target: 'all' }));
 
     if (target === 'courses' || target === 'all') {

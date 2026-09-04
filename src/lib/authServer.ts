@@ -4,7 +4,19 @@ import crypto from 'crypto';
 const SESSION_SECRET = 
   process.env.ADMIN_SESSION_SECRET || 
   process.env.NEXTAUTH_SECRET || 
-  'easytraining_enterprise_admin_secret_2026_guarulhos';
+  (process.env.NODE_ENV === 'production'
+    ? (() => {
+        console.warn('⚠️ ALERTA DE SEGURANÇA: ADMIN_SESSION_SECRET não configurada no ambiente de produção.');
+        return 'easytraining_enterprise_admin_secret_2026_guarulhos';
+      })()
+    : 'easytraining_enterprise_admin_secret_2026_guarulhos');
+
+export const ALLOWED_ADMIN_EMAILS = [
+  'admin@easytraining.com.br',
+  'rac2digital@gmail.com',
+  'raccorreia@gmail.com',
+  'easytraining.cursos@gmail.com'
+];
 
 export interface AdminSessionUser {
   uid: string;

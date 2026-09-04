@@ -27,10 +27,33 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const user = AuthService.getCurrentUser();
     if (!user) {
       router.push('/admin/login');
-    } else {
-      setCurrentUser(user);
-      setLoading(false);
+      return;
     }
+
+    let isMounted = true;
+    fetch('/api/admin/me')
+      .then((res) => {
+        if (!res.ok) {
+          AuthService.logout();
+        } else {
+          return res.json();
+        }
+      })
+      .then((data) => {
+        if (isMounted && data?.user) {
+          setCurrentUser(user);
+        }
+      })
+      .catch(() => {
+        if (isMounted) setCurrentUser(user);
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, [pathname, isLoginPage, router]);
 
   if (isLoginPage) {

@@ -124,7 +124,7 @@ export const courses: Course[] = [
     categorySlug: 'saude-pet',
     shortDescription: 'Prepara para atuar em clínicas veterinárias, auxiliando em consultas, procedimentos cirúrgicos, exames e internações.',
     fullDescription: 'O Curso de Auxiliar Veterinário da EasyTraining capacita você para dar suporte técnico completo aos Médicos Veterinários em clínicas, hospitais, laboratórios e centros de internação.',
-    duration: '4 a 8 meses',
+    duration: '8 meses (100h)',
     modality: 'Presencial / Prático',
     certificate: true,
     image: '/images/courses/animals-for-examination-and-treatment-in-the-veterinary-clinic.webp',

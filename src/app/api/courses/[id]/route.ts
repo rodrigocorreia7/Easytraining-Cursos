@@ -3,6 +3,7 @@ import { getCoursesFromFirestore, saveCourseToFirestore, deleteCourseFromFiresto
 import { saveStoredCourses } from '@/lib/db';
 import { Course } from '@/types';
 import { sanitizeString, sanitizeObject, sanitizeHtmlContent } from '@/lib/security';
+import { verifyAdminSession } from '@/lib/authServer';
 
 export async function GET(
   request: NextRequest,
@@ -29,6 +30,11 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = verifyAdminSession(request);
+    if (!auth.authorized) {
+      return NextResponse.json({ error: 'Acesso não autorizado. Faça login como administrador.' }, { status: 401 });
+    }
+
     const { id } = await params;
     const rawBody = await request.json();
     const body = sanitizeObject<Record<string, any>>(rawBody);
@@ -72,6 +78,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = verifyAdminSession(request);
+    if (!auth.authorized) {
+      return NextResponse.json({ error: 'Acesso não autorizado. Faça login como administrador.' }, { status: 401 });
+    }
+
     const { id } = await params;
     await deleteCourseFromFirestore(id);
 

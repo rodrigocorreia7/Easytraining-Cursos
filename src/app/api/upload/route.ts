@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import { verifyAdminSession } from '@/lib/authServer';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -56,6 +57,11 @@ function isValidImageSignature(buffer: Buffer, ext: string): boolean {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = verifyAdminSession(request);
+    if (!auth.authorized) {
+      return NextResponse.json({ error: 'Acesso não autorizado. Faça login como administrador.' }, { status: 401 });
+    }
+
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
 
