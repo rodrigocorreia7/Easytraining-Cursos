@@ -3,6 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
+  serverExternalPackages: ['firebase-admin'],
   experimental: {
     optimizePackageImports: ['lucide-react', 'gsap'],
   },
