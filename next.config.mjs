@@ -1,4 +1,107 @@
 /** @type {import('next').NextConfig} */
+const legacyRedirects = [
+  {
+    source: '/mercado-de-trabalho',
+    destination: '/blog/a-importancia-da-educacao-profissionalizante-para-o-mercado-de-trabalho',
+  },
+  {
+    source: '/curso/informatica-basica',
+    destination: '/curso/curso-de-informatica-basica',
+  },
+  {
+    source: '/curso/curso-de-informatica',
+    destination: '/curso/informatica',
+  },
+  {
+    source: '/curso/curso-de-informatica-em-guarulhos',
+    destination: '/curso/informatica',
+  },
+  {
+    source: '/curso/curso-de-informatica-basica-em-guarulhos',
+    destination: '/curso/curso-de-informatica-basica',
+  },
+  {
+    source: '/curso/curso-de-excel-avancado',
+    destination: '/curso/excel-avancado',
+  },
+  {
+    source: '/curso/curso-auxiliar-veterinario',
+    destination: '/curso/auxiliar-veterinario',
+  },
+  {
+    source: '/curso/curso-de-auxiliar-veterinario',
+    destination: '/curso/auxiliar-veterinario',
+  },
+  {
+    source: '/curso/curso-de-auxiliar-veterinario-em-guarulhos',
+    destination: '/curso/auxiliar-veterinario',
+  },
+  {
+    source: '/curso/banho-e-tosa',
+    destination: '/curso/banho-e-tosa-higienica',
+  },
+  {
+    source: '/curso/tosa-pet',
+    destination: '/curso/curso-de-tosa-pet-geral-em-guarulhos-sp',
+  },
+  {
+    source: '/curso/tosa-pet-geral',
+    destination: '/curso/curso-de-tosa-pet-geral-em-guarulhos-sp',
+  },
+  {
+    source: '/curso/recursos-humanos',
+    destination: '/curso/assistente-de-recursos-humanos',
+  },
+  {
+    source: '/curso/logistica',
+    destination: '/curso/assistente-de-logistica',
+  },
+  {
+    source: '/curso/contabilidade',
+    destination: '/curso/auxiliar-de-contabilidade',
+  },
+  {
+    source: '/curso-de-informatica',
+    destination: '/curso/informatica',
+  },
+  {
+    source: '/informatica-basica',
+    destination: '/curso/curso-de-informatica-basica',
+  },
+  {
+    source: '/auxiliar-veterinario',
+    destination: '/curso/auxiliar-veterinario',
+  },
+  {
+    source: '/curso-auxiliar-veterinario',
+    destination: '/curso/auxiliar-veterinario',
+  },
+  {
+    source: '/curso-de-auxiliar-veterinario',
+    destination: '/curso/auxiliar-veterinario',
+  },
+  {
+    source: '/auxiliar-de-farmacia',
+    destination: '/curso/auxiliar-de-farmacia',
+  },
+  {
+    source: '/banho-e-tosa',
+    destination: '/curso/banho-e-tosa-higienica',
+  },
+  {
+    source: '/recursos-humanos',
+    destination: '/curso/assistente-de-recursos-humanos',
+  },
+  {
+    source: '/logistica',
+    destination: '/curso/assistente-de-logistica',
+  },
+  {
+    source: '/contabilidade',
+    destination: '/curso/auxiliar-de-contabilidade',
+  },
+];
+
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
@@ -17,18 +120,10 @@ const nextConfig = {
     ],
   },
   async redirects() {
-    return [
-      {
-        source: '/cursos',
-        destination: '/#cursos',
-        permanent: true,
-      },
-      {
-        source: '/quem-somos',
-        destination: '/#quem-somos',
-        permanent: true,
-      },
-    ];
+    return legacyRedirects.map((redirect) => ({
+      ...redirect,
+      permanent: true,
+    }));
   },
   async headers() {
     return [

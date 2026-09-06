@@ -149,7 +149,7 @@ export default async function CourseDetailPage({
         '@type': 'ListItem',
         position: 2,
         name: 'Cursos',
-        item: 'https://www.easytraining.com.br/#cursos'
+        item: 'https://www.easytraining.com.br/cursos'
       },
       {
         '@type': 'ListItem',
@@ -232,7 +232,7 @@ export default async function CourseDetailPage({
           <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-2 text-xs sm:text-sm text-slate-500">
             <a href="/" className="hover:text-[#00B060] transition-colors">Início</a>
             <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-            <a href="/#cursos" className="hover:text-[#00B060] transition-colors">Cursos</a>
+            <a href="/cursos" className="hover:text-[#00B060] transition-colors">Cursos</a>
             <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
             <span className="font-semibold text-slate-900 truncate max-w-xs sm:max-w-md">{course.title}</span>
           </nav>
@@ -296,7 +296,7 @@ export default async function CourseDetailPage({
                   </a>
 
                   <a
-                    href="/#cursos"
+                    href="/cursos"
                     className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-sm transition-all"
                   >
                     <ArrowLeft className="w-4 h-4" />

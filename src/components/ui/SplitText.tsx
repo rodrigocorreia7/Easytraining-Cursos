@@ -37,16 +37,21 @@ export const SplitText: React.FC<SplitTextProps> = ({
 }) => {
   const containerRef = useRef<HTMLElement>(null);
   const animatedRef = useRef(false);
+  const [mounted, setMounted] = useState(false);
   const [inView, setInView] = useState(false);
 
-  // Split text into words and chars
+  // Keep the server-rendered heading readable; animate only after hydration.
   const words = useMemo(() => {
     return text.split(' ');
   }, [text]);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
     const el = containerRef.current;
-    if (!el) return;
+    if (!mounted || !el) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -63,14 +68,14 @@ export const SplitText: React.FC<SplitTextProps> = ({
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [threshold, rootMargin]);
+  }, [mounted, threshold, rootMargin]);
 
   useEffect(() => {
     if (!inView || !containerRef.current || animatedRef.current) return;
 
     animatedRef.current = true;
     const el = containerRef.current;
-    const targets = el.querySelectorAll('.split-char');
+    const targets = el.querySelectorAll('.split-unit');
 
     if (targets.length === 0) return;
 
@@ -95,31 +100,36 @@ export const SplitText: React.FC<SplitTextProps> = ({
 
   const Tag = tag;
 
+  if (!mounted) {
+    return (
+      <Tag
+        ref={containerRef as any}
+        style={{ textAlign, wordWrap: 'break-word' }}
+        className={`split-parent overflow-visible inline-block whitespace-normal pb-1.5 pt-0.5 ${className}`}
+      >
+        {text}
+      </Tag>
+    );
+  }
+
   return (
     <Tag
       ref={containerRef as any}
       style={{ textAlign, wordWrap: 'break-word' }}
       className={`split-parent overflow-visible inline-block whitespace-normal pb-1.5 pt-0.5 ${className}`}
     >
-      <span className="sr-only">{text}</span>
-      <span aria-hidden="true" className="inline overflow-visible">
+      <span className="inline overflow-visible">
         {words.map((word, wordIndex) => (
           <span
             key={`word-${wordIndex}`}
-            className="split-word inline-block whitespace-nowrap mr-[0.28em] last:mr-0 overflow-visible"
+            className="split-unit split-word inline-block whitespace-nowrap overflow-visible"
+            style={{
+              opacity: inView ? 1 : (typeof from?.opacity === 'number' ? from.opacity : 0),
+              transform: inView ? 'translateY(0)' : `translateY(${typeof from?.y === 'number' ? from.y : 35}px)`
+            }}
           >
-            {word.split('').map((char, charIndex) => (
-              <span
-                key={`char-${wordIndex}-${charIndex}`}
-                className="split-char inline-block overflow-visible align-baseline"
-                style={{
-                  opacity: inView ? 1 : (typeof from?.opacity === 'number' ? from.opacity : 0),
-                  transform: inView ? 'translateY(0)' : `translateY(${typeof from?.y === 'number' ? from.y : 35}px)`
-                }}
-              >
-                {char}
-              </span>
-            ))}
+            {word}
+            {wordIndex < words.length - 1 ? ' ' : ''}
           </span>
         ))}
       </span>

@@ -128,7 +128,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ post, relatedPos
           </div>
 
           {/* Social Share Top */}
-          <ShareButtons title={post.title} url={`/${post.slug}`} />
+          <ShareButtons title={post.title} url={`/blog/${post.slug}`} />
 
           {/* Table of Contents */}
           {post.headings && post.headings.length > 0 && (
@@ -152,7 +152,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ post, relatedPos
           )}
 
           {/* Social Share Bottom */}
-          <ShareButtons title={post.title} url={`/${post.slug}`} />
+          <ShareButtons title={post.title} url={`/blog/${post.slug}`} />
 
           {/* Tags */}
           {post.tags && post.tags.length > 0 && (

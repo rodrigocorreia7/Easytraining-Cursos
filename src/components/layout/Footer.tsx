@@ -64,8 +64,8 @@ export const Footer: React.FC = () => {
             <h4 className="text-sm font-bold uppercase tracking-wider text-white">Navegação Rápida</h4>
             <ul className="space-y-2 text-sm text-slate-300">
               <li><a href="/#home" className="hover:text-[#00B060] transition-colors">Início</a></li>
-              <li><a href="/#cursos" className="hover:text-[#00B060] transition-colors">Cursos Profissionalizantes</a></li>
-              <li><a href="/#quem-somos" className="hover:text-[#00B060] transition-colors">Quem Somos</a></li>
+              <li><a href="/cursos" className="hover:text-[#00B060] transition-colors">Cursos Profissionalizantes</a></li>
+              <li><a href="/quem-somos" className="hover:text-[#00B060] transition-colors">Quem Somos</a></li>
               <li><a href="/#diferenciais" className="hover:text-[#00B060] transition-colors">Metodologia Prática</a></li>
               <li><a href="/blog" className="hover:text-[#00B060] transition-colors">Blog de Carreira</a></li>
               <li><a href="/contato" className="hover:text-[#00B060] transition-colors">Localização & Contato</a></li>

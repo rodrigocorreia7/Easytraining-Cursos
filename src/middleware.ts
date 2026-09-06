@@ -1,5 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
+const CANONICAL_HOST = 'www.easytraining.com.br';
+const LEGACY_HOSTS = new Set(['easytraining.com.br']);
+
 function getSessionSecret(): string {
   const secret = process.env.ADMIN_SESSION_SECRET || process.env.NEXTAUTH_SECRET || '';
   return secret.trim().length >= 32 ? secret.trim() : '';
@@ -55,6 +58,15 @@ async function isValidAdminSessionCookie(token?: string): Promise<boolean> {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const host = request.headers.get('host')?.split(':')[0].toLowerCase();
+
+  if (host && LEGACY_HOSTS.has(host)) {
+    const canonicalUrl = request.nextUrl.clone();
+    canonicalUrl.protocol = 'https:';
+    canonicalUrl.hostname = CANONICAL_HOST;
+    canonicalUrl.port = '';
+    return NextResponse.redirect(canonicalUrl, 308);
+  }
 
   if (pathname.startsWith('/admin')) {
     const isLoginPage = pathname === '/admin/login';
@@ -94,5 +106,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|logo1.svg|logo1.png|images|manifest.json).*)'],
 };

@@ -49,8 +49,8 @@ export const Header: React.FC<HeaderProps> = () => {
 
   const navItems: PillNavItem[] = [
     { label: 'Início', href: '/#home' },
-    { label: 'Cursos', href: '/#cursos' },
-    { label: 'Quem Somos', href: '/#quem-somos' },
+    { label: 'Cursos', href: '/cursos' },
+    { label: 'Quem Somos', href: '/quem-somos' },
     { label: 'Blog', href: '/blog' },
     { label: 'Contato', href: contatoHref }
   ];
@@ -265,7 +265,7 @@ export const Header: React.FC<HeaderProps> = () => {
               </Link>
 
               <Link
-                href="/#cursos"
+                href="/cursos"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center justify-between px-4 py-2.5 rounded-2xl bg-slate-50 hover:bg-emerald-50 text-slate-800 hover:text-[#00874A] font-bold text-xs transition-colors"
               >
@@ -277,7 +277,7 @@ export const Header: React.FC<HeaderProps> = () => {
               </Link>
 
               <Link
-                href="/#quem-somos"
+                href="/quem-somos"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center justify-between px-4 py-2.5 rounded-2xl bg-slate-50 hover:bg-emerald-50 text-slate-800 hover:text-[#00874A] font-bold text-xs transition-colors"
               >
