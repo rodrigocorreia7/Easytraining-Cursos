@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     url: 'https://www.easytraining.com.br/quem-somos',
     images: [
       {
-        url: 'https://www.easytraining.com.br/images/robot/image-hero.webp',
+        url: 'https://www.easytraining.com.br/images/robot/1.webp',
         alt: 'EasyTraining Cursos Profissionalizantes em Guarulhos',
       },
     ],
@@ -99,7 +99,7 @@ export default function QuemSomosPage() {
 
             <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/5">
               <img
-                src="/images/robot/image-hero.webp"
+                src="/images/robot/1.webp"
                 alt="EasyTraining Cursos Profissionalizantes em Guarulhos"
                 className="h-full min-h-[360px] w-full object-cover"
               />
