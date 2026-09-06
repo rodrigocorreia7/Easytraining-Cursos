@@ -20,6 +20,7 @@ export interface Course {
   targetAudience: string;
   careerOpportunities: string[];
   whatsappMessage: string;
+  faqs?: FaqItem[];
 }
 
 export interface HeadingItem {

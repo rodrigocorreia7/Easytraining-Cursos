@@ -28,7 +28,7 @@ export const FAQSection: React.FC = () => {
     },
     {
       q: 'Qual a duração, valores e como faço matrícula?',
-      a: 'A duração e os valores variam por curso e turma. Para inscrições, valores com bolsas e condições atualizadas, entre em contato diretamente pelo nosso WhatsApp (11) 2303-7983.',
+      a: 'A maioria dos cursos dura de 3 a 6 meses (Excel Avançado: 2 a 4 meses), com turmas de manhã, tarde, noite e aos sábados. Valores e bolsas variam por turma — chame no WhatsApp (11) 2303-7983 e peça a condição atual do curso desejado. A matrícula é feita na secretaria da Av. Jurema, 814, com documento e comprovante de residência.',
     },
     {
       q: 'Os cursos são presenciais em Guarulhos? Há opção online/híbrida?',
@@ -40,11 +40,11 @@ export const FAQSection: React.FC = () => {
     },
     {
       q: 'Há pré-requisitos ou encaminhamentos necessários?',
-      a: 'Na maioria dos cursos não há necessidade de experiência prévia. Temos formações desde os 12 anos de idade até turmas para adultos e terceira idade.',
+      a: 'Não exigimos experiência prévia nem encaminhamento. Atendemos a partir dos 12 anos (Informática) até adultos e terceira idade. Para Auxiliar de Veterinário e Banho e Tosa, basta gostar de animais; os cursos de Gestão e Tecnologia aceitam iniciantes e jovens em busca do primeiro emprego.',
     },
     {
       q: 'Qual a carga horária e frequência recomendada?',
-      a: 'Varia conforme o curso escolhido. Oferecemos turmas nos períodos da manhã, tarde, noite e turmas intensivas exclusivas aos sábados.',
+      a: 'As formações têm carga de 40 a 120 horas conforme o curso, com 1 a 2 aulas por semana nos períodos da manhã, tarde ou noite, além de turmas intensivas aos sábados. O certificado é liberado após a conclusão da carga horária e das práticas previstas.',
     },
     {
       q: 'Onde fica a Easytraining e como faço contato / matrícula?',

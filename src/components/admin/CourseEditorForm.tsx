@@ -2,12 +2,12 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Course, CourseModule } from '../../types';
+import { Course, CourseModule, FaqItem } from '../../types';
 import { CourseService } from '../../services/courseService';
 import { 
   Save, ArrowLeft, Upload, Plus, Trash2, CheckCircle2, 
   AlertCircle, Sparkles, Image as ImageIcon, Layers, BookOpen, 
-  HelpCircle, MessageCircle, Star 
+  HelpCircle, MessageCircle, Star, ArrowUp, ArrowDown, RefreshCw 
 } from 'lucide-react';
 
 interface CourseEditorFormProps {
@@ -60,6 +60,9 @@ export default function CourseEditorForm({ initialCourse, isEditing = false }: C
   );
 
   // State
+  const [faqs, setFaqs] = useState<FaqItem[]>(initialCourse?.faqs || []);
+  const [generatingFaqs, setGeneratingFaqs] = useState(false);
+  const [faqNotice, setFaqNotice] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -163,6 +166,76 @@ export default function CourseEditorForm({ initialCourse, isEditing = false }: C
     setModules(updated);
   };
 
+  // FAQ Handlers
+  const handleAddFaq = () => {
+    setFaqs(prev => [...prev, { question: '', answer: '' }]);
+    setFaqNotice('');
+  };
+
+  const handleFaqChange = (index: number, field: 'question' | 'answer', value: string) => {
+    setFaqs(prev => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
+  };
+
+  const handleRemoveFaq = (index: number) => {
+    setFaqs(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleMoveFaq = (index: number, direction: 'up' | 'down') => {
+    if (direction === 'up' && index === 0) return;
+    if (direction === 'down' && index === faqs.length - 1) return;
+    const targetIdx = direction === 'up' ? index - 1 : index + 1;
+    setFaqs(prev => {
+      const updated = [...prev];
+      const temp = updated[index];
+      updated[index] = updated[targetIdx];
+      updated[targetIdx] = temp;
+      return updated;
+    });
+  };
+
+  const handleGenerateFaqsWithAi = async () => {
+    if (!title.trim()) {
+      setError('Preencha o título do curso antes de gerar perguntas frequentes com IA.');
+      return;
+    }
+
+    setGeneratingFaqs(true);
+    setError('');
+    setFaqNotice('');
+
+    try {
+      const res = await fetch('/api/admin/courses/generate-faq', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title,
+          category,
+          shortDescription,
+          fullDescription,
+          modules,
+          targetAudience
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.faqs) {
+        throw new Error(data.error || 'Falha ao gerar perguntas com IA.');
+      }
+
+      setFaqs(data.faqs);
+      setFaqNotice('Perguntas estratégicas geradas com IA! Revise os textos e clique em Salvar.');
+    } catch (err: any) {
+      console.error('Erro ao gerar FAQs com IA:', err);
+      setError(err?.message || 'Falha na comunicação com o serviço de IA.');
+    } finally {
+      setGeneratingFaqs(false);
+    }
+  };
+
   // Submit Handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -191,7 +264,8 @@ export default function CourseEditorForm({ initialCourse, isEditing = false }: C
       targetAudience,
       careerOpportunities,
       whatsappMessage,
-      modules
+      modules,
+      faqs: faqs.filter(f => f.question.trim() && f.answer.trim())
     };
 
     try {
@@ -523,6 +597,139 @@ export default function CourseEditorForm({ initialCourse, isEditing = false }: C
                 </span>
               ))}
             </div>
+          </div>
+
+          {/* FAQ & SEO Local Section */}
+          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-100">
+              <div>
+                <h2 className="text-base font-black text-slate-900 flex items-center gap-2">
+                  <HelpCircle className="w-5 h-5 text-[#00B060]" />
+                  <span>Perguntas Frequentes (FAQ & SEO)</span>
+                </h2>
+                <p className="text-xs text-slate-500 mt-1">
+                  Responda a dúvidas dos alunos e melhore a indexação no Google com dados estruturados (Schema.org).
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleGenerateFaqsWithAi}
+                  disabled={generatingFaqs}
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-bold text-xs shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+                  title="Gera 4 a 5 FAQs estratégicas com IA usando o contexto da EasyTraining"
+                >
+                  {generatingFaqs ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Gerando com IA...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Gerar FAQs com IA</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleAddFaq}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition-colors cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Nova Pergunta</span>
+                </button>
+              </div>
+            </div>
+
+            {faqNotice && (
+              <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-[#00874A] shrink-0" />
+                <span>{faqNotice}</span>
+              </div>
+            )}
+
+            {faqs.length === 0 ? (
+              <div className="p-6 text-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/50 space-y-2">
+                <HelpCircle className="w-8 h-8 text-slate-300 mx-auto" />
+                <p className="text-xs font-bold text-slate-600">Nenhuma pergunta cadastrada para este curso ainda.</p>
+                <p className="text-[11px] text-slate-400 max-w-sm mx-auto">
+                  Clique em <strong>"Gerar FAQs com IA"</strong> para preencher automaticamente com dúvidas reais de alunos ou crie perguntas manualmente.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {faqs.map((faq, idx) => (
+                  <div key={idx} className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-black text-slate-700 flex items-center gap-1.5">
+                        <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-700 text-[11px] font-bold inline-flex items-center justify-center">
+                          {idx + 1}
+                        </span>
+                        Pergunta {idx + 1}
+                      </span>
+
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => handleMoveFaq(idx, 'up')}
+                          disabled={idx === 0}
+                          className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-20 cursor-pointer"
+                          title="Mover para cima"
+                        >
+                          <ArrowUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleMoveFaq(idx, 'down')}
+                          disabled={idx === faqs.length - 1}
+                          className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-20 cursor-pointer"
+                          title="Mover para baixo"
+                        >
+                          <ArrowDown className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFaq(idx)}
+                          className="p-1 text-slate-400 hover:text-red-600 cursor-pointer ml-1"
+                          title="Excluir pergunta"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                        Pergunta (Ex: Precisa de experiência prévia para fazer o curso?)
+                      </label>
+                      <input
+                        type="text"
+                        value={faq.question}
+                        onChange={(e) => handleFaqChange(idx, 'question', e.target.value)}
+                        placeholder="Digite a dúvida frequente..."
+                        className="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-medium text-slate-900 focus:outline-hidden focus:border-[#00B060]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                        Resposta Estruturada
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={faq.answer}
+                        onChange={(e) => handleFaqChange(idx, 'answer', e.target.value)}
+                        placeholder="Resposta explicativa e persuasiva..."
+                        className="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs text-slate-700 focus:outline-hidden focus:border-[#00B060] leading-relaxed"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
         </div>

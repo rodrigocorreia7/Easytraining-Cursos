@@ -73,7 +73,8 @@ export async function POST(request: NextRequest) {
       modules: Array.isArray(body.modules) ? body.modules : [],
       targetAudience: sanitizeString(body.targetAudience, 255),
       careerOpportunities: Array.isArray(body.careerOpportunities) ? body.careerOpportunities : [],
-      whatsappMessage: sanitizeString(body.whatsappMessage, 200) || `Olá! Gostaria de saber mais sobre o ${body.title}.`
+      whatsappMessage: sanitizeString(body.whatsappMessage, 200) || `Olá! Gostaria de saber mais sobre o ${body.title}.`,
+      faqs: Array.isArray(body.faqs) ? body.faqs : []
     };
 
     // Salva no Firestore

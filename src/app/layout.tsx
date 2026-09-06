@@ -75,9 +75,11 @@ export default function RootLayout({
   const gaId = config?.googleAnalyticsId || defaultSiteConfig.googleAnalyticsId;
   const gtmId = config?.googleTagManagerId || defaultSiteConfig.googleTagManagerId;
 
-  const jsonLd = {
+  // Coordenadas oficiais: Av. Jurema, 814 – Parque Jurema (Pimentas), Guarulhos.
+  const orgJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'EducationalOrganization',
+    '@id': 'https://www.easytraining.com.br/#organizacao',
     name: 'EasyTraining - Cursos Profissionalizantes',
     description: 'Cursos Profissionalizantes e de Informática em Guarulhos - SP. Mais de 5.000 alunos formados.',
     url: 'https://www.easytraining.com.br',
@@ -91,19 +93,91 @@ export default function RootLayout({
       postalCode: config?.address?.zipCode || '07244-000',
       addressCountry: 'BR'
     },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: -23.4451648,
+      longitude: -46.4113193
+    },
+    hasMap: 'https://www.google.com/maps/search/?api=1&query=Av.+Jurema,+814+-+Parque+Jurema,+Guarulhos+-+SP,+07244-000',
     telephone: config?.phone || '+55 11 2303-7983',
+    email: 'contato@easytraining.com.br',
+    priceRange: '$$',
+    areaServed: [
+      { '@type': 'City', name: 'Guarulhos' },
+      { '@type': 'City', name: 'São Paulo' },
+      { '@type': 'City', name: 'Arujá' },
+      { '@type': 'City', name: 'Itaquaquecetuba' }
+    ],
+    openingHoursSpecification: [
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+        opens: '08:00',
+        closes: '20:30'
+      },
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: 'Saturday',
+        opens: '08:00',
+        closes: '17:00'
+      }
+    ],
+    // aggregateRating + review espelham depoimentos visíveis na home (seção #avaliacoes)
+    // e o perfil do Google. Manter os números sincronizados com o Google Business Profile.
     aggregateRating: {
       '@type': 'AggregateRating',
       ratingValue: String(config?.rating?.score || '5.0'),
       reviewCount: String(config?.rating?.reviewsCount || '323')
     },
+    review: [
+      {
+        '@type': 'Review',
+        author: { '@type': 'Person', name: 'Luana Paz' },
+        reviewRating: { '@type': 'Rating', ratingValue: '5' },
+        reviewBody: 'Concluí o curso de Auxiliar Veterinária na EasyTraining e recomendo muito. Aulas práticas e enriquecedoras.'
+      },
+      {
+        '@type': 'Review',
+        author: { '@type': 'Person', name: 'Sabrina Ferreira Rodrigues' },
+        reviewRating: { '@type': 'Rating', ratingValue: '5' },
+        reviewBody: 'Base sólida sobre cuidados com os animais, higiene, primeiros socorros e rotina de clínicas. Estrutura e suporte excelentes.'
+      },
+      {
+        '@type': 'Review',
+        author: { '@type': 'Person', name: 'Maysa Silva Abreu' },
+        reviewRating: { '@type': 'Rating', ratingValue: '5' },
+        reviewBody: 'Professores com conhecimento, explicações claras e práticas. Estrutura organizada e ótimo suporte pedagógico.'
+      },
+      {
+        '@type': 'Review',
+        author: { '@type': 'Person', name: 'Nathália Gomes' },
+        reviewRating: { '@type': 'Rating', ratingValue: '5' },
+        reviewBody: 'Escola excelente e organizada. Aulas de Auxiliar Veterinário bem explicadas e práticas. Super recomendo!'
+      }
+    ],
     sameAs: [
       config?.social?.facebook || 'https://www.facebook.com/easytrainingcursosprofissionalizantes',
       config?.social?.instagram || 'https://www.instagram.com/easytraining1/',
       config?.social?.youtube || 'https://www.youtube.com/@easytrainingprofissionalizante',
+      config?.social?.linkedin || 'https://www.linkedin.com/company/easytraining-curso-de-inform%C3%A1tica-auxiliar-de-veterin%C3%A1rio-e-profissionalizantes/',
       (config?.social as any)?.tiktok || 'https://www.tiktok.com/@easytrainingcursos'
     ]
   };
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Início',
+        item: 'https://www.easytraining.com.br/'
+      }
+    ]
+  };
+
+  const jsonLd = [orgJsonLd, breadcrumbJsonLd];
 
   return (
     <html lang="pt-BR">

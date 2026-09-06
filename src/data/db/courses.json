@@ -211,7 +211,25 @@
       "Centros de Zoonoses, ONGs e Abrigos",
       "Farmácias e Distribuidoras Veterinárias"
     ],
-    "whatsappMessage": "Olá! Tenho interesse no Curso de Auxiliar Veterinário."
+    "whatsappMessage": "Olá! Tenho interesse no Curso de Auxiliar Veterinário.",
+    "faqs": [
+      {
+        "question": "Preciso ter experiência prévia para fazer o curso de Auxiliar Veterinário?",
+        "answer": "Não é necessária nenhuma experiência prévia. Na EasyTraining em Guarulhos (Parque Jurema), ensinamos desde os fundamentos de anatomia animal até primeiros socorros e rotinas clínicas completas."
+      },
+      {
+        "question": "Como funcionam as aulas práticas na EasyTraining?",
+        "answer": "Nossas aulas são 100% presenciais e práticas, realizadas em bancadas equipadas com simulações reais de triagem, imobilização e instrumentação cirúrgica para cães e gatos."
+      },
+      {
+        "question": "Onde posso trabalhar após a conclusão do curso?",
+        "answer": "Você estará apto para trabalhar em clínicas veterinárias, hospitais 24 horas, centros de estética pet, lojas agropecuárias e pet shops em Guarulhos, São Paulo e toda a região."
+      },
+      {
+        "question": "O certificado é válido e reconhecido nacionalmente?",
+        "answer": "Sim, ao concluir o curso você recebe o Certificado de Conclusão Profissional da EasyTraining com validade em todo o território nacional, perfeito para enriquecer seu currículo."
+      }
+    ]
   },
   {
     "id": 5,

@@ -63,7 +63,19 @@ export async function getCoursesFromFirestore(): Promise<Course[]> {
   }
 }
 
+function isServerlessProd(): boolean {
+  return process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+}
+
 export async function saveCourseToFirestore(course: Course): Promise<void> {
+  if (!isFirebaseAdminConfigured()) {
+    if (!isServerlessProd()) {
+      console.warn('Firebase Admin não configurado localmente. Curso salvo no armazenamento local.');
+      return;
+    }
+    throw new Error('Firebase Admin Firestore não configurado (adicione FIREBASE_CLIENT_EMAIL e FIREBASE_PRIVATE_KEY).');
+  }
+
   try {
     const adminDb = await getAdminDb();
     const docRef = adminDb.collection(COURSES_COLLECTION).doc(String(course.id));
@@ -76,6 +88,14 @@ export async function saveCourseToFirestore(course: Course): Promise<void> {
 }
 
 export async function deleteCourseFromFirestore(id: string | number): Promise<void> {
+  if (!isFirebaseAdminConfigured()) {
+    if (!isServerlessProd()) {
+      console.warn('Firebase Admin não configurado localmente. Curso excluído no armazenamento local.');
+      return;
+    }
+    throw new Error('Firebase Admin Firestore não configurado.');
+  }
+
   try {
     const adminDb = await getAdminDb();
     const docRef = adminDb.collection(COURSES_COLLECTION).doc(String(id));
@@ -166,6 +186,14 @@ export async function getPostsFromFirestore(): Promise<BlogPost[]> {
 }
 
 export async function savePostToFirestore(post: BlogPost): Promise<void> {
+  if (!isFirebaseAdminConfigured()) {
+    if (!isServerlessProd()) {
+      console.warn('Firebase Admin não configurado localmente. Post salvo no armazenamento local.');
+      return;
+    }
+    throw new Error('Firebase Admin Firestore não configurado.');
+  }
+
   try {
     const adminDb = await getAdminDb();
     const docRef = adminDb.collection(POSTS_COLLECTION).doc(String(post.slug || post.id));
@@ -178,6 +206,14 @@ export async function savePostToFirestore(post: BlogPost): Promise<void> {
 }
 
 export async function deletePostFromFirestore(idOrSlug: string | number): Promise<void> {
+  if (!isFirebaseAdminConfigured()) {
+    if (!isServerlessProd()) {
+      console.warn('Firebase Admin não configurado localmente. Post excluído no armazenamento local.');
+      return;
+    }
+    throw new Error('Firebase Admin Firestore não configurado.');
+  }
+
   try {
     const adminDb = await getAdminDb();
     const docRef = adminDb.collection(POSTS_COLLECTION).doc(String(idOrSlug));
@@ -232,6 +268,14 @@ export async function getSiteConfigFromFirestore(): Promise<SiteConfigType> {
 }
 
 export async function saveSiteConfigToFirestore(config: SiteConfigType): Promise<void> {
+  if (!isFirebaseAdminConfigured()) {
+    if (!isServerlessProd()) {
+      console.warn('Firebase Admin não configurado localmente. Configurações salvas no armazenamento local.');
+      return;
+    }
+    throw new Error('Firebase Admin Firestore não configurado.');
+  }
+
   try {
     const adminDb = await getAdminDb();
     const docRef = adminDb.collection(CONFIG_COLLECTION).doc(SITE_CONFIG_DOC);

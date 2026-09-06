@@ -5,6 +5,7 @@ import { getStoredCourses, getStoredSiteConfig } from '../../../lib/db';
 import { Header } from '../../../components/layout/Header';
 import { Footer } from '../../../components/layout/Footer';
 import { WhatsAppFloatingButton } from '../../../components/layout/WhatsAppButton';
+import { CourseFAQAccordion } from '../../../components/course/CourseFAQAccordion';
 import { 
   CheckCircle2, 
   Clock, 
@@ -134,6 +135,31 @@ export default async function CourseDetailPage({
   );
   const whatsappUrl = `https://wa.me/${siteConfig.whatsappClean}?text=${whatsappMessage}`;
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Início',
+        item: 'https://www.easytraining.com.br/'
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Cursos',
+        item: 'https://www.easytraining.com.br/#cursos'
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: course.title,
+        item: `https://www.easytraining.com.br/curso/${course.slug}`
+      }
+    ]
+  };
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Course',
@@ -141,6 +167,7 @@ export default async function CourseDetailPage({
     description: course.fullDescription,
     provider: {
       '@type': 'EducationalOrganization',
+      '@id': 'https://www.easytraining.com.br/#organizacao',
       name: siteConfig.name,
       sameAs: siteConfig.url,
       address: {
@@ -163,13 +190,21 @@ export default async function CourseDetailPage({
         '@type': 'Person',
         name: 'Corpo Docente Especialista EasyTraining'
       }
-    },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: String(siteConfig.rating.score),
-      reviewCount: String(siteConfig.rating.reviewsCount)
     }
   };
+
+  const faqJsonLd = course.faqs && course.faqs.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: course.faqs.map(faq => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer
+      }
+    }))
+  } : null;
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-800 selection:bg-[#00B060] selection:text-white font-sans antialiased">
@@ -177,6 +212,16 @@ export default async function CourseDetailPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      )}
 
       <Header />
 
@@ -418,6 +463,13 @@ export default async function CourseDetailPage({
             </div>
 
           </div>
+
+          {/* Interactive Course FAQ Accordion */}
+          <CourseFAQAccordion
+            faqs={course.faqs}
+            courseTitle={course.title}
+            whatsappUrl={whatsappUrl}
+          />
 
         </div>
       </main>
