@@ -61,6 +61,9 @@ export const metadata: Metadata = {
     ],
     shortcut: '/favicon.ico',
     apple: '/logo1.png'
+  },
+  verification: {
+    google: 'RF9_v2lq4MzJVRkhsPuDYaNOrT8qhF2yws0VxWimDWc',
   }
 };
 
