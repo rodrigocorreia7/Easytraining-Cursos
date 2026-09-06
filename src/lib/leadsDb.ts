@@ -1,12 +1,17 @@
 import fs from 'fs';
 import path from 'path';
-import { adminDb, isFirebaseAdminConfigured } from './firebaseAdmin';
+import { isFirebaseAdminConfigured } from './firebaseConfigHelper';
 import { Lead, LeadStatus } from '../types';
 import { getStoredSiteConfig } from './db';
 
 const DB_DIR = path.join(process.cwd(), 'src', 'data', 'db');
 const LEADS_FILE = path.join(DB_DIR, 'leads.json');
 const LEADS_COLLECTION = 'leads';
+
+async function getAdminDb() {
+  const { adminDb } = await import('./firebaseAdmin');
+  return adminDb;
+}
 
 function ensureDbDir() {
   try {
@@ -46,6 +51,7 @@ export async function getLeadsFromDb(includeTrash = false): Promise<Lead[]> {
     leads = getLocalLeads();
   } else {
     try {
+      const adminDb = await getAdminDb();
       const snap = await adminDb.collection(LEADS_COLLECTION).get();
       if (snap.empty) {
         leads = getLocalLeads();
@@ -96,11 +102,14 @@ export async function createLead(
   local.unshift(newLead);
   saveLocalLeads(local);
 
-  // 2. Salva no Firestore via Admin SDK
-  try {
-    await adminDb.collection(LEADS_COLLECTION).doc(newLead.id).set(newLead);
-  } catch (err: any) {
-    console.warn('Aviso: Firestore offline ou em validação, salvo localmente:', err?.message);
+  // 2. Salva no Firestore via Admin SDK se configurado
+  if (isFirebaseAdminConfigured()) {
+    try {
+      const adminDb = await getAdminDb();
+      await adminDb.collection(LEADS_COLLECTION).doc(newLead.id).set(newLead);
+    } catch (err: any) {
+      console.warn('Aviso: Firestore offline ou em validação, salvo localmente:', err?.message);
+    }
   }
 
   // 3. Dispara Webhook do N8N se configurado
@@ -143,6 +152,7 @@ export async function updateLeadStatus(
   saveLocalLeads(local);
 
   try {
+    const adminDb = await getAdminDb();
     await adminDb.collection(LEADS_COLLECTION).doc(id).set(local[index], { merge: true });
   } catch (err: any) {
     console.error('Erro ao atualizar status no Firestore:', err?.message);
@@ -162,6 +172,7 @@ export async function trashLead(id: string): Promise<boolean> {
   saveLocalLeads(local);
 
   try {
+    const adminDb = await getAdminDb();
     await adminDb.collection(LEADS_COLLECTION).doc(id).set(local[index], { merge: true });
   } catch (err: any) {
     console.error('Erro ao mover lead para lixeira no Firestore:', err?.message);
@@ -181,6 +192,7 @@ export async function restoreLead(id: string): Promise<Lead | null> {
   saveLocalLeads(local);
 
   try {
+    const adminDb = await getAdminDb();
     await adminDb.collection(LEADS_COLLECTION).doc(id).set(local[index], { merge: true });
   } catch (err: any) {
     console.error('Erro ao restaurar lead no Firestore:', err?.message);
@@ -196,6 +208,7 @@ export async function permanentDeleteLead(id: string): Promise<boolean> {
   saveLocalLeads(local);
 
   try {
+    const adminDb = await getAdminDb();
     await adminDb.collection(LEADS_COLLECTION).doc(id).delete();
   } catch (err: any) {
     console.error('Erro ao excluir lead permanentemente no Firestore:', err?.message);
@@ -212,6 +225,7 @@ export async function emptyTrash(): Promise<boolean> {
   saveLocalLeads(local);
 
   try {
+    const adminDb = await getAdminDb();
     const batch = adminDb.batch();
     trashed.forEach((l) => {
       batch.delete(adminDb.collection(LEADS_COLLECTION).doc(l.id));

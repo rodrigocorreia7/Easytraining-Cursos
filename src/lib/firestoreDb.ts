@@ -1,4 +1,4 @@
-import { adminDb, isFirebaseAdminConfigured } from './firebaseAdmin';
+import { isFirebaseAdminConfigured } from './firebaseConfigHelper';
 import { Course, BlogPost } from '../types';
 import { getStoredCourses, getStoredPosts, getStoredSiteConfig, type SiteConfigType } from './db';
 
@@ -8,6 +8,11 @@ const CONFIG_COLLECTION = 'config';
 const SITE_CONFIG_DOC = 'siteConfig';
 
 let isFirestoreOperational: boolean | null = null;
+
+async function getAdminDb() {
+  const { adminDb } = await import('./firebaseAdmin');
+  return adminDb;
+}
 
 async function withTimeout<T>(promise: Promise<T>, ms = 4000): Promise<T> {
   let timer: any;
@@ -29,6 +34,7 @@ export async function getCoursesFromFirestore(): Promise<Course[]> {
   }
 
   try {
+    const adminDb = await getAdminDb();
     const fetchPromise = adminDb.collection(COURSES_COLLECTION).get();
     const snapshot = await withTimeout(fetchPromise, 4000);
 
@@ -59,6 +65,7 @@ export async function getCoursesFromFirestore(): Promise<Course[]> {
 
 export async function saveCourseToFirestore(course: Course): Promise<void> {
   try {
+    const adminDb = await getAdminDb();
     const docRef = adminDb.collection(COURSES_COLLECTION).doc(String(course.id));
     await withTimeout(docRef.set(course, { merge: true }), 5000);
     isFirestoreOperational = true;
@@ -70,6 +77,7 @@ export async function saveCourseToFirestore(course: Course): Promise<void> {
 
 export async function deleteCourseFromFirestore(id: string | number): Promise<void> {
   try {
+    const adminDb = await getAdminDb();
     const docRef = adminDb.collection(COURSES_COLLECTION).doc(String(id));
     await withTimeout(docRef.delete(), 5000);
     isFirestoreOperational = true;
@@ -80,7 +88,9 @@ export async function deleteCourseFromFirestore(id: string | number): Promise<vo
 }
 
 export async function seedCoursesToFirestore(coursesList: Course[]): Promise<void> {
+  if (!isFirebaseAdminConfigured()) return;
   try {
+    const adminDb = await getAdminDb();
     const batch = adminDb.batch();
     for (const c of coursesList) {
       const docRef = adminDb.collection(COURSES_COLLECTION).doc(String(c.id));
@@ -126,6 +136,7 @@ export async function getPostsFromFirestore(): Promise<BlogPost[]> {
   }
 
   try {
+    const adminDb = await getAdminDb();
     const fetchPromise = adminDb.collection(POSTS_COLLECTION).get();
     const snapshot = await withTimeout(fetchPromise, 4000);
 
@@ -156,6 +167,7 @@ export async function getPostsFromFirestore(): Promise<BlogPost[]> {
 
 export async function savePostToFirestore(post: BlogPost): Promise<void> {
   try {
+    const adminDb = await getAdminDb();
     const docRef = adminDb.collection(POSTS_COLLECTION).doc(String(post.slug || post.id));
     await withTimeout(docRef.set(post, { merge: true }), 5000);
     isFirestoreOperational = true;
@@ -167,6 +179,7 @@ export async function savePostToFirestore(post: BlogPost): Promise<void> {
 
 export async function deletePostFromFirestore(idOrSlug: string | number): Promise<void> {
   try {
+    const adminDb = await getAdminDb();
     const docRef = adminDb.collection(POSTS_COLLECTION).doc(String(idOrSlug));
     await withTimeout(docRef.delete(), 5000);
     isFirestoreOperational = true;
@@ -177,7 +190,9 @@ export async function deletePostFromFirestore(idOrSlug: string | number): Promis
 }
 
 export async function seedPostsToFirestore(postsList: BlogPost[]): Promise<void> {
+  if (!isFirebaseAdminConfigured()) return;
   try {
+    const adminDb = await getAdminDb();
     const batch = adminDb.batch();
     for (const p of postsList) {
       const docRef = adminDb.collection(POSTS_COLLECTION).doc(String(p.slug || p.id));
@@ -201,6 +216,7 @@ export async function getSiteConfigFromFirestore(): Promise<SiteConfigType> {
   }
 
   try {
+    const adminDb = await getAdminDb();
     const doc = await withTimeout(adminDb.collection(CONFIG_COLLECTION).doc(SITE_CONFIG_DOC).get(), 1500);
 
     if (!doc.exists) {
@@ -217,6 +233,7 @@ export async function getSiteConfigFromFirestore(): Promise<SiteConfigType> {
 
 export async function saveSiteConfigToFirestore(config: SiteConfigType): Promise<void> {
   try {
+    const adminDb = await getAdminDb();
     const docRef = adminDb.collection(CONFIG_COLLECTION).doc(SITE_CONFIG_DOC);
     await withTimeout(docRef.set(config, { merge: true }), 4000);
     isFirestoreOperational = true;

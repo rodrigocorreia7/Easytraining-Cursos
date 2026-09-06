@@ -1,8 +1,7 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 import crypto from 'crypto';
 import { verifyAdminSession } from '@/lib/authServer';
-import { adminStorage } from '@/lib/firebaseAdmin';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -100,6 +99,7 @@ export async function POST(request: NextRequest) {
     const safeFileName = `upload-${randomHash}${ext}`;
 
     try {
+      const { adminStorage } = await import('@/lib/firebaseAdmin');
       const bucket = adminStorage.bucket();
       const fileRef = bucket.file(`uploads/${safeFileName}`);
 

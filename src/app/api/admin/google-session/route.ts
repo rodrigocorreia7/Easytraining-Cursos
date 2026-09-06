@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { signAdminToken, ALLOWED_ADMIN_EMAILS } from '@/lib/authServer';
 import { checkRateLimit, getClientIp, sanitizeString } from '@/lib/security';
-import { adminAuth, isFirebaseAdminConfigured } from '@/lib/firebaseAdmin';
+import { isFirebaseAdminConfigured } from '@/lib/firebaseConfigHelper';
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,6 +33,7 @@ export async function POST(request: NextRequest) {
 
     if (isFirebaseAdminConfigured()) {
       try {
+        const { adminAuth } = await import('@/lib/firebaseAdmin');
         const decoded = await adminAuth.verifyIdToken(idToken);
         verifiedEmail = (decoded.email || '').toLowerCase().trim();
         verifiedUid = decoded.uid || '';
