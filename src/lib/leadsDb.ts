@@ -1,6 +1,6 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
-import { adminDb } from './firebaseAdmin';
+import { adminDb, isFirebaseAdminConfigured } from './firebaseAdmin';
 import { Lead, LeadStatus } from '../types';
 import { getStoredSiteConfig } from './db';
 
@@ -42,16 +42,20 @@ export function saveLocalLeads(leads: Lead[]): void {
 
 export async function getLeadsFromDb(includeTrash = false): Promise<Lead[]> {
   let leads: Lead[] = [];
-  try {
-    const snap = await adminDb.collection(LEADS_COLLECTION).get();
-    if (snap.empty) {
-      leads = getLocalLeads();
-    } else {
-      leads = snap.docs.map((d) => d.data() as Lead);
-    }
-  } catch (err: any) {
-    console.warn('Aviso: Leitura do Firestore falhou, usando base local:', err?.message);
+  if (!isFirebaseAdminConfigured()) {
     leads = getLocalLeads();
+  } else {
+    try {
+      const snap = await adminDb.collection(LEADS_COLLECTION).get();
+      if (snap.empty) {
+        leads = getLocalLeads();
+      } else {
+        leads = snap.docs.map((d) => d.data() as Lead);
+      }
+    } catch (err: any) {
+      console.warn('Aviso: Leitura do Firestore falhou, usando base local:', err?.message);
+      leads = getLocalLeads();
+    }
   }
 
   // Filtra por lixeira ou ativos

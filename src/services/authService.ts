@@ -232,11 +232,16 @@ export const AuthService = {
           await fbSignOut(auth);
           return {
             success: false,
-            error: errData.error || 'Falha ao autenticar sessão com a conta Google.'
+            error: errData.error || `Falha no servidor (${sessionRes.status}). Não foi possível criar a sessão administrativa.`
           };
         }
-      } catch (sessErr) {
-        console.warn('Falha na requisição para /api/admin/google-session:', sessErr);
+      } catch (sessErr: any) {
+        console.error('Falha na requisição para /api/admin/google-session:', sessErr);
+        await fbSignOut(auth);
+        return {
+          success: false,
+          error: 'Falha de comunicação com o servidor de autenticação. Tente novamente.'
+        };
       }
 
       if (typeof window !== 'undefined') {

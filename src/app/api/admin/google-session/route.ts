@@ -1,7 +1,7 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { signAdminToken, ALLOWED_ADMIN_EMAILS } from '@/lib/authServer';
 import { checkRateLimit, getClientIp, sanitizeString } from '@/lib/security';
-import { adminAuth } from '@/lib/firebaseAdmin';
+import { adminAuth, isFirebaseAdminConfigured } from '@/lib/firebaseAdmin';
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,21 +28,27 @@ export async function POST(request: NextRequest) {
     let verifiedUid = '';
     let verifiedName = '';
 
-    // 1. Validação Criptográfica prioritária via Firebase Admin SDK
-    try {
-      const decoded = await adminAuth.verifyIdToken(idToken);
-      verifiedEmail = (decoded.email || '').toLowerCase().trim();
-      verifiedUid = decoded.uid || '';
-      verifiedName = decoded.name || '';
-    } catch (adminErr: any) {
-      // Fallback para Google Identity Toolkit oficial (caso Admin SDK local não tenha chaves completas)
-      const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || process.env.FIREBASE_API_KEY;
-      if (!apiKey) {
-        return NextResponse.json(
-          { error: 'Configuração de autenticação não encontrada no servidor.' },
-          { status: 500 }
-        );
+    // 1. Validação Criptográfica do ID Token
+    let tokenValidated = false;
+
+    if (isFirebaseAdminConfigured()) {
+      try {
+        const decoded = await adminAuth.verifyIdToken(idToken);
+        verifiedEmail = (decoded.email || '').toLowerCase().trim();
+        verifiedUid = decoded.uid || '';
+        verifiedName = decoded.name || '';
+        tokenValidated = true;
+      } catch (adminErr: any) {
+        console.warn('Falha na validação via Firebase Admin SDK, utilizando fallback Identity Toolkit:', adminErr?.message);
       }
+    }
+
+    if (!tokenValidated) {
+      // Fallback para Google Identity Toolkit oficial
+      const apiKey = 
+        process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 
+        process.env.FIREBASE_API_KEY || 
+        'AIzaSyDjC8RWk973GR-rHO9JwX61izKYMBrcPEo';
 
       const verifyRes = await fetch(
         `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${apiKey}`,
@@ -50,7 +56,7 @@ export async function POST(request: NextRequest) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ idToken }),
-          signal: AbortSignal.timeout(6000)
+          signal: AbortSignal.timeout(8000)
         }
       );
 
@@ -112,8 +118,8 @@ export async function POST(request: NextRequest) {
     });
 
     return response;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erro ao emitir sessão Google Admin:', error);
-    return NextResponse.json({ error: 'Erro interno ao processar sessão.' }, { status: 500 });
+    return NextResponse.json({ error: error?.message || 'Erro interno ao processar sessão.' }, { status: 500 });
   }
 }

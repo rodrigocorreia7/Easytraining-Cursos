@@ -1,4 +1,4 @@
-﻿import { adminDb } from './firebaseAdmin';
+import { adminDb, isFirebaseAdminConfigured } from './firebaseAdmin';
 import { Course, BlogPost } from '../types';
 import { getStoredCourses, getStoredPosts, getStoredSiteConfig, type SiteConfigType } from './db';
 
@@ -23,6 +23,10 @@ async function withTimeout<T>(promise: Promise<T>, ms = 4000): Promise<T> {
 
 export async function getCoursesFromFirestore(): Promise<Course[]> {
   const localCourses = getStoredCourses();
+
+  if (!isFirebaseAdminConfigured()) {
+    return localCourses;
+  }
 
   try {
     const fetchPromise = adminDb.collection(COURSES_COLLECTION).get();
@@ -117,6 +121,10 @@ function sanitizePostMedia(p: BlogPost): BlogPost {
 export async function getPostsFromFirestore(): Promise<BlogPost[]> {
   const localPosts = getStoredPosts();
 
+  if (!isFirebaseAdminConfigured()) {
+    return localPosts.map(sanitizePostMedia);
+  }
+
   try {
     const fetchPromise = adminDb.collection(POSTS_COLLECTION).get();
     const snapshot = await withTimeout(fetchPromise, 4000);
@@ -188,7 +196,7 @@ export async function seedPostsToFirestore(postsList: BlogPost[]): Promise<void>
 
 export async function getSiteConfigFromFirestore(): Promise<SiteConfigType> {
   const localConfig = getStoredSiteConfig();
-  if (isFirestoreOperational === false) {
+  if (!isFirebaseAdminConfigured() || isFirestoreOperational === false) {
     return localConfig;
   }
 
