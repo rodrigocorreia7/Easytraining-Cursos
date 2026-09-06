@@ -49,7 +49,14 @@ export async function POST(request: NextRequest) {
       const apiKey = 
         process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 
         process.env.FIREBASE_API_KEY || 
-        'AIzaSyDjC8RWk973GR-rHO9JwX61izKYMBrcPEo';
+        '';
+
+      if (!apiKey) {
+        return NextResponse.json(
+          { error: 'Validação Google indisponível. Configure a chave Firebase no ambiente.' },
+          { status: 503 }
+        );
+      }
 
       const verifyRes = await fetch(
         `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${apiKey}`,

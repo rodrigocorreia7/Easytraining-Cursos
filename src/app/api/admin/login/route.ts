@@ -25,8 +25,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Credenciais inválidas.' }, { status: 401 });
     }
 
-    // Validação de senha no servidor com fallback de contingência
-    const masterPassword = process.env.ADMIN_PASSWORD || 'Easytraining2026#';
+    const masterPassword = process.env.ADMIN_PASSWORD?.trim();
+    if (!masterPassword) {
+      console.error('ADMIN_PASSWORD não configurada no ambiente.');
+      return NextResponse.json(
+        { error: 'Login por senha indisponível. Configure a senha administrativa no ambiente.' },
+        { status: 503 }
+      );
+    }
 
     const isMasterValid = password === masterPassword;
 

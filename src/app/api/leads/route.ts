@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getLeadsFromDb, createLead, emptyTrash } from '@/lib/leadsDb';
+import { getLeadsFromDb, createLead, emptyTrash, LeadPersistenceError } from '@/lib/leadsDb';
 import { sanitizeString, sanitizePhone, checkRateLimit, getClientIp } from '@/lib/security';
 import { verifyAdminSession } from '@/lib/authServer';
 
@@ -77,6 +77,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(lead, { status: 201 });
   } catch (error) {
     console.error('Erro seguro ao criar lead:', error);
+    if (error instanceof LeadPersistenceError) {
+      return NextResponse.json(
+        { error: 'Não foi possível confirmar o contato no banco ou no atendimento. Tente novamente ou fale pelo WhatsApp.' },
+        { status: 503 }
+      );
+    }
     return NextResponse.json({ error: 'Não foi possível registrar seu contato no momento.' }, { status: 500 });
   }
 }

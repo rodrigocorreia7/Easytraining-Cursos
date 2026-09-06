@@ -41,11 +41,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       })
       .then((data) => {
         if (isMounted && data?.user) {
-          setCurrentUser(user);
+          setCurrentUser(data.user);
         }
       })
       .catch(() => {
-        if (isMounted) setCurrentUser(user);
+        AuthService.logout();
       })
       .finally(() => {
         if (isMounted) setLoading(false);

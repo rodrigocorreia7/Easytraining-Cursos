@@ -1,4 +1,4 @@
-import { notFound, redirect, RedirectType } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getStoredPosts } from '../../lib/db';
 
@@ -36,6 +36,6 @@ export default async function RootSlugPageRoute({ params }: PageProps) {
     notFound();
   }
 
-  // Redirecionamento permanente 301/308 do artigo legado na raiz para /blog/[slug]
-  redirect(`/blog/${post.slug}`, RedirectType.replace);
+  // Redirecionamento permanente do artigo legado na raiz para /blog/[slug].
+  permanentRedirect(`/blog/${post.slug}`);
 }

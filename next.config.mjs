@@ -16,8 +16,35 @@ const nextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/cursos',
+        destination: '/#cursos',
+        permanent: true,
+      },
+      {
+        source: '/quem-somos',
+        destination: '/#quem-somos',
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
+      {
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: 'https://www.easytraining.com.br',
+          },
+          {
+            key: 'Vary',
+            value: 'Origin',
+          },
+        ],
+      },
       // 1. Static Assets Immutable Caching
       {
         source: '/:all*(svg|jpg|jpeg|png|webp|avif|woff2|mp4|ico)',

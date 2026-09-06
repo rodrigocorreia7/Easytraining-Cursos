@@ -13,13 +13,11 @@
     "lint": "tsc --noEmit"
   },
   "overrides": {
-    "jsondiffpatch": "^0.7.6"
+    "jsondiffpatch": "^0.7.6",
+    "uuid": "^11.1.1"
   },
   "dependencies": {
-    "@ai-sdk/google": "^1.1.20",
-    "@ai-sdk/react": "^4.0.94",
     "@google/genai": "^2.21.0",
-    "ai": "^4.1.50",
     "clsx": "^2.1.1",
     "firebase": "^12.18.0",
     "firebase-admin": "^14.3.0",

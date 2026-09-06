@@ -107,7 +107,6 @@ export default function AdminLeadsPage() {
       .then(r => r.json())
       .then(cfg => {
         if (cfg.n8nWebhookUrl) setWebhookUrl(cfg.n8nWebhookUrl);
-        else setWebhookUrl('https://n8n.eterion.online/webhook/easytraining-leads');
       })
       .catch(() => {});
   }, []);
@@ -251,7 +250,7 @@ export default function AdminLeadsPage() {
       const cfgRes = await fetch('/api/site-config');
       const cfg = await cfgRes.json();
       await fetch('/api/site-config', {
-        method: 'POST',
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...cfg, n8nWebhookUrl: webhookUrl })
       });
@@ -391,7 +390,7 @@ export default function AdminLeadsPage() {
               type="url"
               value={webhookUrl}
               onChange={(e) => setWebhookUrl(e.target.value)}
-              placeholder="https://n8n.eterion.online/webhook/easytraining-leads"
+              placeholder="https://seu-n8n.exemplo/webhook/easytraining-leads"
               className="flex-1 px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder-purple-300/50 text-xs focus:outline-hidden focus:ring-2 focus:ring-emerald-400"
             />
             <button

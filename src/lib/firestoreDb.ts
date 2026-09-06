@@ -116,7 +116,7 @@ function sanitizePostMedia(p: BlogPost): BlogPost {
   }
   let contentHtml = p.contentHtml || '';
   if (contentHtml.includes('wp-content/uploads/')) {
-    contentHtml = contentHtml.replace(/https:\/\/easytraining\.com\.br\/wp-content\/uploads\/[^\s"'>]+/g, (m) => {
+    contentHtml = contentHtml.replace(/https:\/\/(?:www\.)?easytraining\.com\.br\/wp-content\/uploads\/[^\s"'>]+/g, (m) => {
       const fn = m.split('/').pop() || '';
       return `/images/courses/${fn}`;
     });

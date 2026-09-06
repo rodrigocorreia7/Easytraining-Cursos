@@ -180,7 +180,7 @@ export default function AdminConfigPage() {
               type="text"
               value={config.url}
               onChange={(e) => setConfig({ ...config, url: e.target.value })}
-              placeholder="https://easytraining.com.br"
+              placeholder="https://www.easytraining.com.br"
               className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm font-mono text-slate-900 focus:outline-hidden focus:border-[#00B060]"
             />
           </div>

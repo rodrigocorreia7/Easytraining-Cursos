@@ -3,13 +3,10 @@ import crypto from 'crypto';
 
 function getSessionSecret(): string {
   const secret = process.env.ADMIN_SESSION_SECRET || process.env.NEXTAUTH_SECRET;
-  if (secret && secret.trim().length >= 16) {
+  if (secret && secret.trim().length >= 32) {
     return secret.trim();
   }
-  if (process.env.NODE_ENV === 'production') {
-    console.warn('⚠️ AVISO: ADMIN_SESSION_SECRET não configurada na Vercel. Utilizando segredo estável de contingência.');
-  }
-  return 'e4a9f3b8c2d1e0f7a6b5c4d3e2f1029384756abcdeffedcba9876543210fedcba';
+  throw new Error('ADMIN_SESSION_SECRET precisa estar configurada com pelo menos 32 caracteres.');
 }
 
 export const ALLOWED_ADMIN_EMAILS = [

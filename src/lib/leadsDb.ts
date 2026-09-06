@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import type { Firestore } from 'firebase-admin/firestore';
 import { isFirebaseAdminConfigured } from './firebaseConfigHelper';
 import { Lead, LeadStatus } from '../types';
 import { getStoredSiteConfig } from './db';
@@ -8,8 +9,19 @@ const DB_DIR = path.join(process.cwd(), 'src', 'data', 'db');
 const LEADS_FILE = path.join(DB_DIR, 'leads.json');
 const LEADS_COLLECTION = 'leads';
 
-async function getAdminDb() {
-  const { adminDb } = await import('./firebaseAdmin');
+export class LeadPersistenceError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'LeadPersistenceError';
+  }
+}
+
+async function getAdminDb(): Promise<Firestore> {
+  const { getAdminDb: resolveAdminDb } = await import('./firebaseAdmin');
+  const adminDb = resolveAdminDb();
+  if (!adminDb) {
+    throw new LeadPersistenceError('Firebase Admin Firestore não configurado para persistir leads.');
+  }
   return adminDb;
 }
 
@@ -97,30 +109,29 @@ export async function createLead(
     createdAt: new Date().toISOString(),
   };
 
-  // 1. Salva localmente
-  const local = getLocalLeads();
-  local.unshift(newLead);
-  saveLocalLeads(local);
+  let firestoreSaved = false;
+  let webhookDelivered = false;
 
-  // 2. Salva no Firestore via Admin SDK se configurado
+  // 1. Salva no Firestore via Admin SDK se configurado
   if (isFirebaseAdminConfigured()) {
     try {
       const adminDb = await getAdminDb();
       await adminDb.collection(LEADS_COLLECTION).doc(newLead.id).set(newLead);
+      firestoreSaved = true;
     } catch (err: any) {
-      console.warn('Aviso: Firestore offline ou em validação, salvo localmente:', err?.message);
+      console.error('Erro ao persistir lead no Firestore:', err?.message);
     }
   }
 
-  // 3. Dispara Webhook do N8N se configurado
+  // 2. Dispara Webhook do N8N se configurado
   try {
     const config = getStoredSiteConfig();
     const webhookUrl =
       (config as any)?.n8nWebhookUrl ||
       process.env.N8N_WEBHOOK_URL ||
-      'https://n8n.eterion.online/webhook/easytraining-leads';
+      '';
     if (webhookUrl && webhookUrl.startsWith('http')) {
-      await fetch(webhookUrl, {
+      const webhookRes = await fetch(webhookUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -129,9 +140,24 @@ export async function createLead(
           lead: newLead,
         }),
         signal: AbortSignal.timeout(5000),
-      }).catch((e) => console.warn('Erro ao disparar Webhook N8N:', e.message));
+      });
+      webhookDelivered = webhookRes.ok;
+      if (!webhookDelivered) {
+        console.error(`Webhook N8N recusou o lead com status ${webhookRes.status}.`);
+      }
     }
-  } catch (e) {}
+  } catch (e: any) {
+    console.error('Erro ao disparar Webhook N8N:', e?.message);
+  }
+
+  if (!firestoreSaved && !webhookDelivered) {
+    throw new LeadPersistenceError('Não foi possível confirmar o lead em um destino permanente.');
+  }
+
+  // 3. Cache local apenas depois de confirmar persistência real.
+  const local = getLocalLeads();
+  local.unshift(newLead);
+  saveLocalLeads(local);
 
   return newLead;
 }
@@ -143,41 +169,72 @@ export async function updateLeadStatus(
 ): Promise<Lead | null> {
   const local = getLocalLeads();
   const index = local.findIndex((l) => l.id === id);
-  if (index === -1) return null;
+  let lead = index >= 0 ? local[index] : null;
 
-  local[index].status = status;
-  if (notes !== undefined) local[index].notes = notes;
-  local[index].lastContactAt = new Date().toISOString();
+  if (!lead && isFirebaseAdminConfigured()) {
+    const adminDb = await getAdminDb();
+    const snap = await adminDb.collection(LEADS_COLLECTION).doc(id).get();
+    if (snap.exists) {
+      lead = snap.data() as Lead;
+    }
+  }
 
-  saveLocalLeads(local);
+  if (!lead) return null;
+
+  const adminDb = await getAdminDb();
+  lead.status = status;
+  if (notes !== undefined) lead.notes = notes;
+  lead.lastContactAt = new Date().toISOString();
 
   try {
-    const adminDb = await getAdminDb();
-    await adminDb.collection(LEADS_COLLECTION).doc(id).set(local[index], { merge: true });
+    await adminDb.collection(LEADS_COLLECTION).doc(id).set(lead, { merge: true });
   } catch (err: any) {
     console.error('Erro ao atualizar status no Firestore:', err?.message);
     throw new Error('Falha ao atualizar status do lead no banco de dados.');
   }
 
-  return local[index];
+  if (index >= 0) {
+    local[index] = lead;
+  } else {
+    local.unshift(lead);
+  }
+  saveLocalLeads(local);
+
+  return lead;
 }
 
 export async function trashLead(id: string): Promise<boolean> {
   const local = getLocalLeads();
   const index = local.findIndex((l) => l.id === id);
-  if (index === -1) return false;
+  let lead = index >= 0 ? local[index] : null;
 
-  local[index].isDeleted = true;
-  local[index].deletedAt = new Date().toISOString();
-  saveLocalLeads(local);
+  if (!lead && isFirebaseAdminConfigured()) {
+    const adminDb = await getAdminDb();
+    const snap = await adminDb.collection(LEADS_COLLECTION).doc(id).get();
+    if (snap.exists) {
+      lead = snap.data() as Lead;
+    }
+  }
+
+  if (!lead) return false;
+
+  const adminDb = await getAdminDb();
+  lead.isDeleted = true;
+  lead.deletedAt = new Date().toISOString();
 
   try {
-    const adminDb = await getAdminDb();
-    await adminDb.collection(LEADS_COLLECTION).doc(id).set(local[index], { merge: true });
+    await adminDb.collection(LEADS_COLLECTION).doc(id).set(lead, { merge: true });
   } catch (err: any) {
     console.error('Erro ao mover lead para lixeira no Firestore:', err?.message);
     throw new Error('Falha ao mover lead para lixeira.');
   }
+
+  if (index >= 0) {
+    local[index] = lead;
+  } else {
+    local.unshift(lead);
+  }
+  saveLocalLeads(local);
 
   return true;
 }
@@ -185,56 +242,79 @@ export async function trashLead(id: string): Promise<boolean> {
 export async function restoreLead(id: string): Promise<Lead | null> {
   const local = getLocalLeads();
   const index = local.findIndex((l) => l.id === id);
-  if (index === -1) return null;
+  let lead = index >= 0 ? local[index] : null;
 
-  local[index].isDeleted = false;
-  delete local[index].deletedAt;
-  saveLocalLeads(local);
+  if (!lead && isFirebaseAdminConfigured()) {
+    const adminDb = await getAdminDb();
+    const snap = await adminDb.collection(LEADS_COLLECTION).doc(id).get();
+    if (snap.exists) {
+      lead = snap.data() as Lead;
+    }
+  }
+
+  if (!lead) return null;
+
+  const adminDb = await getAdminDb();
+  lead.isDeleted = false;
+  delete lead.deletedAt;
 
   try {
-    const adminDb = await getAdminDb();
-    await adminDb.collection(LEADS_COLLECTION).doc(id).set(local[index], { merge: true });
+    await adminDb.collection(LEADS_COLLECTION).doc(id).set(lead, { merge: true });
   } catch (err: any) {
     console.error('Erro ao restaurar lead no Firestore:', err?.message);
     throw new Error('Falha ao restaurar lead.');
   }
 
-  return local[index];
+  if (index >= 0) {
+    local[index] = lead;
+  } else {
+    local.unshift(lead);
+  }
+  saveLocalLeads(local);
+
+  return lead;
 }
 
 export async function permanentDeleteLead(id: string): Promise<boolean> {
+  const adminDb = await getAdminDb();
   let local = getLocalLeads();
-  local = local.filter((l) => l.id !== id);
-  saveLocalLeads(local);
 
   try {
-    const adminDb = await getAdminDb();
     await adminDb.collection(LEADS_COLLECTION).doc(id).delete();
   } catch (err: any) {
     console.error('Erro ao excluir lead permanentemente no Firestore:', err?.message);
     throw new Error('Falha ao excluir lead permanentemente.');
   }
 
+  local = local.filter((l) => l.id !== id);
+  saveLocalLeads(local);
+
   return true;
 }
 
 export async function emptyTrash(): Promise<boolean> {
+  const adminDb = await getAdminDb();
   let local = getLocalLeads();
   const trashed = local.filter((l) => l.isDeleted);
-  local = local.filter((l) => !l.isDeleted);
-  saveLocalLeads(local);
 
   try {
-    const adminDb = await getAdminDb();
     const batch = adminDb.batch();
-    trashed.forEach((l) => {
-      batch.delete(adminDb.collection(LEADS_COLLECTION).doc(l.id));
-    });
+    if (trashed.length > 0) {
+      trashed.forEach((l) => {
+        batch.delete(adminDb.collection(LEADS_COLLECTION).doc(l.id));
+      });
+    } else {
+      const snap = await adminDb.collection(LEADS_COLLECTION).where('isDeleted', '==', true).get();
+      snap.docs.forEach((doc) => batch.delete(doc.ref));
+    }
     await batch.commit();
   } catch (err: any) {
     console.error('Erro ao esvaziar lixeira no Firestore:', err?.message);
     throw new Error('Falha ao esvaziar lixeira.');
   }
+
+  local = local.filter((l) => !l.isDeleted);
+  saveLocalLeads(local);
 
   return true;
 }

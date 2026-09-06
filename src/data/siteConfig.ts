@@ -39,5 +39,5 @@ export const siteConfig = {
     tiktok: "https://www.tiktok.com/@easytrainingcursos",
     whatsapp: "https://wa.me/551123037983"
   },
-  n8nWebhookUrl: "https://n8n.eterion.online/webhook/easytraining-leads"
+  n8nWebhookUrl: ""
 };

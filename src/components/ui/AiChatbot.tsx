@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { useChat } from 'ai/react';
 import { 
   Bot, Send, X, MessageSquare, ExternalLink, Loader2, 
   Sparkles, CheckCircle2, User, Phone
@@ -17,6 +16,18 @@ const POPULAR_COURSES = [
   'Designer Gráfico & Marketing Digital'
 ];
 
+type ChatMessage = {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+};
+
+const WELCOME_MESSAGE: ChatMessage = {
+  id: 'welcome',
+  role: 'assistant',
+  content: 'Olá! Sou a Izzy, consultora virtual da EasyTraining. Como posso te ajudar com cursos, horários, bolsas ou certificados hoje?'
+};
+
 export const AiChatbot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   
@@ -30,34 +41,9 @@ export const AiChatbot: React.FC = () => {
   const [leadSuccess, setLeadSuccess] = useState(false);
   const [leadError, setLeadError] = useState('');
 
-  // Vercel AI SDK useChat hook for continuous streaming
-  const {
-    messages,
-    input,
-    handleInputChange,
-    handleSubmit,
-    isLoading,
-    append,
-    setMessages
-  } = useChat({
-    api: '/api/chat',
-    initialMessages: [
-      {
-        id: 'welcome',
-        role: 'assistant',
-        content: 'Olá! Sou a Izzy, consultora virtual da EasyTraining. Como posso te ajudar com cursos, horários, bolsas ou certificados hoje?'
-      }
-    ],
-    onFinish: (message) => {
-      const lower = message.content.toLowerCase();
-      if (
-        (lower.includes('preço') || lower.includes('valor') || lower.includes('bolsa') || lower.includes('matrícula') || lower.includes('inscrição') || lower.includes('quanto')) &&
-        !leadSuccess && !showLeadForm
-      ) {
-        setTimeout(() => setShowLeadForm(true), 1200);
-      }
-    }
-  });
+  const [messages, setMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -70,6 +56,83 @@ export const AiChatbot: React.FC = () => {
       scrollToBottom();
     }
   }, [messages, isOpen, showLeadForm, isLoading]);
+
+  const maybeOpenLeadForm = (content: string) => {
+    const lower = content.toLowerCase();
+    if (
+      (lower.includes('preço') ||
+        lower.includes('valor') ||
+        lower.includes('bolsa') ||
+        lower.includes('matrícula') ||
+        lower.includes('inscrição') ||
+        lower.includes('quanto')) &&
+      !leadSuccess &&
+      !showLeadForm
+    ) {
+      setTimeout(() => setShowLeadForm(true), 1200);
+    }
+  };
+
+  const sendMessage = async (content: string) => {
+    const cleanContent = content.trim();
+    if (!cleanContent || isLoading) return;
+
+    const userMessage: ChatMessage = {
+      id: `user-${Date.now()}`,
+      role: 'user',
+      content: cleanContent
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setInput('');
+    setIsLoading(true);
+
+    try {
+      const res = await fetch('/api/ai/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: cleanContent })
+      });
+      const data = await res.json().catch(() => ({}));
+      const assistantContent =
+        data.reply ||
+        data.error ||
+        'No momento estou com uma oscilação. Fale diretamente com a secretaria pelo WhatsApp da escola.';
+
+      const assistantMessage: ChatMessage = {
+        id: `assistant-${Date.now()}`,
+        role: 'assistant',
+        content: assistantContent
+      };
+
+      setMessages((prev) => [...prev, assistantMessage]);
+      maybeOpenLeadForm(assistantContent);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `assistant-error-${Date.now()}`,
+          role: 'assistant',
+          content: 'Não consegui responder agora. Você pode falar diretamente com a secretaria pelo WhatsApp da escola.'
+        }
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    sendMessage(input);
+  };
+
+  const append = (message: { role: 'user'; content: string }) => {
+    sendMessage(message.content);
+  };
 
   // Format phone number as user types (XX) XXXXX-XXXX
   const handlePhoneChange = (val: string) => {
@@ -392,7 +455,7 @@ export const AiChatbot: React.FC = () => {
             </div>
           )}
 
-          {/* Input Form with useChat handleSubmit (Dark) */}
+          {/* Input Form (Dark) */}
           <form
             onSubmit={handleSubmit}
             className="p-3 bg-[#0A1628] border-t border-slate-800 flex items-center gap-2"
