@@ -287,3 +287,221 @@ Em resposta à auditoria externa técnica de segurança e SEO ("Auditoria site S
 - `vercel.json`: Removidos cabeçalhos legados obsoletos (`SAMEORIGIN` e `X-XSS-Protection`) para manter conformidade com `next.config.mjs`.
 - `package.json`: Desinstalado `puppeteer-core`, reduzindo dependências.
 
+---
+
+## 13. Consolidação Canônica SEO, Redirects Legados e Páginas Reais (Setembro/2026)
+
+Após a preocupação do cliente sobre possível conflito entre URLs com `www` e sem `www`, foi mantido o domínio oficial com `www` como canônico:
+
+```text
+https://www.easytraining.com.br
+```
+
+O objetivo desta etapa foi consolidar os sinais de SEO, preservar backlinks históricos do WordPress antigo e reduzir a chance de o Google enxergar versões concorrentes do mesmo conteúdo.
+
+### 13.1. Commit de Referência
+- Foi criado o commit local `971970d` com a mensagem:
+
+```text
+fix(seo): consolidate canonical redirects and legacy routes
+```
+
+- O commit ficou no branch `main`, deixando o repositório local 1 commit à frente do remoto (`ahead 1`) até o próximo `git push`.
+
+### 13.2. Domínio Canônico com `www`
+- Foi mantido `https://www.easytraining.com.br` como versão oficial do site.
+- Foi criado reforço no `src/middleware.ts` para redirecionar acessos feitos em `easytraining.com.br` para `www.easytraining.com.br`.
+- Foi preservado o caminho acessado pelo usuário ou pelo Googlebot.
+
+Exemplo:
+
+```text
+https://easytraining.com.br/curso/informatica
+→ https://www.easytraining.com.br/curso/informatica
+```
+
+- Foi configurado o redirecionamento com status permanente (`308 Permanent Redirect`), equivalente prático de migração permanente para a infraestrutura Next/Vercel.
+- Foi removida a porta herdada em ambiente local no redirecionamento canônico, garantindo URL limpa no destino.
+
+### 13.3. Redirects Permanentes para URLs Antigas do WordPress
+- Foi criado um bloco centralizado `legacyRedirects` em `next.config.mjs`.
+- Foram removidos os redirects antigos de `/cursos` e `/quem-somos` para âncoras da home, pois essas rotas passaram a ser páginas reais.
+- Foi criado redirect permanente para a URL antiga quebrada:
+
+```text
+/mercado-de-trabalho
+→ /blog/a-importancia-da-educacao-profissionalizante-para-o-mercado-de-trabalho
+```
+
+- Foram criados redirects permanentes para variações antigas de cursos:
+  - `/curso/informatica-basica` → `/curso/curso-de-informatica-basica`
+  - `/curso/curso-de-informatica` → `/curso/informatica`
+  - `/curso/curso-de-informatica-em-guarulhos` → `/curso/informatica`
+  - `/curso/curso-de-informatica-basica-em-guarulhos` → `/curso/curso-de-informatica-basica`
+  - `/curso/curso-de-excel-avancado` → `/curso/excel-avancado`
+  - `/curso/curso-auxiliar-veterinario` → `/curso/auxiliar-veterinario`
+  - `/curso/curso-de-auxiliar-veterinario` → `/curso/auxiliar-veterinario`
+  - `/curso/curso-de-auxiliar-veterinario-em-guarulhos` → `/curso/auxiliar-veterinario`
+  - `/curso/banho-e-tosa` → `/curso/banho-e-tosa-higienica`
+  - `/curso/tosa-pet` → `/curso/curso-de-tosa-pet-geral-em-guarulhos-sp`
+  - `/curso/tosa-pet-geral` → `/curso/curso-de-tosa-pet-geral-em-guarulhos-sp`
+  - `/curso/recursos-humanos` → `/curso/assistente-de-recursos-humanos`
+  - `/curso/logistica` → `/curso/assistente-de-logistica`
+  - `/curso/contabilidade` → `/curso/auxiliar-de-contabilidade`
+
+- Também foram criados redirects permanentes para slugs antigos sem o prefixo `/curso`:
+  - `/curso-de-informatica` → `/curso/informatica`
+  - `/informatica-basica` → `/curso/curso-de-informatica-basica`
+  - `/auxiliar-veterinario` → `/curso/auxiliar-veterinario`
+  - `/curso-auxiliar-veterinario` → `/curso/auxiliar-veterinario`
+  - `/curso-de-auxiliar-veterinario` → `/curso/auxiliar-veterinario`
+  - `/auxiliar-de-farmacia` → `/curso/auxiliar-de-farmacia`
+  - `/banho-e-tosa` → `/curso/banho-e-tosa-higienica`
+  - `/recursos-humanos` → `/curso/assistente-de-recursos-humanos`
+  - `/logistica` → `/curso/assistente-de-logistica`
+  - `/contabilidade` → `/curso/auxiliar-de-contabilidade`
+
+### 13.4. Página Real de Cursos
+- Foi criada a rota `src/app/cursos/page.tsx`.
+- Foi criada uma página real em `/cursos`, substituindo o antigo uso de âncora `/#cursos`.
+- Foi criada listagem de cursos baseada em `getStoredCourses()`.
+- Foi adicionado canonical próprio:
+
+```text
+https://www.easytraining.com.br/cursos
+```
+
+- Foi adicionado Open Graph específico para a página de cursos.
+- Foi adicionado schema `CollectionPage`, com cada curso listado como item `Course`.
+- Foi adicionado CTA para WhatsApp com mensagem contextual da página de cursos.
+- Foi criada uma página mais adequada para preservar histórico, backlinks e indexação de `/cursos`.
+
+### 13.5. Página Real de Quem Somos
+- Foi criada a rota `src/app/quem-somos/page.tsx`.
+- Foi criada uma página institucional real em `/quem-somos`, substituindo o antigo uso de âncora `/#quem-somos`.
+- Foi adicionado canonical próprio:
+
+```text
+https://www.easytraining.com.br/quem-somos
+```
+
+- Foi adicionado Open Graph específico para a página institucional.
+- Foi adicionado schema `AboutPage`, conectado ao `EducationalOrganization` oficial.
+- Foi criado conteúdo institucional sobre a escola, localização, metodologia prática, atendimento e empregabilidade.
+- Foi adicionado CTA para WhatsApp com mensagem contextual da página institucional.
+
+### 13.6. Página 404 Personalizada
+- Foi criada a rota `src/app/not-found.tsx`.
+- Foi criada uma página 404 personalizada para URLs antigas, inexistentes ou ainda não mapeadas.
+- Foi configurado `robots: { index: false, follow: true }`, impedindo indexação da página 404, mas permitindo que o Google siga links úteis.
+- Foram adicionados atalhos para:
+  - `/cursos`
+  - `/blog`
+  - `/`
+  - WhatsApp da secretaria
+- Foram adicionados cards de cursos em destaque para recuperar navegação e conversão em acessos vindos de URLs antigas.
+
+### 13.7. Sitemap Dinâmico Atualizado
+- Foi atualizado `src/app/sitemap.ts`.
+- Foram adicionadas as novas páginas canônicas ao sitemap:
+
+```text
+https://www.easytraining.com.br/cursos
+https://www.easytraining.com.br/quem-somos
+```
+
+- Foi confirmado que o sitemap continua usando apenas URLs com `www`.
+- Foi confirmado que não existe `public/sitemap.xml` nem `dist/sitemap.xml`, então não havia conflito de sitemap duplicado para remover.
+
+### 13.8. Links Internos Normalizados
+- Foram trocados os links internos do menu principal (`Header`) que apontavam para `/#cursos` e `/#quem-somos`.
+- Os links passaram a apontar para:
+
+```text
+/cursos
+/quem-somos
+```
+
+- Foram trocados os links internos do rodapé (`Footer`) que apontavam para âncoras da home.
+- Foi trocado o link do banner de curso em posts (`CoursePromoBanner`) para apontar para `/cursos`.
+- Foram trocados links internos da página de curso que ainda apontavam para `/#cursos`.
+- Foi atualizado o breadcrumb/schema da página de curso para usar:
+
+```text
+https://www.easytraining.com.br/cursos
+```
+
+- Foi corrigido o compartilhamento dos posts (`PostDetailView`) para usar a URL nova correta:
+
+```text
+/blog/[slug]
+```
+
+Antes, o compartilhamento ainda usava o slug antigo na raiz:
+
+```text
+/[slug]
+```
+
+### 13.9. Limpeza de Links Antigos nos Conteúdos do Blog
+- Foram atualizados os arquivos:
+  - `src/data/db/posts.json`
+  - `src/data/blogPostsReal.ts`
+
+- Foram removidos sinais internos antigos em links de posts.
+- Foram convertidos links absolutos internos do próprio domínio para caminhos internos canônicos.
+- Foram removidas barras finais desnecessárias em links internos de cursos e blog.
+- Foram substituídas referências internas antigas para `/#cursos` e `/#quem-somos` por `/cursos` e `/quem-somos`.
+- Foi confirmado por busca que não restaram ocorrências internas relevantes de:
+  - `https://easytraining.com.br`
+  - `https://www.easytraining.com.br/#cursos`
+  - `https://www.easytraining.com.br/#quem-somos`
+  - `/#cursos`
+  - `/#quem-somos`
+  - links internos de curso com barra final antiga em `href`
+
+### 13.10. Correção SEO do `SplitText`
+- Foi ajustado o componente `src/components/ui/SplitText.tsx`.
+- Antes, títulos animados podiam gerar leitura duplicada ou quebrada letra por letra no HTML rastreável.
+- Foi mantido o HTML inicial com texto normal, limpo e legível para Googlebot, leitores e parsers.
+- A animação passou a ser montada somente após hidratação no navegador.
+- Foi trocada a animação de caractere por caractere para animação por palavra, reduzindo risco de leitura artificial por crawlers.
+- Foi mantida a experiência visual animada sem sacrificar a clareza semântica do texto.
+
+### 13.11. Validações Técnicas Realizadas
+- Foi executado `npm.cmd run lint` com sucesso.
+- Foi executado `npm.cmd run build` com sucesso.
+- O build confirmou a geração das novas rotas:
+  - `/cursos`
+  - `/quem-somos`
+  - `/_not-found`
+  - `/sitemap.xml`
+  - `/robots.txt`
+
+- Foi testado localmente que acesso sem `www` redireciona para `www`:
+
+```text
+easytraining.com.br/curso/informatica
+→ www.easytraining.com.br/curso/informatica
+```
+
+- Foi testado localmente que `/mercado-de-trabalho` redireciona para o artigo correto.
+- Foi testado localmente que `/cursos` retorna HTTP 200.
+- Foi testado localmente que `/quem-somos` retorna HTTP 200.
+- Foi testado localmente que uma página inexistente retorna HTTP 404 com a página personalizada.
+- Foi testado localmente que o sitemap lista:
+  - `/cursos`
+  - `/quem-somos`
+  - `/blog/a-importancia-da-educacao-profissionalizante-para-o-mercado-de-trabalho`
+
+### 13.12. Ponto Pendente Dependente do Search Console
+- Ficou pendente apenas a etapa que depende de dados reais do Google Search Console.
+- Deve ser exportada a lista de URLs antigas com:
+  - impressões
+  - cliques
+  - backlinks
+  - páginas não encontradas
+  - páginas duplicadas/canônicas
+
+- Após essa exportação, devem ser criados redirects adicionais para qualquer URL antiga relevante ainda não mapeada.
+- A orientação técnica permanece: não redirecionar tudo para a home; sempre que possível, redirecionar cada URL antiga para a página nova equivalente.
