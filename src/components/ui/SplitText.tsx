@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect, useState, useMemo } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { gsap } from 'gsap';
 
 export interface SplitTextProps {
@@ -9,7 +9,7 @@ export interface SplitTextProps {
   delay?: number;
   duration?: number;
   ease?: string | ((t: number) => number);
-  splitType?: 'chars' | 'words' | 'lines' | 'words, chars';
+  splitType?: string;
   from?: gsap.TweenVars;
   to?: gsap.TweenVars;
   threshold?: number;
@@ -20,119 +20,80 @@ export interface SplitTextProps {
   showCallback?: boolean;
 }
 
+/**
+ * Componente de título com animação simples e suave de fade-in ao entrar na tela.
+ * Mantém o texto 100% íntegro, com espaçamento nativo e legível para usuários e motores de busca.
+ */
 export const SplitText: React.FC<SplitTextProps> = ({
   text,
   className = '',
-  delay = 40,
-  duration = 1.0,
-  ease = 'power3.out',
-  splitType = 'words, chars',
-  from = { opacity: 0, y: 35 },
-  to = { opacity: 1, y: 0 },
-  threshold = 0.15,
-  rootMargin = '-50px',
+  delay = 0,
+  duration = 0.7,
+  ease = 'power2.out',
+  threshold = 0.1,
+  rootMargin = '-30px',
   tag = 'h2',
-  textAlign = 'center',
+  textAlign,
   onLetterAnimationComplete
 }) => {
   const containerRef = useRef<HTMLElement>(null);
   const animatedRef = useRef(false);
-  const [mounted, setMounted] = useState(false);
   const [inView, setInView] = useState(false);
-
-  // Keep the server-rendered heading readable; animate only after hydration.
-  const words = useMemo(() => {
-    return text.split(' ');
-  }, [text]);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-  }, []);
-
-  useEffect(() => {
     const el = containerRef.current;
-    if (!mounted || !el) return;
+    if (!el) return;
+
+    if (typeof IntersectionObserver === 'undefined') {
+      setInView(true);
+      return;
+    }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !animatedRef.current) {
+          animatedRef.current = true;
           setInView(true);
+          gsap.fromTo(
+            el,
+            { opacity: 0, y: 15 },
+            {
+              opacity: 1,
+              y: 0,
+              duration,
+              delay: (delay || 0) / 1000,
+              ease,
+              onComplete: () => {
+                onLetterAnimationComplete?.();
+              }
+            }
+          );
           observer.disconnect();
         }
       },
-      {
-        threshold,
-        rootMargin
-      }
+      { threshold, rootMargin }
     );
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [mounted, threshold, rootMargin]);
-
-  useEffect(() => {
-    if (!inView || !containerRef.current || animatedRef.current) return;
-
-    animatedRef.current = true;
-    const el = containerRef.current;
-    const targets = el.querySelectorAll('.split-unit');
-
-    if (targets.length === 0) return;
-
-    gsap.fromTo(
-      targets,
-      {
-        ...from,
-        display: 'inline-block',
-        willChange: 'transform, opacity'
-      },
-      {
-        ...to,
-        duration,
-        ease,
-        stagger: delay / 1000,
-        onComplete: () => {
-          onLetterAnimationComplete?.();
-        }
-      }
-    );
-  }, [inView, delay, duration, ease, from, to, onLetterAnimationComplete]);
+  }, [threshold, rootMargin, delay, duration, ease, onLetterAnimationComplete]);
 
   const Tag = tag;
-
-  if (!mounted) {
-    return (
-      <Tag
-        ref={containerRef as any}
-        style={{ textAlign, wordWrap: 'break-word' }}
-        className={`split-parent overflow-visible inline-block whitespace-normal pb-1.5 pt-0.5 ${className}`}
-      >
-        {text}
-      </Tag>
-    );
-  }
 
   return (
     <Tag
       ref={containerRef as any}
-      style={{ textAlign, wordWrap: 'break-word' }}
-      className={`split-parent overflow-visible inline-block whitespace-normal pb-1.5 pt-0.5 ${className}`}
+      style={{
+        textAlign,
+        opacity: !mounted || inView ? 1 : 0,
+        transform: !mounted || inView ? 'translateY(0)' : 'translateY(15px)',
+        willChange: 'opacity, transform'
+      }}
+      className={`inline-block ${className}`}
     >
-      <span className="inline overflow-visible">
-        {words.map((word, wordIndex) => (
-          <span
-            key={`word-${wordIndex}`}
-            className="split-unit split-word inline-block whitespace-nowrap overflow-visible"
-            style={{
-              opacity: inView ? 1 : (typeof from?.opacity === 'number' ? from.opacity : 0),
-              transform: inView ? 'translateY(0)' : `translateY(${typeof from?.y === 'number' ? from.y : 35}px)`
-            }}
-          >
-            {word}
-            {wordIndex < words.length - 1 ? ' ' : ''}
-          </span>
-        ))}
-      </span>
+      {text}
     </Tag>
   );
 };
