@@ -9,6 +9,10 @@ const DB_DIR = path.join(process.cwd(), 'src', 'data', 'db');
 const LEADS_FILE = path.join(DB_DIR, 'leads.json');
 const LEADS_COLLECTION = 'leads';
 
+function canUseLocalLeadStore(): boolean {
+  return process.env.NODE_ENV !== 'production' && process.env.VERCEL !== '1';
+}
+
 export class LeadPersistenceError extends Error {
   constructor(message: string) {
     super(message);
@@ -60,6 +64,9 @@ export function saveLocalLeads(leads: Lead[]): void {
 export async function getLeadsFromDb(includeTrash = false): Promise<Lead[]> {
   let leads: Lead[] = [];
   if (!isFirebaseAdminConfigured()) {
+    if (!canUseLocalLeadStore()) {
+      throw new LeadPersistenceError('Firebase Admin Firestore não configurado para consultar leads.');
+    }
     leads = getLocalLeads();
   } else {
     try {
@@ -110,7 +117,7 @@ export async function createLead(
   };
 
   let firestoreSaved = false;
-  let webhookDelivered = false;
+  let localSaved = false;
 
   // 1. Salva no Firestore via Admin SDK se configurado
   if (isFirebaseAdminConfigured()) {
@@ -121,9 +128,18 @@ export async function createLead(
     } catch (err: any) {
       console.error('Erro ao persistir lead no Firestore:', err?.message);
     }
+  } else if (canUseLocalLeadStore()) {
+    const local = getLocalLeads();
+    local.unshift(newLead);
+    saveLocalLeads(local);
+    localSaved = true;
   }
 
-  // 2. Dispara Webhook do N8N se configurado
+  if (!firestoreSaved && !localSaved) {
+    throw new LeadPersistenceError('Não foi possível confirmar o lead no CRM.');
+  }
+
+  // 2. Dispara Webhook do N8N se configurado, depois do lead entrar no CRM.
   try {
     const config = getStoredSiteConfig();
     const webhookUrl =
@@ -141,8 +157,7 @@ export async function createLead(
         }),
         signal: AbortSignal.timeout(5000),
       });
-      webhookDelivered = webhookRes.ok;
-      if (!webhookDelivered) {
+      if (!webhookRes.ok) {
         console.error(`Webhook N8N recusou o lead com status ${webhookRes.status}.`);
       }
     }
@@ -150,14 +165,12 @@ export async function createLead(
     console.error('Erro ao disparar Webhook N8N:', e?.message);
   }
 
-  if (!firestoreSaved && !webhookDelivered) {
-    throw new LeadPersistenceError('Não foi possível confirmar o lead em um destino permanente.');
+  // 3. Cache local apenas depois de confirmar persistência real no Firestore.
+  if (firestoreSaved && canUseLocalLeadStore()) {
+    const local = getLocalLeads();
+    local.unshift(newLead);
+    saveLocalLeads(local);
   }
-
-  // 3. Cache local apenas depois de confirmar persistência real.
-  const local = getLocalLeads();
-  local.unshift(newLead);
-  saveLocalLeads(local);
 
   return newLead;
 }

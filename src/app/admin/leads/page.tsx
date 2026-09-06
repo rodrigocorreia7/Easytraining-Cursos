@@ -51,6 +51,7 @@ export default function AdminLeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [trashLeads, setTrashLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [search, setSearch] = useState('');
   const [draggedLeadId, setDraggedLeadId] = useState<string | null>(null);
   const [toast, setToast] = useState('');
@@ -78,14 +79,21 @@ export default function AdminLeadsPage() {
   const loadLeads = async () => {
     try {
       setLoading(true);
+      setLoadError('');
       const res = await fetch('/api/leads');
       if (res.ok) {
         const data = await res.json();
         setLeads(data);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setLeads([]);
+        setLoadError(data.error || 'Não foi possível carregar os leads do CRM.');
       }
       loadTrashLeads();
     } catch (err) {
       console.error('Erro ao carregar leads:', err);
+      setLeads([]);
+      setLoadError('Falha de conexão ao carregar os leads do CRM.');
     } finally {
       setLoading(false);
     }
@@ -129,11 +137,15 @@ export default function AdminLeadsPage() {
     setDraggedLeadId(null);
 
     try {
-      await fetch(`/api/leads/${id}`, {
+      const res = await fetch(`/api/leads/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
       });
+      if (!res.ok) {
+        loadLeads();
+        showToast('Não foi possível atualizar o lead no CRM.');
+      }
     } catch (err) {
       loadLeads();
     }
@@ -142,11 +154,15 @@ export default function AdminLeadsPage() {
   const handleMoveStatus = async (id: string, newStatus: LeadStatus) => {
     setLeads(prev => prev.map(l => l.id === id ? { ...l, status: newStatus } : l));
     try {
-      await fetch(`/api/leads/${id}`, {
+      const res = await fetch(`/api/leads/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
       });
+      if (!res.ok) {
+        loadLeads();
+        showToast('Não foi possível atualizar o lead no CRM.');
+      }
     } catch {
       loadLeads();
     }
@@ -162,7 +178,11 @@ export default function AdminLeadsPage() {
     showToast('Lead movido para a Lixeira! Você pode restaurá-lo a qualquer momento.');
 
     try {
-      await fetch(`/api/leads/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/leads/${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        loadLeads();
+        showToast('Não foi possível mover o lead para a lixeira.');
+      }
     } catch {
       loadLeads();
     }
@@ -194,8 +214,13 @@ export default function AdminLeadsPage() {
 
     setTrashLeads(prev => prev.filter(l => l.id !== id));
     try {
-      await fetch(`/api/leads/${id}?permanent=true`, { method: 'DELETE' });
-      showToast('Lead excluído permanentemente.');
+      const res = await fetch(`/api/leads/${id}?permanent=true`, { method: 'DELETE' });
+      if (res.ok) {
+        showToast('Lead excluído permanentemente.');
+      } else {
+        loadTrashLeads();
+        showToast('Não foi possível excluir o lead definitivamente.');
+      }
     } catch {
       loadTrashLeads();
     }
@@ -207,8 +232,13 @@ export default function AdminLeadsPage() {
 
     setTrashLeads([]);
     try {
-      await fetch('/api/leads?emptyTrash=true', { method: 'DELETE' });
-      showToast('Lixeira esvaziada com sucesso.');
+      const res = await fetch('/api/leads?emptyTrash=true', { method: 'DELETE' });
+      if (res.ok) {
+        showToast('Lixeira esvaziada com sucesso.');
+      } else {
+        loadTrashLeads();
+        showToast('Não foi possível esvaziar a lixeira.');
+      }
     } catch {
       loadTrashLeads();
     }
@@ -239,6 +269,9 @@ export default function AdminLeadsPage() {
         setNewLeadNotes('');
         showToast('Lead cadastrado no Kanban e sincronizado com o Firebase!');
         loadLeads();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        showToast(data.error || 'Não foi possível cadastrar o lead no CRM.');
       }
     } catch (err) {
       console.error('Erro ao cadastrar lead:', err);
@@ -362,6 +395,18 @@ export default function AdminLeadsPage() {
           </button>
         </div>
       </div>
+
+      {loadError && (
+        <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
+          <div>
+            <p className="font-black">CRM não carregou os leads reais.</p>
+            <p className="mt-1 text-xs leading-relaxed">
+              {loadError} Verifique a rota de saúde do admin e as variáveis Firebase Admin no ambiente de produção.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* N8N & Telegram Integration Drawer */}
       {showN8nConfig && (

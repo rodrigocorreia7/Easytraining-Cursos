@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
     console.error('Erro seguro ao criar lead:', error);
     if (error instanceof LeadPersistenceError) {
       return NextResponse.json(
-        { error: 'Não foi possível confirmar o contato no banco ou no atendimento. Tente novamente ou fale pelo WhatsApp.' },
+        { error: 'Não foi possível confirmar o contato no CRM. Tente novamente ou fale pelo WhatsApp.' },
         { status: 503 }
       );
     }
