@@ -68,12 +68,15 @@ export function sanitizeImageUrl(input: unknown): string {
   const trimmed = input.trim();
   if (!trimmed) return '';
 
-  // Data URI Base64 seguro para armazenamento inline no Firestore
+  // Data URI Base64 seguro para armazenamento inline no Firestore (até 2.5MB)
   if (trimmed.startsWith('data:image/')) {
     if (trimmed.length > 2500000) return '';
-    const match = /^data:image\/(webp|png|jpeg|jpg|gif);base64,([A-Za-z0-9+/=]+)$/i.exec(trimmed);
-    if (match) {
-      return trimmed;
+    const commaIndex = trimmed.indexOf(',');
+    if (commaIndex > 10) {
+      const header = trimmed.slice(0, commaIndex);
+      if (/^data:image\/(webp|png|jpeg|jpg|gif);base64$/i.test(header)) {
+        return trimmed;
+      }
     }
     return '';
   }
@@ -97,6 +100,16 @@ export function sanitizePhone(input: unknown): string {
 /**
  * Chaves que contêm HTML rico ou textos extensos e não devem ser truncados nem ter tags removidas
  */
+const IMAGE_KEYS = new Set([
+  'image',
+  'imageUrl',
+  'avatar',
+  'logo',
+  'photo',
+  'thumbnail',
+  'cover'
+]);
+
 const RICH_HTML_KEYS = new Set([
   'contentHtml',
   'content',
@@ -125,6 +138,8 @@ export function sanitizeObject<T extends Record<string, any>>(obj: unknown): T {
     if (typeof value === 'string') {
       if (RICH_HTML_KEYS.has(key)) {
         clean[key] = sanitizeHtmlContent(value, 500000);
+      } else if (IMAGE_KEYS.has(key)) {
+        clean[key] = sanitizeImageUrl(value);
       } else {
         clean[key] = sanitizeString(value, 5000);
       }

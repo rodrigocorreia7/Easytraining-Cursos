@@ -41,7 +41,7 @@ export const BlogCard: React.FC<BlogCardProps> = ({ post, featured = false }) =>
         <div className="absolute top-4 left-4">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-white/95 text-[#052e7f] backdrop-blur-md shadow-xs border border-white/80">
             <BookOpen className="w-3.5 h-3.5 text-[#00B060]" />
-            {post.category}
+            {(post.category || '').replace(/&amp;/g, '&')}
           </span>
         </div>
       </div>

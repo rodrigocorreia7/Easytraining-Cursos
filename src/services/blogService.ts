@@ -129,10 +129,14 @@ export const BlogService = {
   async deletePost(id: number | string): Promise<boolean> {
     try {
       const res = await fetch(`/api/posts/${id}`, { method: 'DELETE' });
-      return res.ok;
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Falha na exclusão (Status ${res.status})`);
+      }
+      return true;
     } catch (error) {
       console.error('BlogService.deletePost error:', error);
-      return false;
+      throw error;
     }
   },
 

@@ -13,15 +13,18 @@ import { PostDetailView } from '../blog/PostDetailView';
 import { sanitizeSlug, sanitizeInput } from '../../utils/security';
 import { compressImageClient } from '../../lib/imageCompression';
 
-function getCategoryBanner(category?: string): string {
-  const cat = (category || '').toLowerCase();
-  if (cat.includes('farm')) return '/images/courses/ATENTENDE-FARMACIA.webp';
-  if (cat.includes('pet') || cat.includes('veterin') || cat.includes('tosa')) return '/images/courses/happy-woman-playing-with-dog-in-grooming-studio.webp';
-  if (cat.includes('gest') || cat.includes('adm') || cat.includes('neg') || cat.includes('escrit')) return '/images/courses/assistente-administrativo.webp';
-  if (cat.includes('log')) return '/images/courses/ASSISTENTE-LOGISTICA.webp';
-  if (cat.includes('contab')) return '/images/courses/CONTABILIDADE.webp';
-  if (cat.includes('jovem') || cat.includes('aprendiz') || cat.includes('estag') || cat.includes('primeiro')) return '/images/courses/jovem-aprendiz-Guarulhos-vagas-salario-idade.png';
-  if (cat.includes('excel')) return '/images/courses/excel-avancado.webp';
+function getCategoryBanner(category?: string, title?: string): string {
+  const combined = `${category || ''} ${title || ''}`.toLowerCase();
+  if (combined.includes('excel') || combined.includes('planilha')) return '/images/courses/excel-avancado.webp';
+  if (combined.includes('farm') || combined.includes('balcao') || combined.includes('medicamento')) return '/images/courses/ATENTENDE-FARMACIA.webp';
+  if (combined.includes('pet') || combined.includes('veterin') || combined.includes('tosa') || combined.includes('banho') || combined.includes('animal')) return '/images/courses/happy-woman-playing-with-dog-in-grooming-studio.webp';
+  if (combined.includes('jovem') || combined.includes('aprendiz') || combined.includes('estag') || combined.includes('primeiro emprego') || combined.includes('ciee')) return '/images/courses/jovem-aprendiz-Guarulhos-vagas-salario-idade.png';
+  if (combined.includes('profiss') || combined.includes('mercado') || combined.includes('vaga') || combined.includes('carreira') || combined.includes('busca')) return '/images/courses/Especializacoes-Onde-a-Tecnologia-e-a-Demanda-Estao.png';
+  if (combined.includes('gest') || combined.includes('adm') || combined.includes('neg') || combined.includes('escrit') || combined.includes('secretar')) return '/images/courses/assistente-administrativo.webp';
+  if (combined.includes('log') || combined.includes('estoq') || combined.includes('armaz')) return '/images/courses/ASSISTENTE-LOGISTICA.webp';
+  if (combined.includes('contab') || combined.includes('financ') || combined.includes('fiscal')) return '/images/courses/CONTABILIDADE.webp';
+  if (combined.includes('rh') || combined.includes('recursos humanos') || combined.includes('departamento pessoal')) return '/images/courses/RECURSOS-HUMANOS.webp';
+  if (combined.includes('design') || combined.includes('marketing') || combined.includes('midia')) return '/images/courses/crop-hand-drawing-digital-marketing-plan.webp';
   return '/images/courses/informatica-basica.webp';
 }
 
@@ -205,11 +208,11 @@ export const PostEditorForm: React.FC<PostEditorFormProps> = ({ initialPost, isE
       title: title.trim(),
       slug: safeSlug,
       excerpt: excerpt.trim(),
-      category: sanitizeInput(category),
+      category: (category || '').trim().replace(/<[^>]*>/g, '').replace(/&amp;/g, '&'),
       image,
       contentHtml,
       content: contentHtml,
-      author: sanitizeInput(author),
+      author: (author || '').trim().replace(/<[^>]*>/g, '').replace(/&amp;/g, '&'),
       authorRole: 'Especialistas em Carreira e Qualificação',
       date: initialPost?.date || new Date().toISOString().split('T')[0],
       readTime: `${Math.max(1, Math.round(contentHtml.replace(/<[^>]+>/g, '').split(/\s+/).length / 180))} min`,

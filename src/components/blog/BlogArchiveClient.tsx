@@ -15,8 +15,9 @@ export function BlogArchiveClient({ initialPosts }: BlogArchiveClientProps) {
   const [selectedCategory, setSelectedCategory] = useState('Todos');
 
   const categories = useMemo(() => {
-    const cats = ['Todos', ...Array.from(new Set(posts.map((p) => p.category).filter(Boolean)))];
-    return cats;
+    const rawCats = posts.map((p) => (p.category || '').replace(/&amp;/g, '&').trim()).filter(Boolean);
+    const unique = Array.from(new Set(rawCats));
+    return ['Todos', ...unique];
   }, [posts]);
 
   const filteredPosts = useMemo(() => {
@@ -27,7 +28,8 @@ export function BlogArchiveClient({ initialPosts }: BlogArchiveClientProps) {
         post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (post.tags && post.tags.some((t) => t.toLowerCase().includes(searchTerm.toLowerCase())));
 
-      const matchCat = selectedCategory === 'Todos' || post.category === selectedCategory;
+      const postCat = (post.category || '').replace(/&amp;/g, '&').trim();
+      const matchCat = selectedCategory === 'Todos' || postCat === selectedCategory;
 
       return matchQuery && matchCat;
     });

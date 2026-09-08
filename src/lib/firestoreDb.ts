@@ -162,29 +162,38 @@ export async function seedCoursesToFirestore(coursesList: Course[]): Promise<voi
 // 2. BLOG POSTS
 // ============================================================================
 
-export function getCategoryFallbackImage(category?: string): string {
-  const cat = (category || '').toLowerCase();
-  if (cat.includes('farm')) return '/images/courses/ATENTENDE-FARMACIA.webp';
-  if (cat.includes('pet') || cat.includes('veterin') || cat.includes('tosa')) return '/images/courses/happy-woman-playing-with-dog-in-grooming-studio.webp';
-  if (cat.includes('gest') || cat.includes('adm') || cat.includes('neg') || cat.includes('escrit')) return '/images/courses/assistente-administrativo.webp';
-  if (cat.includes('log')) return '/images/courses/ASSISTENTE-LOGISTICA.webp';
-  if (cat.includes('contab')) return '/images/courses/CONTABILIDADE.webp';
-  if (cat.includes('jovem') || cat.includes('aprendiz') || cat.includes('estag') || cat.includes('primeiro')) return '/images/courses/jovem-aprendiz-Guarulhos-vagas-salario-idade.png';
-  if (cat.includes('excel')) return '/images/courses/excel-avancado.webp';
+export function getCategoryFallbackImage(category?: string, title?: string): string {
+  const combined = `${category || ''} ${title || ''}`.toLowerCase();
+  if (combined.includes('excel') || combined.includes('planilha')) return '/images/courses/excel-avancado.webp';
+  if (combined.includes('farm') || combined.includes('balcao') || combined.includes('medicamento')) return '/images/courses/ATENTENDE-FARMACIA.webp';
+  if (combined.includes('pet') || combined.includes('veterin') || combined.includes('tosa') || combined.includes('banho') || combined.includes('animal')) return '/images/courses/happy-woman-playing-with-dog-in-grooming-studio.webp';
+  if (combined.includes('jovem') || combined.includes('aprendiz') || combined.includes('estag') || combined.includes('primeiro emprego') || combined.includes('ciee')) return '/images/courses/jovem-aprendiz-Guarulhos-vagas-salario-idade.png';
+  if (combined.includes('profiss') || combined.includes('mercado') || combined.includes('vaga') || combined.includes('carreira') || combined.includes('busca')) return '/images/courses/Especializacoes-Onde-a-Tecnologia-e-a-Demanda-Estao.png';
+  if (combined.includes('gest') || combined.includes('adm') || combined.includes('neg') || combined.includes('escrit') || combined.includes('secretar')) return '/images/courses/assistente-administrativo.webp';
+  if (combined.includes('log') || combined.includes('estoq') || combined.includes('armaz')) return '/images/courses/ASSISTENTE-LOGISTICA.webp';
+  if (combined.includes('contab') || combined.includes('financ') || combined.includes('fiscal')) return '/images/courses/CONTABILIDADE.webp';
+  if (combined.includes('rh') || combined.includes('recursos humanos') || combined.includes('departamento pessoal')) return '/images/courses/RECURSOS-HUMANOS.webp';
+  if (combined.includes('design') || combined.includes('marketing') || combined.includes('midia')) return '/images/courses/crop-hand-drawing-digital-marketing-plan.webp';
   return '/images/courses/informatica-basica.webp';
 }
 
 function sanitizePostMedia(p: BlogPost): BlogPost {
   if (!p) return p;
+  const cleanCategory = (p.category || 'Tecnologia & Informática').replace(/&amp;/g, '&').trim();
   let image = p.image || '';
-  if (!image.startsWith('data:image/')) {
-    if (image.includes('wp-content/uploads/')) {
-      const filename = image.split('/').pop() || '';
-      image = `/images/courses/${filename}`;
-    } else if (!image) {
-      image = getCategoryFallbackImage(p.category);
+
+  // Se a imagem for data:image/ mas for truncada (<= 5000 caracteres), descarta a corrompida
+  if (image.startsWith('data:image/')) {
+    if (image.length <= 5000 || !image.includes(',')) {
+      image = getCategoryFallbackImage(cleanCategory, p.title);
     }
+  } else if (image.includes('wp-content/uploads/')) {
+    const filename = image.split('/').pop() || '';
+    image = `/images/courses/${filename}`;
+  } else if (!image || image === '/images/courses/Curso-de-informatica-basica-em-guarulhos.png') {
+    image = getCategoryFallbackImage(cleanCategory, p.title);
   }
+
   let contentHtml = p.contentHtml || '';
   if (contentHtml.includes('wp-content/uploads/')) {
     contentHtml = contentHtml.replace(/https:\/\/(?:www\.)?easytraining\.com\.br\/wp-content\/uploads\/[^\s"'>]+/g, (m) => {
@@ -192,9 +201,11 @@ function sanitizePostMedia(p: BlogPost): BlogPost {
       return `/images/courses/${fn}`;
     });
   }
+
   return {
     ...p,
-    image: image || getCategoryFallbackImage(p.category),
+    category: cleanCategory,
+    image: image || getCategoryFallbackImage(cleanCategory, p.title),
     contentHtml
   };
 }

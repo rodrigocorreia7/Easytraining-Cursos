@@ -71,7 +71,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ post, relatedPos
             </a>
 
             <span className="px-3.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-[#00B060] border border-emerald-100">
-              {post.category}
+              {(post.category || '').replace(/&amp;/g, '&')}
             </span>
           </div>
 
