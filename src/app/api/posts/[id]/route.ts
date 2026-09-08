@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getPostsFromFirestore, savePostToFirestore, deletePostFromFirestore } from '@/lib/firestoreDb';
 import { saveStoredPosts } from '@/lib/db';
 import { BlogPost } from '@/types';
-import { sanitizeString, sanitizeObject, sanitizeHtmlContent } from '@/lib/security';
+import { sanitizeString, sanitizeObject, sanitizeHtmlContent, sanitizeImageUrl } from '@/lib/security';
 import { verifyAdminSession } from '@/lib/authServer';
 
 export async function GET(
@@ -85,7 +85,7 @@ export async function PUT(
       excerpt: sanitizeString(body.excerpt || posts[index].excerpt, 600),
       contentHtml: cleanContentHtml,
       category: sanitizeString(body.category || posts[index].category, 60),
-      image: sanitizeString(body.image || posts[index].image, 255),
+      image: sanitizeImageUrl(body.image || posts[index].image) || '/images/courses/informatica-basica.webp',
       readTime: body.readTime || posts[index].readTime || computedReadTime,
       headings: postHeadings,
       faqs: Array.isArray(body.faqs) ? body.faqs : (posts[index].faqs || []),
@@ -117,10 +117,17 @@ export async function DELETE(
     }
 
     const { id } = await params;
-    await deletePostFromFirestore(id);
-
     const posts = await getPostsFromFirestore();
-    const filtered = posts.filter(p => String(p.id) !== String(id));
+    const target = posts.find(p => String(p.id) === String(id) || p.slug === id);
+
+    if (target) {
+      if (target.slug) await deletePostFromFirestore(target.slug);
+      if (target.id) await deletePostFromFirestore(target.id);
+    } else {
+      await deletePostFromFirestore(id);
+    }
+
+    const filtered = posts.filter(p => String(p.id) !== String(id) && (!target || p.slug !== target.slug));
     saveStoredPosts(filtered);
 
     return NextResponse.json({ success: true });

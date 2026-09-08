@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getPostsFromFirestore, savePostToFirestore } from '@/lib/firestoreDb';
 import { saveStoredPosts } from '@/lib/db';
 import { BlogPost } from '@/types';
-import { sanitizeString, sanitizeObject, sanitizeHtmlContent } from '@/lib/security';
+import { sanitizeString, sanitizeObject, sanitizeHtmlContent, sanitizeImageUrl } from '@/lib/security';
 import { verifyAdminSession } from '@/lib/authServer';
 
 export async function GET(request: NextRequest) {
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
       readTime: body.readTime || computedReadTime,
       date: body.date || new Date().toISOString().split('T')[0],
       author: sanitizeString(body.author, 80) || 'Equipe Pedagógica EasyTraining',
-      image: sanitizeString(body.image, 255) || '/images/blog/default.webp',
+      image: sanitizeImageUrl(body.image) || '/images/courses/informatica-basica.webp',
       tags: Array.isArray(body.tags) ? body.tags.map((t: any) => sanitizeString(t, 40)) : [],
       headings: postHeadings,
       faqs: Array.isArray(body.faqs) ? body.faqs : [],

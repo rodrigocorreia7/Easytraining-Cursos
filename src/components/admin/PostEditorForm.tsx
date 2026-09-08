@@ -13,6 +13,18 @@ import { PostDetailView } from '../blog/PostDetailView';
 import { sanitizeSlug, sanitizeInput } from '../../utils/security';
 import { compressImageClient } from '../../lib/imageCompression';
 
+function getCategoryBanner(category?: string): string {
+  const cat = (category || '').toLowerCase();
+  if (cat.includes('farm')) return '/images/courses/ATENTENDE-FARMACIA.webp';
+  if (cat.includes('pet') || cat.includes('veterin') || cat.includes('tosa')) return '/images/courses/happy-woman-playing-with-dog-in-grooming-studio.webp';
+  if (cat.includes('gest') || cat.includes('adm') || cat.includes('neg') || cat.includes('escrit')) return '/images/courses/assistente-administrativo.webp';
+  if (cat.includes('log')) return '/images/courses/ASSISTENTE-LOGISTICA.webp';
+  if (cat.includes('contab')) return '/images/courses/CONTABILIDADE.webp';
+  if (cat.includes('jovem') || cat.includes('aprendiz') || cat.includes('estag') || cat.includes('primeiro')) return '/images/courses/jovem-aprendiz-Guarulhos-vagas-salario-idade.png';
+  if (cat.includes('excel')) return '/images/courses/excel-avancado.webp';
+  return '/images/courses/informatica-basica.webp';
+}
+
 interface PostEditorFormProps {
   initialPost?: BlogPost;
   isEditing?: boolean;
@@ -41,7 +53,7 @@ export const PostEditorForm: React.FC<PostEditorFormProps> = ({ initialPost, isE
   const [slug, setSlug] = useState(initialPost?.slug || '');
   const [excerpt, setExcerpt] = useState(initialPost?.excerpt || '');
   const [category, setCategory] = useState(initialPost?.category || CATEGORIES[0]);
-  const [image, setImage] = useState(initialPost?.image || '/images/wordpress/diverse-work-team-working-in-the-office-ZD9JBTU.webp');
+  const [image, setImage] = useState(initialPost?.image || getCategoryBanner(initialPost?.category || CATEGORIES[0]));
   const [contentHtml, setContentHtml] = useState(initialPost?.contentHtml || initialPost?.content || '');
   const [selectedCourseSlug, setSelectedCourseSlug] = useState(initialPost?.relatedCourse?.slug || 'assistente-administrativo');
   const [author, setAuthor] = useState(initialPost?.author || 'EasyTraining Equipe Pedagógica');
@@ -74,6 +86,9 @@ export const PostEditorForm: React.FC<PostEditorFormProps> = ({ initialPost, isE
       if (data.excerpt) setExcerpt(data.excerpt);
       if (data.category) setCategory(data.category);
       if (data.contentHtml) setContentHtml(data.contentHtml);
+      if (!image || !image.startsWith('data:image/')) {
+        setImage(getCategoryBanner(data.category || aiTopic));
+      }
 
       setShowAiModal(false);
       setAiTopic('');
@@ -449,7 +464,13 @@ export const PostEditorForm: React.FC<PostEditorFormProps> = ({ initialPost, isE
                 <label className="block text-xs font-bold text-slate-600 mb-1.5">Categoria Principal</label>
                 <select
                   value={category}
-                  onChange={(e) => setCategory(e.target.value)}
+                  onChange={(e) => {
+                    const newCat = e.target.value;
+                    setCategory(newCat);
+                    if (!image || !image.startsWith('data:image/')) {
+                      setImage(getCategoryBanner(newCat));
+                    }
+                  }}
                   className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm focus:outline-hidden focus:border-[#00B060]"
                 >
                   {CATEGORIES.map(c => (

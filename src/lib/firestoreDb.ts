@@ -112,8 +112,29 @@ export async function deleteCourseFromFirestore(id: string | number): Promise<vo
 
   try {
     const adminDb = await getAdminDb();
-    const docRef = adminDb.collection(COURSES_COLLECTION).doc(String(id));
-    await withTimeout(docRef.delete(), 10000);
+    const strVal = String(id).trim();
+
+    await withTimeout(adminDb.collection(COURSES_COLLECTION).doc(strVal).delete(), 10000);
+
+    const slugSnap = await withTimeout(
+      adminDb.collection(COURSES_COLLECTION).where('slug', '==', strVal).get(),
+      10000
+    );
+    for (const d of slugSnap.docs) {
+      await withTimeout(d.ref.delete(), 10000);
+    }
+
+    const numVal = Number(strVal);
+    if (!isNaN(numVal)) {
+      const idSnap = await withTimeout(
+        adminDb.collection(COURSES_COLLECTION).where('id', '==', numVal).get(),
+        10000
+      );
+      for (const d of idSnap.docs) {
+        await withTimeout(d.ref.delete(), 10000);
+      }
+    }
+
     isFirestoreOperational = true;
   } catch (error: any) {
     console.error('Erro crítico ao excluir curso no Firestore via Admin SDK:', error?.message);
@@ -141,12 +162,28 @@ export async function seedCoursesToFirestore(coursesList: Course[]): Promise<voi
 // 2. BLOG POSTS
 // ============================================================================
 
+export function getCategoryFallbackImage(category?: string): string {
+  const cat = (category || '').toLowerCase();
+  if (cat.includes('farm')) return '/images/courses/ATENTENDE-FARMACIA.webp';
+  if (cat.includes('pet') || cat.includes('veterin') || cat.includes('tosa')) return '/images/courses/happy-woman-playing-with-dog-in-grooming-studio.webp';
+  if (cat.includes('gest') || cat.includes('adm') || cat.includes('neg') || cat.includes('escrit')) return '/images/courses/assistente-administrativo.webp';
+  if (cat.includes('log')) return '/images/courses/ASSISTENTE-LOGISTICA.webp';
+  if (cat.includes('contab')) return '/images/courses/CONTABILIDADE.webp';
+  if (cat.includes('jovem') || cat.includes('aprendiz') || cat.includes('estag') || cat.includes('primeiro')) return '/images/courses/jovem-aprendiz-Guarulhos-vagas-salario-idade.png';
+  if (cat.includes('excel')) return '/images/courses/excel-avancado.webp';
+  return '/images/courses/informatica-basica.webp';
+}
+
 function sanitizePostMedia(p: BlogPost): BlogPost {
   if (!p) return p;
   let image = p.image || '';
-  if (image.includes('wp-content/uploads/')) {
-    const filename = image.split('/').pop() || '';
-    image = `/images/courses/${filename}`;
+  if (!image.startsWith('data:image/')) {
+    if (image.includes('wp-content/uploads/')) {
+      const filename = image.split('/').pop() || '';
+      image = `/images/courses/${filename}`;
+    } else if (!image) {
+      image = getCategoryFallbackImage(p.category);
+    }
   }
   let contentHtml = p.contentHtml || '';
   if (contentHtml.includes('wp-content/uploads/')) {
@@ -157,7 +194,7 @@ function sanitizePostMedia(p: BlogPost): BlogPost {
   }
   return {
     ...p,
-    image: image || '/images/courses/Curso-de-informatica-basica-em-guarulhos.png',
+    image: image || getCategoryFallbackImage(p.category),
     contentHtml
   };
 }
@@ -230,8 +267,32 @@ export async function deletePostFromFirestore(idOrSlug: string | number): Promis
 
   try {
     const adminDb = await getAdminDb();
-    const docRef = adminDb.collection(POSTS_COLLECTION).doc(String(idOrSlug));
-    await withTimeout(docRef.delete(), 10000);
+    const strVal = String(idOrSlug).trim();
+
+    // 1. Deleta se o ID do documento for exatamente strVal
+    await withTimeout(adminDb.collection(POSTS_COLLECTION).doc(strVal).delete(), 10000);
+
+    // 2. Busca e deleta todos os documentos que tenham esse slug
+    const slugSnap = await withTimeout(
+      adminDb.collection(POSTS_COLLECTION).where('slug', '==', strVal).get(),
+      10000
+    );
+    for (const d of slugSnap.docs) {
+      await withTimeout(d.ref.delete(), 10000);
+    }
+
+    // 3. Se for numérico, busca e deleta todos os documentos que tenham esse id
+    const numVal = Number(strVal);
+    if (!isNaN(numVal)) {
+      const idSnap = await withTimeout(
+        adminDb.collection(POSTS_COLLECTION).where('id', '==', numVal).get(),
+        10000
+      );
+      for (const d of idSnap.docs) {
+        await withTimeout(d.ref.delete(), 10000);
+      }
+    }
+
     isFirestoreOperational = true;
   } catch (error: any) {
     console.error('Erro crítico ao excluir post no Firestore via Admin SDK:', error?.message);

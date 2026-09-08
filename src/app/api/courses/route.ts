@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCoursesFromFirestore, saveCourseToFirestore } from '@/lib/firestoreDb';
 import { saveStoredCourses } from '@/lib/db';
 import { Course } from '@/types';
-import { sanitizeString, sanitizeObject, sanitizeHtmlContent } from '@/lib/security';
+import { sanitizeString, sanitizeObject, sanitizeHtmlContent, sanitizeImageUrl } from '@/lib/security';
 import { verifyAdminSession } from '@/lib/authServer';
 
 export async function GET(request: NextRequest) {
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
       duration: sanitizeString(body.duration, 50) || '3 a 6 meses',
       modality: sanitizeString(body.modality, 60) || 'Presencial / Prático',
       certificate: Boolean(body.certificate),
-      image: sanitizeString(body.image, 255) || '/images/courses/default.webp',
+      image: sanitizeImageUrl(body.image) || '/images/courses/informatica-basica.webp',
       featured: Boolean(body.featured),
       modules: Array.isArray(body.modules) ? body.modules : [],
       targetAudience: sanitizeString(body.targetAudience, 255),

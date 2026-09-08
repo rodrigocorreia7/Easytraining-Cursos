@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCoursesFromFirestore, saveCourseToFirestore, deleteCourseFromFirestore } from '@/lib/firestoreDb';
 import { saveStoredCourses } from '@/lib/db';
 import { Course } from '@/types';
-import { sanitizeString, sanitizeObject, sanitizeHtmlContent } from '@/lib/security';
+import { sanitizeString, sanitizeObject, sanitizeHtmlContent, sanitizeImageUrl } from '@/lib/security';
 import { verifyAdminSession } from '@/lib/authServer';
 
 export async function GET(
@@ -57,7 +57,7 @@ export async function PUT(
       shortDescription: sanitizeString(body.shortDescription || courses[index].shortDescription, 280),
       fullDescription: sanitizeHtmlContent(rawFullDesc, 50000),
       duration: sanitizeString(body.duration || courses[index].duration, 50),
-      image: sanitizeString(body.image || courses[index].image, 255),
+      image: sanitizeImageUrl(body.image || courses[index].image) || '/images/courses/informatica-basica.webp',
       whatsappMessage: sanitizeString(body.whatsappMessage || courses[index].whatsappMessage, 200)
     };
 

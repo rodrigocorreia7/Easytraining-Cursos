@@ -28,12 +28,18 @@ export default function AdminPostsPage() {
   }, []);
 
   const handleDelete = async (id: number | string) => {
-    const success = await BlogService.deletePost(id);
-    if (success) {
-      setNotification('Artigo excluído com sucesso!');
-      setDeleteConfirmId(null);
-      loadPosts();
-      setTimeout(() => setNotification(''), 3500);
+    try {
+      const success = await BlogService.deletePost(id);
+      if (success) {
+        setNotification('Artigo excluído com sucesso!');
+        setDeleteConfirmId(null);
+        await loadPosts();
+        setTimeout(() => setNotification(''), 3500);
+      } else {
+        alert('Falha ao excluir o artigo. Tente novamente.');
+      }
+    } catch (err: any) {
+      alert(`Erro ao excluir artigo: ${err?.message || 'Erro desconhecido'}`);
     }
   };
 
@@ -141,7 +147,7 @@ export default function AdminPostsPage() {
                     <td className="py-3.5 px-4 sm:px-6">
                       <div className="flex items-center gap-3">
                         <img
-                          src={post.image || '/images/default-blog.webp'}
+                          src={post.image || '/images/courses/informatica-basica.webp'}
                           alt=""
                           className="w-12 h-12 rounded-xl object-cover shrink-0 bg-slate-100 border border-slate-200"
                         />

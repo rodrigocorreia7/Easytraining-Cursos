@@ -116,13 +116,13 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ post, relatedPos
             <img
               src={post.image?.includes('wp-content/uploads/')
                 ? `/images/courses/${post.image.split('/').pop()}`
-                : (post.image || '/images/courses/Curso-de-informatica-basica-em-guarulhos.png')}
+                : (post.image || '/images/courses/informatica-basica.webp')}
               alt={post.title}
               className="w-full h-full object-cover"
               onError={(e) => {
                 const target = e.currentTarget;
                 target.onerror = null;
-                target.src = '/images/courses/Curso-de-informatica-basica-em-guarulhos.png';
+                target.src = '/images/courses/informatica-basica.webp';
               }}
             />
           </div>

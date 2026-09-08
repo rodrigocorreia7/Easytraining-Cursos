@@ -58,6 +58,35 @@ export function sanitizeHtmlContent(input: unknown, maxLength = 500000): string 
 }
 
 /**
+ * Sanitiza URLs e Data URIs de imagens:
+ * - Permite URLs seguras (https://, http://, /images/...) até 2048 caracteres
+ * - Permite Data URIs Base64 seguras (image/webp, image/png, image/jpeg, image/gif) até 2.500.000 caracteres
+ * - Bloqueia scripts, esquemas javascript: e vetores de injeção
+ */
+export function sanitizeImageUrl(input: unknown): string {
+  if (typeof input !== 'string') return '';
+  const trimmed = input.trim();
+  if (!trimmed) return '';
+
+  // Data URI Base64 seguro para armazenamento inline no Firestore
+  if (trimmed.startsWith('data:image/')) {
+    if (trimmed.length > 2500000) return '';
+    const match = /^data:image\/(webp|png|jpeg|jpg|gif);base64,([A-Za-z0-9+/=]+)$/i.exec(trimmed);
+    if (match) {
+      return trimmed;
+    }
+    return '';
+  }
+
+  // Bloqueia esquemas perigosos
+  if (trimmed.toLowerCase().startsWith('javascript:') || trimmed.toLowerCase().startsWith('vbscript:')) {
+    return '';
+  }
+
+  return sanitizeString(trimmed, 2048);
+}
+
+/**
  * Sanitiza números de telefone / WhatsApp
  */
 export function sanitizePhone(input: unknown): string {
