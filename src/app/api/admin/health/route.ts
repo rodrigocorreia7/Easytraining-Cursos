@@ -35,10 +35,11 @@ export async function GET(request: NextRequest) {
 
   if (firebaseAdmin) {
     try {
-      const { getAdminDb } = await import('@/lib/firebaseAdmin');
+      const { getAdminDb, getAdminInitError } = await import('@/lib/firebaseAdmin');
       const adminDb = getAdminDb();
       if (!adminDb) {
         firestore = 'missing';
+        firestoreError = getAdminInitError() || 'Firebase Admin não inicializou o banco Firestore.';
       } else {
         await withTimeout(adminDb.collection('config').limit(1).get(), 10000);
         firestore = 'ok';
@@ -49,10 +50,11 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-      const { getAdminStorage } = await import('@/lib/firebaseAdmin');
+      const { getAdminStorage, getAdminInitError } = await import('@/lib/firebaseAdmin');
       const adminStorage = getAdminStorage();
       if (!adminStorage) {
         storage = 'missing';
+        storageError = getAdminInitError() || 'Firebase Admin não inicializou o Storage.';
       } else {
         const bucket = adminStorage.bucket();
         await withTimeout(bucket.getMetadata(), 8000);

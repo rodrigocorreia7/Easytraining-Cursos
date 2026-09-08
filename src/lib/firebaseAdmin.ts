@@ -23,6 +23,48 @@ function getServiceAccountFallback(): any {
   return null;
 }
 
+function normalizePrivateKey(raw: string | undefined): string {
+  if (!raw) return '';
+  let key = raw.trim();
+
+  // Caso 1: JSON completo colado no valor da variável
+  if (key.startsWith('{')) {
+    try {
+      const parsed = JSON.parse(key);
+      if (parsed.private_key) {
+        key = parsed.private_key.trim();
+      }
+    } catch {
+      // Ignora erro de parse
+    }
+  }
+
+  // Caso 2: Remove aspas externas simples ou duplas
+  if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
+    key = key.slice(1, -1).trim();
+  }
+
+  // Caso 3: Remove carriage returns do Windows (\r)
+  key = key.replace(/\r/g, '');
+
+  // Caso 4: Desfaz escapes múltiplos ou simples de \n
+  key = key.replace(/\\\\n/g, '\n').replace(/\\n/g, '\n');
+
+  // Caso 5: Garante headers PEM com quebras de linha limpas
+  if (key.includes('BEGIN PRIVATE KEY') && !key.includes('-----BEGIN PRIVATE KEY-----\n')) {
+    key = key.replace(/-----BEGIN PRIVATE KEY-----[\s\r\n]*/, '-----BEGIN PRIVATE KEY-----\n');
+  }
+  if (key.includes('END PRIVATE KEY') && !key.includes('\n-----END PRIVATE KEY-----')) {
+    key = key.replace(/[\s\r\n]*-----END PRIVATE KEY-----/, '\n-----END PRIVATE KEY-----');
+  }
+
+  if (!key.endsWith('\n')) {
+    key = key + '\n';
+  }
+
+  return key;
+}
+
 function resolveCredentials() {
   const fallback = !process.env.FIREBASE_PRIVATE_KEY || !process.env.FIREBASE_CLIENT_EMAIL
     ? getServiceAccountFallback()
@@ -47,19 +89,25 @@ function resolveCredentials() {
   const storageBucket = 
     process.env.FIREBASE_STORAGE_BUCKET || 
     process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 
-    'easytraining-cursos.firebasestorage.app';
+    '';
 
-  // Formatação segura: remove aspas externas se houver e desfaz escape de \n
-  const privateKey = privateKeyRaw
-    ? privateKeyRaw.trim().replace(/^["']|["']$/g, '').replace(/\\n/g, '\n')
-    : '';
+  const privateKey = normalizePrivateKey(privateKeyRaw);
 
   return { projectId, clientEmail, privateKey, storageBucket };
 }
 
+let lastAdminInitError: string | null = null;
+export function getAdminInitError(): string | null {
+  return lastAdminInitError;
+}
+
 export function isFirebaseAdminConfigured(): boolean {
   const { projectId, clientEmail, privateKey } = resolveCredentials();
-  return Boolean(projectId && clientEmail && privateKey && privateKey.length > 20);
+  const ok = Boolean(projectId && clientEmail && privateKey && privateKey.length > 20);
+  if (!ok) {
+    lastAdminInitError = `Config incompleta: projectId=${Boolean(projectId)}, email=${Boolean(clientEmail)}, key=${Boolean(privateKey)} (tam=${privateKey?.length || 0})`;
+  }
+  return ok;
 }
 
 let cachedApp: App | null = null;
@@ -88,10 +136,12 @@ export function getAdminApp(): App | null {
         clientEmail,
         privateKey,
       }),
-      storageBucket,
+      ...(storageBucket ? { storageBucket } : {}),
     });
+    lastAdminInitError = null;
     return cachedApp;
   } catch (err: any) {
+    lastAdminInitError = `Erro no initializeApp: ${err?.message || String(err)}`;
     console.error('Erro ao inicializar Firebase Admin SDK com credenciais:', err.message);
     return null;
   }
