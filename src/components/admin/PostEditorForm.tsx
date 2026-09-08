@@ -193,19 +193,25 @@ export const PostEditorForm: React.FC<PostEditorFormProps> = ({ initialPost, isE
     };
 
     try {
+      const savedPost = isEditing && initialPost?.id
+        ? await BlogService.updatePost(initialPost.id, postPayload)
+        : await BlogService.createPost(postPayload as any);
+
+      if (!savedPost) {
+        throw new Error('O servidor não confirmou a gravação do artigo.');
+      }
+
       if (isEditing && initialPost?.id) {
-        await BlogService.updatePost(initialPost.id, postPayload);
         setMessage({ type: 'success', text: 'Artigo atualizado com sucesso!' });
       } else {
-        await BlogService.createPost(postPayload as any);
         setMessage({ type: 'success', text: 'Novo artigo publicado com sucesso!' });
       }
 
       setTimeout(() => {
         router.push('/admin/posts');
       }, 1200);
-    } catch {
-      setMessage({ type: 'error', text: 'Ocorreu um erro ao salvar o artigo.' });
+    } catch (err: any) {
+      setMessage({ type: 'error', text: err?.message || 'Ocorreu um erro ao salvar o artigo.' });
     } finally {
       setSaving(false);
     }

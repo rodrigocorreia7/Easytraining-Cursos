@@ -1,6 +1,15 @@
 import { BlogPost } from '../types';
 
 export const BlogService = {
+  async parseError(res: Response, fallback: string): Promise<Error> {
+    try {
+      const data = await res.json();
+      return new Error(data?.error || fallback);
+    } catch {
+      return new Error(fallback);
+    }
+  },
+
   /**
    * Retorna todos os posts do blog ordenados por data decrescente
    */
@@ -88,11 +97,11 @@ export const BlogService = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(postData)
       });
-      if (!res.ok) throw new Error('Falha ao criar post');
+      if (!res.ok) throw await this.parseError(res, 'Falha ao criar post');
       return await res.json();
     } catch (error) {
       console.error('BlogService.createPost error:', error);
-      return null;
+      throw error;
     }
   },
 
@@ -106,11 +115,11 @@ export const BlogService = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(postData)
       });
-      if (!res.ok) throw new Error('Falha ao atualizar post');
+      if (!res.ok) throw await this.parseError(res, 'Falha ao atualizar post');
       return await res.json();
     } catch (error) {
       console.error('BlogService.updatePost error:', error);
-      return null;
+      throw error;
     }
   },
 

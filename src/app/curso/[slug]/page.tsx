@@ -1,7 +1,8 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { getStoredCourses, getStoredSiteConfig } from '../../../lib/db';
+import { getStoredSiteConfig } from '../../../lib/db';
+import { getCoursesFromFirestore } from '../../../lib/firestoreDb';
 import { Header } from '../../../components/layout/Header';
 import { Footer } from '../../../components/layout/Footer';
 import { WhatsAppFloatingButton } from '../../../components/layout/WhatsAppButton';
@@ -18,6 +19,9 @@ import {
   BookOpen, 
   Star
 } from 'lucide-react';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // Map of legacy WordPress slugs and aliases to canonical courses
 const slugAliases: Record<string, string> = {
@@ -57,11 +61,18 @@ const slugAliases: Record<string, string> = {
   'arte-finalista': 'arte-finalista'
 };
 
-function findCourseBySlug(slug: string) {
-  const courses = getStoredCourses();
+async function findCourseBySlug(slug: string) {
+  const courses = await getCoursesFromFirestore();
   const normalized = slug.toLowerCase().replace(/\/$/, '');
   const targetSlug = slugAliases[normalized] || normalized;
   return courses.find(c => c.slug.toLowerCase() === targetSlug || c.slug.toLowerCase() === normalized);
+}
+
+async function getRelatedCourses(currentCourseId: string | number, categorySlug?: string) {
+  const courses = await getCoursesFromFirestore();
+  return courses
+    .filter(c => c.id !== currentCourseId && (c.categorySlug === categorySlug || c.featured))
+    .slice(0, 3);
 }
 
 export async function generateMetadata({
@@ -70,7 +81,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const course = findCourseBySlug(slug);
+  const course = await findCourseBySlug(slug);
 
   if (!course) {
     return {
@@ -118,17 +129,14 @@ export default async function CourseDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const course = findCourseBySlug(slug);
+  const course = await findCourseBySlug(slug);
   const siteConfig = getStoredSiteConfig();
-  const allCourses = getStoredCourses();
 
   if (!course) {
     notFound();
   }
 
-  const relatedCourses = allCourses
-    .filter(c => c.id !== course.id && (c.categorySlug === course.categorySlug || c.featured))
-    .slice(0, 3);
+  const relatedCourses = await getRelatedCourses(course.id, course.categorySlug);
 
   const whatsappMessage = encodeURIComponent(
     course.whatsappMessage || `Olá! Gostaria de informações sobre o curso de ${course.title} na EasyTraining.`

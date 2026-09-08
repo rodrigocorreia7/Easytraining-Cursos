@@ -85,8 +85,10 @@ export async function POST(request: NextRequest) {
     saveStoredCourses(courses);
 
     return NextResponse.json(newCourse, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erro seguro ao cadastrar curso:', error);
-    return NextResponse.json({ error: 'Falha ao salvar curso.' }, { status: 500 });
+    return NextResponse.json({
+      error: 'Falha ao salvar curso. Verifique se o Firebase Admin SDK está configurado no ambiente do servidor.'
+    }, { status: 500 });
   }
 }

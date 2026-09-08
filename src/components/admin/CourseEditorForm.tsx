@@ -286,9 +286,9 @@ export default function CourseEditorForm({ initialCourse, isEditing = false }: C
           setError('Erro ao criar novo curso.');
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError('Ocorreu um erro ao salvar o curso.');
+      setError(err?.message || 'Ocorreu um erro ao salvar o curso.');
     } finally {
       setSaving(false);
     }

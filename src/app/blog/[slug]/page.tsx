@@ -1,8 +1,11 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { getStoredPosts } from '../../../lib/db';
+import { getPostsFromFirestore } from '../../../lib/firestoreDb';
 import { PostDetailView } from '../../../components/blog/PostDetailView';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -10,7 +13,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const posts = getStoredPosts();
+  const posts = await getPostsFromFirestore();
   const cleanSlug = slug.replace(/^\/|\/$/g, '').toLowerCase();
   const post = posts.find(p => p.slug.toLowerCase() === cleanSlug);
 
@@ -45,7 +48,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function BlogPostPageRoute({ params }: PageProps) {
   const { slug } = await params;
-  const posts = getStoredPosts();
+  const posts = await getPostsFromFirestore();
   const cleanSlug = slug.replace(/^\/|\/$/g, '').toLowerCase();
   const post = posts.find(p => p.slug.toLowerCase() === cleanSlug);
 

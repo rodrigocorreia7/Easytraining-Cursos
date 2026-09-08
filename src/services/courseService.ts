@@ -1,6 +1,15 @@
 import { Course } from '../types';
 
 export const CourseService = {
+  async parseError(res: Response, fallback: string): Promise<Error> {
+    try {
+      const data = await res.json();
+      return new Error(data?.error || fallback);
+    } catch {
+      return new Error(fallback);
+    }
+  },
+
   /**
    * Retorna todos os cursos cadastrados
    */
@@ -54,11 +63,11 @@ export const CourseService = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(courseData)
       });
-      if (!res.ok) throw new Error('Falha ao criar curso');
+      if (!res.ok) throw await this.parseError(res, 'Falha ao criar curso');
       return await res.json();
     } catch (error) {
       console.error('CourseService.createCourse error:', error);
-      return null;
+      throw error;
     }
   },
 
@@ -72,11 +81,11 @@ export const CourseService = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(courseData)
       });
-      if (!res.ok) throw new Error('Falha ao atualizar curso');
+      if (!res.ok) throw await this.parseError(res, 'Falha ao atualizar curso');
       return await res.json();
     } catch (error) {
       console.error('CourseService.updateCourse error:', error);
-      return null;
+      throw error;
     }
   },
 

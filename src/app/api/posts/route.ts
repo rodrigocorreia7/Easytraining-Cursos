@@ -115,8 +115,10 @@ export async function POST(request: NextRequest) {
     saveStoredPosts(posts);
 
     return NextResponse.json(newPost, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erro seguro ao cadastrar post:', error);
-    return NextResponse.json({ error: 'Falha ao salvar artigo.' }, { status: 500 });
+    return NextResponse.json({
+      error: 'Falha ao salvar artigo. Verifique se o Firebase Admin SDK está configurado no ambiente do servidor.'
+    }, { status: 500 });
   }
 }

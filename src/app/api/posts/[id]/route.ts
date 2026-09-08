@@ -98,9 +98,11 @@ export async function PUT(
     saveStoredPosts(posts);
 
     return NextResponse.json(updatedPost);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erro seguro ao atualizar post:', error);
-    return NextResponse.json({ error: 'Erro ao salvar alterações no artigo.' }, { status: 500 });
+    return NextResponse.json({
+      error: 'Erro ao salvar alterações no artigo. Verifique se o Firebase Admin SDK está configurado no ambiente do servidor.'
+    }, { status: 500 });
   }
 }
 

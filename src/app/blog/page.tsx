@@ -3,9 +3,12 @@ import type { Metadata } from 'next';
 import { Header } from '../../components/layout/Header';
 import { Footer } from '../../components/layout/Footer';
 import { WhatsAppFloatingButton } from '../../components/layout/WhatsAppButton';
-import { getStoredPosts } from '../../lib/db';
+import { getPostsFromFirestore } from '../../lib/firestoreDb';
 import { Newspaper } from 'lucide-react';
 import { BlogArchiveClient } from '../../components/blog/BlogArchiveClient';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: 'Blog & Notícias de Carreira | Dicas e Mercado em Guarulhos',
@@ -31,8 +34,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function BlogArchivePage() {
-  const posts = getStoredPosts();
+export default async function BlogArchivePage() {
+  const posts = await getPostsFromFirestore();
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-800 selection:bg-[#00B060] selection:text-white">
