@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdminSession } from '@/lib/authServer';
+import { isFirebaseAdminConfigured } from '@/lib/firebaseConfigHelper';
 
 export async function GET(request: NextRequest) {
   const auth = verifyAdminSession(request);
@@ -9,6 +10,7 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({
     authenticated: true,
-    user: auth.user
+    user: auth.user,
+    firestoreConnected: isFirebaseAdminConfigured()
   });
 }

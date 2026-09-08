@@ -14,7 +14,7 @@ async function getAdminDb() {
   return adminDb;
 }
 
-async function withTimeout<T>(promise: Promise<T>, ms = 4000): Promise<T> {
+async function withTimeout<T>(promise: Promise<T>, ms = 8000): Promise<T> {
   let timer: any;
   const timeout = new Promise<never>((_, reject) => {
     timer = setTimeout(() => reject(new Error('Firestore timeout')), ms);
@@ -36,7 +36,7 @@ export async function getCoursesFromFirestore(): Promise<Course[]> {
   try {
     const adminDb = await getAdminDb();
     const fetchPromise = adminDb.collection(COURSES_COLLECTION).get();
-    const snapshot = await withTimeout(fetchPromise, 4000);
+    const snapshot = await withTimeout(fetchPromise, 8000);
 
     isFirestoreOperational = true;
 
@@ -63,6 +63,20 @@ export async function getCoursesFromFirestore(): Promise<Course[]> {
   }
 }
 
+function cleanFirestoreDoc<T extends Record<string, any>>(obj: T): T {
+  const cleaned: any = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (v !== undefined) {
+      if (v !== null && typeof v === 'object' && !Array.isArray(v) && !(v instanceof Date)) {
+        cleaned[k] = cleanFirestoreDoc(v);
+      } else {
+        cleaned[k] = v;
+      }
+    }
+  }
+  return cleaned;
+}
+
 function isServerlessProd(): boolean {
   return process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
 }
@@ -73,13 +87,13 @@ export async function saveCourseToFirestore(course: Course): Promise<void> {
       console.warn('Firebase Admin não configurado localmente. Curso salvo no armazenamento local.');
       return;
     }
-    throw new Error('Firebase Admin Firestore não configurado (adicione FIREBASE_CLIENT_EMAIL e FIREBASE_PRIVATE_KEY).');
+    throw new Error('Firebase Admin Firestore não configurado no servidor (adicione FIREBASE_CLIENT_EMAIL e FIREBASE_PRIVATE_KEY nas variáveis de ambiente da Vercel).');
   }
 
   try {
     const adminDb = await getAdminDb();
     const docRef = adminDb.collection(COURSES_COLLECTION).doc(String(course.id));
-    await withTimeout(docRef.set(course, { merge: true }), 5000);
+    await withTimeout(docRef.set(cleanFirestoreDoc(course), { merge: true }), 10000);
     isFirestoreOperational = true;
   } catch (error: any) {
     console.error('Erro crítico ao salvar curso no Firestore via Admin SDK:', error?.message);
@@ -93,13 +107,13 @@ export async function deleteCourseFromFirestore(id: string | number): Promise<vo
       console.warn('Firebase Admin não configurado localmente. Curso excluído no armazenamento local.');
       return;
     }
-    throw new Error('Firebase Admin Firestore não configurado.');
+    throw new Error('Firebase Admin Firestore não configurado no servidor (adicione FIREBASE_CLIENT_EMAIL e FIREBASE_PRIVATE_KEY nas variáveis de ambiente da Vercel).');
   }
 
   try {
     const adminDb = await getAdminDb();
     const docRef = adminDb.collection(COURSES_COLLECTION).doc(String(id));
-    await withTimeout(docRef.delete(), 5000);
+    await withTimeout(docRef.delete(), 10000);
     isFirestoreOperational = true;
   } catch (error: any) {
     console.error('Erro crítico ao excluir curso no Firestore via Admin SDK:', error?.message);
@@ -191,13 +205,13 @@ export async function savePostToFirestore(post: BlogPost): Promise<void> {
       console.warn('Firebase Admin não configurado localmente. Post salvo no armazenamento local.');
       return;
     }
-    throw new Error('Firebase Admin Firestore não configurado.');
+    throw new Error('Firebase Admin Firestore não configurado no servidor (adicione FIREBASE_CLIENT_EMAIL e FIREBASE_PRIVATE_KEY nas variáveis de ambiente da Vercel).');
   }
 
   try {
     const adminDb = await getAdminDb();
     const docRef = adminDb.collection(POSTS_COLLECTION).doc(String(post.slug || post.id));
-    await withTimeout(docRef.set(post, { merge: true }), 5000);
+    await withTimeout(docRef.set(cleanFirestoreDoc(post), { merge: true }), 10000);
     isFirestoreOperational = true;
   } catch (error: any) {
     console.error('Erro crítico ao salvar post no Firestore via Admin SDK:', error?.message);
@@ -211,13 +225,13 @@ export async function deletePostFromFirestore(idOrSlug: string | number): Promis
       console.warn('Firebase Admin não configurado localmente. Post excluído no armazenamento local.');
       return;
     }
-    throw new Error('Firebase Admin Firestore não configurado.');
+    throw new Error('Firebase Admin Firestore não configurado no servidor (adicione FIREBASE_CLIENT_EMAIL e FIREBASE_PRIVATE_KEY nas variáveis de ambiente da Vercel).');
   }
 
   try {
     const adminDb = await getAdminDb();
     const docRef = adminDb.collection(POSTS_COLLECTION).doc(String(idOrSlug));
-    await withTimeout(docRef.delete(), 5000);
+    await withTimeout(docRef.delete(), 10000);
     isFirestoreOperational = true;
   } catch (error: any) {
     console.error('Erro crítico ao excluir post no Firestore via Admin SDK:', error?.message);
@@ -253,7 +267,7 @@ export async function getSiteConfigFromFirestore(): Promise<SiteConfigType> {
 
   try {
     const adminDb = await getAdminDb();
-    const doc = await withTimeout(adminDb.collection(CONFIG_COLLECTION).doc(SITE_CONFIG_DOC).get(), 1500);
+    const doc = await withTimeout(adminDb.collection(CONFIG_COLLECTION).doc(SITE_CONFIG_DOC).get(), 5000);
 
     if (!doc.exists) {
       saveSiteConfigToFirestore(localConfig).catch(() => {});
@@ -273,13 +287,13 @@ export async function saveSiteConfigToFirestore(config: SiteConfigType): Promise
       console.warn('Firebase Admin não configurado localmente. Configurações salvas no armazenamento local.');
       return;
     }
-    throw new Error('Firebase Admin Firestore não configurado.');
+    throw new Error('Firebase Admin Firestore não configurado no servidor (adicione FIREBASE_CLIENT_EMAIL e FIREBASE_PRIVATE_KEY nas variáveis de ambiente da Vercel).');
   }
 
   try {
     const adminDb = await getAdminDb();
     const docRef = adminDb.collection(CONFIG_COLLECTION).doc(SITE_CONFIG_DOC);
-    await withTimeout(docRef.set(config, { merge: true }), 4000);
+    await withTimeout(docRef.set(cleanFirestoreDoc(config), { merge: true }), 10000);
     isFirestoreOperational = true;
   } catch (error: any) {
     console.error('Erro crítico ao salvar siteConfig no Firestore via Admin SDK:', error?.message);

@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error('Erro seguro ao cadastrar curso:', error);
     return NextResponse.json({
-      error: 'Falha ao salvar curso. Verifique se o Firebase Admin SDK está configurado no ambiente do servidor.'
+      error: error?.message || 'Falha ao salvar curso. Verifique se o Firebase Admin SDK está configurado no ambiente do servidor.'
     }, { status: 500 });
   }
 }

@@ -13,6 +13,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [currentUser, setCurrentUser] = useState<AdminUser | null>(null);
+  const [firestoreConnected, setFirestoreConnected] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
 
   // If on login page, don't show the dashboard shell
@@ -40,8 +41,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         }
       })
       .then((data) => {
-        if (isMounted && data?.user) {
-          setCurrentUser(data.user);
+        if (isMounted) {
+          if (data?.user) setCurrentUser(data.user);
+          if (typeof data?.firestoreConnected === 'boolean') {
+            setFirestoreConnected(data.firestoreConnected);
+          }
         }
       })
       .catch(() => {
@@ -158,7 +162,17 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <div className="flex items-center gap-3">
               <div className="hidden lg:flex flex-col items-end">
                 <span className="text-xs font-bold leading-tight">{currentUser?.name}</span>
-                <span className="text-[10px] text-slate-300 leading-tight">Mock DB Ativo (JSON)</span>
+                {firestoreConnected ? (
+                  <span className="flex items-center gap-1 text-[10px] text-emerald-400 font-semibold leading-tight">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    Firestore Ativo (Cloud)
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1 text-[10px] text-amber-300/80 leading-tight">
+                    <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+                    Mock DB Ativo (JSON)
+                  </span>
+                )}
               </div>
 
               <button

@@ -3,23 +3,64 @@ import { getFirestore, type Firestore } from 'firebase-admin/firestore';
 import { getAuth, type Auth } from 'firebase-admin/auth';
 import { getStorage, type Storage } from 'firebase-admin/storage';
 
-const projectId = 
-  process.env.FIREBASE_PROJECT_ID || 
-  process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 
-  'easytraining-cursos';
+import fs from 'fs';
+import path from 'path';
 
-const clientEmail = process.env.FIREBASE_CLIENT_EMAIL || '';
-const privateKeyRaw = process.env.FIREBASE_PRIVATE_KEY || '';
-const storageBucket = 
-  process.env.FIREBASE_STORAGE_BUCKET || 
-  process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 
-  'easytraining-cursos.firebasestorage.app';
+function getServiceAccountFallback(): any {
+  if (process.env.NODE_ENV !== 'development') return null;
+  try {
+    const possiblePaths = [
+      path.join(process.cwd(), '..', 'SDKs', 'easytraining-cursos-firebase-adminsdk-fbsvc-f5bfc9402c.json'),
+      path.join(process.cwd(), 'SDKs', 'easytraining-cursos-firebase-adminsdk-fbsvc-f5bfc9402c.json'),
+    ];
+    for (const p of possiblePaths) {
+      if (fs.existsSync(/*turbopackIgnore: true*/ p)) {
+        return JSON.parse(fs.readFileSync(/*turbopackIgnore: true*/ p, 'utf8'));
+      }
+    }
+  } catch {
+    // Ignore fallback errors in serverless/readonly environments
+  }
+  return null;
+}
 
-// Formatação segura de quebras de linha em chaves privadas PEM
-const privateKey = privateKeyRaw ? privateKeyRaw.replace(/\\n/g, '\n') : '';
+function resolveCredentials() {
+  const fallback = !process.env.FIREBASE_PRIVATE_KEY || !process.env.FIREBASE_CLIENT_EMAIL
+    ? getServiceAccountFallback()
+    : null;
+
+  const projectId = 
+    process.env.FIREBASE_PROJECT_ID || 
+    fallback?.project_id || 
+    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 
+    'easytraining-cursos';
+
+  const clientEmail = 
+    process.env.FIREBASE_CLIENT_EMAIL || 
+    fallback?.client_email || 
+    '';
+
+  const privateKeyRaw = 
+    process.env.FIREBASE_PRIVATE_KEY || 
+    fallback?.private_key || 
+    '';
+
+  const storageBucket = 
+    process.env.FIREBASE_STORAGE_BUCKET || 
+    process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 
+    'easytraining-cursos.firebasestorage.app';
+
+  // Formatação segura: remove aspas externas se houver e desfaz escape de \n
+  const privateKey = privateKeyRaw
+    ? privateKeyRaw.trim().replace(/^["']|["']$/g, '').replace(/\\n/g, '\n')
+    : '';
+
+  return { projectId, clientEmail, privateKey, storageBucket };
+}
 
 export function isFirebaseAdminConfigured(): boolean {
-  return Boolean(projectId && clientEmail && privateKey);
+  const { projectId, clientEmail, privateKey } = resolveCredentials();
+  return Boolean(projectId && clientEmail && privateKey && privateKey.length > 20);
 }
 
 let cachedApp: App | null = null;
@@ -38,6 +79,8 @@ export function getAdminApp(): App | null {
     cachedApp = existingApps[0];
     return cachedApp;
   }
+
+  const { projectId, clientEmail, privateKey, storageBucket } = resolveCredentials();
 
   try {
     cachedApp = initializeApp({
@@ -61,6 +104,11 @@ export function getAdminDb(): Firestore | null {
   const app = getAdminApp();
   if (!app) return null;
   cachedDb = getFirestore(app);
+  try {
+    cachedDb.settings({ ignoreUndefinedProperties: true });
+  } catch {
+    // Ignore if settings already locked
+  }
   return cachedDb;
 }
 

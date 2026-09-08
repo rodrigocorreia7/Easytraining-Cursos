@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error('Erro seguro ao cadastrar post:', error);
     return NextResponse.json({
-      error: 'Falha ao salvar artigo. Verifique se o Firebase Admin SDK está configurado no ambiente do servidor.'
+      error: error?.message || 'Falha ao salvar artigo. Verifique se o Firebase Admin SDK está configurado no ambiente do servidor.'
     }, { status: 500 });
   }
 }

@@ -70,7 +70,7 @@ export async function PUT(
   } catch (error: any) {
     console.error('Erro seguro ao atualizar curso:', error);
     return NextResponse.json({
-      error: 'Erro ao salvar alterações no curso. Verifique se o Firebase Admin SDK está configurado no ambiente do servidor.'
+      error: error?.message || 'Erro ao salvar alterações no curso. Verifique se o Firebase Admin SDK está configurado no ambiente do servidor.'
     }, { status: 500 });
   }
 }

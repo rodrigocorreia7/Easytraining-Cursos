@@ -11,10 +11,10 @@ function checkEnv(name: string, minLength = 1): CheckStatus {
     : 'missing';
 }
 
-async function withTimeout<T>(promise: Promise<T>, ms = 4000): Promise<T> {
+async function withTimeout<T>(promise: Promise<T>, ms = 10000): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => reject(new Error('timeout')), ms);
+    timer = setTimeout(() => reject(new Error(`Timeout após ${ms}ms`)), ms);
   });
   return Promise.race([promise, timeout]).finally(() => {
     if (timer) clearTimeout(timer);
@@ -30,6 +30,8 @@ export async function GET(request: NextRequest) {
   const firebaseAdmin = isFirebaseAdminConfigured();
   let firestore: CheckStatus = firebaseAdmin ? 'not_checked' : 'missing';
   let storage: CheckStatus = firebaseAdmin ? 'not_checked' : 'missing';
+  let firestoreError: string | undefined;
+  let storageError: string | undefined;
 
   if (firebaseAdmin) {
     try {
@@ -38,11 +40,12 @@ export async function GET(request: NextRequest) {
       if (!adminDb) {
         firestore = 'missing';
       } else {
-        await withTimeout(adminDb.collection('config').limit(1).get());
+        await withTimeout(adminDb.collection('config').limit(1).get(), 10000);
         firestore = 'ok';
       }
-    } catch {
+    } catch (err: any) {
       firestore = 'error';
+      firestoreError = err?.message || 'Falha ao conectar com o Firestore';
     }
 
     try {
@@ -51,11 +54,12 @@ export async function GET(request: NextRequest) {
       if (!adminStorage) {
         storage = 'missing';
       } else {
-        await withTimeout(adminStorage.bucket().getMetadata());
+        await withTimeout(adminStorage.bucket().getMetadata(), 10000);
         storage = 'ok';
       }
-    } catch {
+    } catch (err: any) {
       storage = 'error';
+      storageError = err?.message || 'Falha ao acessar o Storage bucket';
     }
   }
 
@@ -72,6 +76,8 @@ export async function GET(request: NextRequest) {
       adminSdk: firebaseAdmin ? 'ok' : 'missing',
       firestore,
       storage,
+      ...(firestoreError ? { firestoreError } : {}),
+      ...(storageError ? { storageError } : {}),
     },
     integrations: {
       n8nWebhook: n8nWebhookUrl.trim() ? 'ok' : 'missing',
