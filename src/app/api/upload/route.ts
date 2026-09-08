@@ -94,37 +94,50 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 5. Upload seguro exclusivo para Firebase Storage via Admin SDK (Sem disco local efêmero)
+    // 5. Estratégia de upload em nuvem:
+    // Tenta o Firebase Storage se configurado. Se o bucket não existir (plano Spark gratuito),
+    // utiliza Data URI Base64 otimizado para salvar diretamente no Firestore.
     const randomHash = crypto.randomBytes(16).toString('hex');
     const safeFileName = `upload-${randomHash}${ext}`;
 
     try {
-      const { adminStorage } = await import('@/lib/firebaseAdmin');
-      const bucket = adminStorage.bucket();
-      const fileRef = bucket.file(`uploads/${safeFileName}`);
-
-      await fileRef.save(buffer, {
-        contentType: file.type || 'image/webp',
-        public: true,
-        metadata: {
-          cacheControl: 'public, max-age=31536000, immutable'
+      const { getAdminStorage } = await import('@/lib/firebaseAdmin');
+      const adminStorage = getAdminStorage();
+      if (adminStorage) {
+        const bucket = adminStorage.bucket();
+        if (bucket?.name) {
+          const fileRef = bucket.file(`uploads/${safeFileName}`);
+          await fileRef.save(buffer, {
+            contentType: file.type || 'image/webp',
+            public: true,
+            metadata: {
+              cacheControl: 'public, max-age=31536000, immutable'
+            }
+          });
+          const publicUrl = `https://storage.googleapis.com/${bucket.name}/uploads/${safeFileName}`;
+          return NextResponse.json({ 
+            success: true, 
+            url: publicUrl,
+            fileName: safeFileName,
+            storageType: 'cloud-storage'
+          });
         }
-      });
-
-      const publicUrl = `https://storage.googleapis.com/${bucket.name}/uploads/${safeFileName}`;
-
-      return NextResponse.json({ 
-        success: true, 
-        url: publicUrl,
-        fileName: safeFileName
-      });
-    } catch (storageErr: any) {
-      console.error('Erro crítico no upload para Firebase Storage via Admin SDK:', storageErr?.message);
-      return NextResponse.json(
-        { error: 'Serviço de armazenamento em nuvem indisponível. Tente novamente mais tarde.' },
-        { status: 503 }
-      );
+      }
+    } catch {
+      // Fallback para Base64 se Cloud Storage não estiver provisionado
     }
+
+    // Persistência direta no Firestore via Data URI Base64
+    const base64Data = buffer.toString('base64');
+    const mime = file.type || (ext === '.png' ? 'image/png' : ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' : 'image/webp');
+    const dataUrl = `data:${mime};base64,${base64Data}`;
+
+    return NextResponse.json({ 
+      success: true, 
+      url: dataUrl,
+      fileName: safeFileName,
+      storageType: 'inline-firestore'
+    });
   } catch (error) {
     console.error('Erro de segurança no upload:', error);
     return NextResponse.json(

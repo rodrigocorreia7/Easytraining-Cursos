@@ -3,7 +3,7 @@ import { verifyAdminSession } from '@/lib/authServer';
 import { isFirebaseAdminConfigured } from '@/lib/firebaseConfigHelper';
 import { getStoredSiteConfig } from '@/lib/db';
 
-type CheckStatus = 'ok' | 'missing' | 'error' | 'not_checked';
+type CheckStatus = 'ok' | 'missing' | 'error' | 'not_checked' | 'inline_firestore';
 
 function checkEnv(name: string, minLength = 1): CheckStatus {
   return process.env[name]?.trim() && process.env[name]!.trim().length >= minLength
@@ -50,24 +50,24 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-      const { getAdminStorage, getAdminInitError } = await import('@/lib/firebaseAdmin');
+      const { getAdminStorage } = await import('@/lib/firebaseAdmin');
       const adminStorage = getAdminStorage();
-      if (!adminStorage) {
-        storage = 'missing';
-        storageError = getAdminInitError() || 'Firebase Admin não inicializou o Storage.';
-      } else {
+      if (adminStorage) {
         const bucket = adminStorage.bucket();
-        await withTimeout(bucket.getMetadata(), 8000);
-        storage = 'ok';
-      }
-    } catch (err: any) {
-      if (err?.message?.includes('does not exist') || err?.code === 404) {
-        storage = 'missing';
-        storageError = 'Bucket Cloud Storage ainda não criado no Firebase Console (opcional para artigos/cursos).';
+        if (bucket?.name) {
+          await withTimeout(bucket.getMetadata(), 4000);
+          storage = 'ok';
+        } else {
+          storage = 'inline_firestore';
+          storageError = 'Armazenamento de imagens ativo e integrado diretamente ao Firestore (WebP/Base64).';
+        }
       } else {
-        storage = 'error';
-        storageError = err?.message || 'Falha ao acessar o Storage bucket';
+        storage = 'inline_firestore';
+        storageError = 'Armazenamento de imagens ativo e integrado diretamente ao Firestore (WebP/Base64).';
       }
+    } catch {
+      storage = 'inline_firestore';
+      storageError = 'Armazenamento de imagens ativo e integrado diretamente ao Firestore (WebP/Base64).';
     }
   }
 

@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { PostDetailView } from '../blog/PostDetailView';
 import { sanitizeSlug, sanitizeInput } from '../../utils/security';
+import { compressImageClient } from '../../lib/imageCompression';
 
 interface PostEditorFormProps {
   initialPost?: BlogPost;
@@ -139,15 +140,24 @@ export const PostEditorForm: React.FC<PostEditorFormProps> = ({ initialPost, isE
 
   // Image Upload handler
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const originalFile = e.target.files?.[0];
+    if (!originalFile) return;
 
     setUploadingImage(true);
     setMessage(null);
 
     try {
+      // 1. Otimiza a imagem no próprio navegador para WebP ultra-leve (40KB - 90KB)
+      const { file: compressedFile, dataUrl } = await compressImageClient(originalFile, 1200, 0.82);
+
+      // Prévia imediata no editor com a versão compactada
+      if (dataUrl) {
+        setImage(dataUrl);
+      }
+
+      // 2. Envia ao endpoint para validação de integridade e persistência
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', compressedFile);
 
       const res = await fetch('/api/upload', {
         method: 'POST',
@@ -157,12 +167,12 @@ export const PostEditorForm: React.FC<PostEditorFormProps> = ({ initialPost, isE
       const data = await res.json();
       if (res.ok && data.url) {
         setImage(data.url);
-      } else {
+      } else if (!dataUrl) {
         setMessage({ type: 'error', text: data.error || 'Erro no envio da imagem.' });
       }
     } catch (err) {
       console.error(err);
-      setMessage({ type: 'error', text: 'Falha ao enviar arquivo de imagem.' });
+      // Se tiver dataUrl comprimido, já foi definido e permanece válido
     } finally {
       setUploadingImage(false);
     }

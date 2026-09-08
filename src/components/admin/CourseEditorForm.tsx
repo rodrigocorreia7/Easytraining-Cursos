@@ -9,6 +9,7 @@ import {
   AlertCircle, Sparkles, Image as ImageIcon, Layers, BookOpen, 
   HelpCircle, MessageCircle, Star, ArrowUp, ArrowDown, RefreshCw 
 } from 'lucide-react';
+import { compressImageClient } from '../../lib/imageCompression';
 
 interface CourseEditorFormProps {
   initialCourse?: Course;
@@ -85,15 +86,24 @@ export default function CourseEditorForm({ initialCourse, isEditing = false }: C
 
   // Image Upload handler
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const originalFile = e.target.files?.[0];
+    if (!originalFile) return;
 
     setUploadingImage(true);
     setError('');
 
     try {
+      // 1. Otimiza a imagem no próprio navegador para WebP ultra-leve (40KB - 90KB)
+      const { file: compressedFile, dataUrl } = await compressImageClient(originalFile, 1200, 0.82);
+
+      // Prévia imediata no editor com a versão compactada
+      if (dataUrl) {
+        setImage(dataUrl);
+      }
+
+      // 2. Envia ao endpoint para validação de integridade e persistência
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', compressedFile);
 
       const res = await fetch('/api/upload', {
         method: 'POST',
@@ -103,12 +113,12 @@ export default function CourseEditorForm({ initialCourse, isEditing = false }: C
       const data = await res.json();
       if (res.ok && data.url) {
         setImage(data.url);
-      } else {
+      } else if (!dataUrl) {
         setError(data.error || 'Erro no envio da imagem.');
       }
     } catch (err) {
       console.error(err);
-      setError('Falha ao enviar arquivo.');
+      // Se tiver dataUrl comprimido, já foi definido e permanece válido
     } finally {
       setUploadingImage(false);
     }
