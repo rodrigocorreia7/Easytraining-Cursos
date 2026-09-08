@@ -1,6 +1,5 @@
 import { getApps, initializeApp, cert, type App } from 'firebase-admin/app';
 import { getFirestore, type Firestore } from 'firebase-admin/firestore';
-import { getAuth, type Auth } from 'firebase-admin/auth';
 import { getStorage, type Storage } from 'firebase-admin/storage';
 
 import fs from 'fs';
@@ -112,13 +111,19 @@ export function getAdminDb(): Firestore | null {
   return cachedDb;
 }
 
-let cachedAuth: Auth | null = null;
-export function getAdminAuth(): Auth | null {
+let cachedAuth: any = null;
+export async function getAdminAuth(): Promise<any> {
   if (cachedAuth) return cachedAuth;
   const app = getAdminApp();
   if (!app) return null;
-  cachedAuth = getAuth(app);
-  return cachedAuth;
+  try {
+    const { getAuth } = await import('firebase-admin/auth');
+    cachedAuth = getAuth(app);
+    return cachedAuth;
+  } catch (err: any) {
+    console.warn('firebase-admin/auth indisponível no ambiente runtime:', err?.message);
+    return null;
+  }
 }
 
 let cachedStorage: Storage | null = null;
@@ -143,14 +148,16 @@ export const adminDb: Firestore = new Proxy({} as Firestore, {
   }
 });
 
-export const adminAuth: Auth = new Proxy({} as Auth, {
+export const adminAuth: any = new Proxy({} as any, {
   get(_, prop) {
-    const auth = getAdminAuth();
-    if (!auth) {
-      throw new Error('Firebase Admin Auth não configurado (adicione FIREBASE_CLIENT_EMAIL e FIREBASE_PRIVATE_KEY).');
-    }
-    const val = (auth as any)[prop];
-    return typeof val === 'function' ? val.bind(auth) : val;
+    return async (...args: any[]) => {
+      const auth = await getAdminAuth();
+      if (!auth) {
+        throw new Error('Firebase Admin Auth não configurado ou indisponível.');
+      }
+      const val = (auth as any)[prop];
+      return typeof val === 'function' ? val.apply(auth, args) : val;
+    };
   }
 });
 

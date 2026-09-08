@@ -54,12 +54,18 @@ export async function GET(request: NextRequest) {
       if (!adminStorage) {
         storage = 'missing';
       } else {
-        await withTimeout(adminStorage.bucket().getMetadata(), 10000);
+        const bucket = adminStorage.bucket();
+        await withTimeout(bucket.getMetadata(), 8000);
         storage = 'ok';
       }
     } catch (err: any) {
-      storage = 'error';
-      storageError = err?.message || 'Falha ao acessar o Storage bucket';
+      if (err?.message?.includes('does not exist') || err?.code === 404) {
+        storage = 'missing';
+        storageError = 'Bucket Cloud Storage ainda não criado no Firebase Console (opcional para artigos/cursos).';
+      } else {
+        storage = 'error';
+        storageError = err?.message || 'Falha ao acessar o Storage bucket';
+      }
     }
   }
 

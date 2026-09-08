@@ -31,63 +31,62 @@ export async function POST(request: NextRequest) {
     // 1. Validação Criptográfica do ID Token
     let tokenValidated = false;
 
-    if (isFirebaseAdminConfigured()) {
+    // Prioridade 1: Google Identity Toolkit oficial (100% compativel com Edge/Serverless sem conflitos de ESM)
+    const apiKey = 
+      process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 
+      process.env.FIREBASE_API_KEY || 
+      '';
+
+    if (apiKey) {
       try {
-        const { adminAuth } = await import('@/lib/firebaseAdmin');
-        const decoded = await adminAuth.verifyIdToken(idToken);
-        verifiedEmail = (decoded.email || '').toLowerCase().trim();
-        verifiedUid = decoded.uid || '';
-        verifiedName = decoded.name || '';
-        tokenValidated = true;
+        const verifyRes = await fetch(
+          `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken }),
+            signal: AbortSignal.timeout(8000)
+          }
+        );
+
+        if (verifyRes.ok) {
+          const verifyData = await verifyRes.json();
+          const verifiedUser = verifyData?.users?.[0];
+
+          if (verifiedUser && verifiedUser.email) {
+            verifiedEmail = sanitizeString(verifiedUser.email, 120).toLowerCase().trim();
+            verifiedUid = sanitizeString(verifiedUser.localId || '', 120).trim();
+            verifiedName = sanitizeString(verifiedUser.displayName || '', 120).trim();
+            tokenValidated = true;
+          }
+        }
+      } catch (idToolkitErr: any) {
+        console.warn('Falha na validação via Identity Toolkit:', idToolkitErr?.message);
+      }
+    }
+
+    // Prioridade 2: Fallback via Firebase Admin SDK caso necessário
+    if (!tokenValidated && isFirebaseAdminConfigured()) {
+      try {
+        const { getAdminAuth } = await import('@/lib/firebaseAdmin');
+        const auth = await getAdminAuth();
+        if (auth) {
+          const decoded = await auth.verifyIdToken(idToken);
+          verifiedEmail = (decoded.email || '').toLowerCase().trim();
+          verifiedUid = decoded.uid || '';
+          verifiedName = decoded.name || '';
+          tokenValidated = true;
+        }
       } catch (adminErr: any) {
-        console.warn('Falha na validação via Firebase Admin SDK, utilizando fallback Identity Toolkit:', adminErr?.message);
+        console.warn('Falha na validação via Firebase Admin SDK:', adminErr?.message);
       }
     }
 
     if (!tokenValidated) {
-      // Fallback para Google Identity Toolkit oficial
-      const apiKey = 
-        process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 
-        process.env.FIREBASE_API_KEY || 
-        '';
-
-      if (!apiKey) {
-        return NextResponse.json(
-          { error: 'Validação Google indisponível. Configure a chave Firebase no ambiente.' },
-          { status: 503 }
-        );
-      }
-
-      const verifyRes = await fetch(
-        `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ idToken }),
-          signal: AbortSignal.timeout(8000)
-        }
+      return NextResponse.json(
+        { error: 'Token de autenticação Google inválido ou não autorizado.' },
+        { status: 401 }
       );
-
-      if (!verifyRes.ok) {
-        return NextResponse.json(
-          { error: 'Token de autenticação Google inválido, expirado ou forjado.' },
-          { status: 401 }
-        );
-      }
-
-      const verifyData = await verifyRes.json();
-      const verifiedUser = verifyData?.users?.[0];
-
-      if (!verifiedUser || !verifiedUser.email) {
-        return NextResponse.json(
-          { error: 'Não foi possível validar as credenciais do usuário Google.' },
-          { status: 401 }
-        );
-      }
-
-      verifiedEmail = sanitizeString(verifiedUser.email, 120).toLowerCase().trim();
-      verifiedUid = sanitizeString(verifiedUser.localId || '', 120).trim();
-      verifiedName = sanitizeString(verifiedUser.displayName || '', 120).trim();
     }
 
     // 2. Verificação estrita contra a Allowlist de Administradores Autorizados
