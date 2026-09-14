@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import type { FaqItem } from '@/types';
 
 // ============================================================================
 // 1. INPUT SANITIZATION & ANTI-INJECTION (SQLi, NoSQLi, XSS)
@@ -93,6 +94,25 @@ export function sanitizeImageUrl(input: unknown): string {
 export function sanitizePhone(input: unknown): string {
   if (typeof input !== 'string') return '';
   return input.replace(/[^\d()+\s-]/g, '').slice(0, 20);
+}
+
+/**
+ * Normaliza FAQs antes de persistir ou expor os dados estruturados do artigo.
+ */
+export function sanitizeFaqs(input: unknown): FaqItem[] {
+  if (!Array.isArray(input)) return [];
+
+  return input
+    .filter(item => item && typeof item === 'object')
+    .map(item => {
+      const faq = item as Record<string, unknown>;
+      return {
+        question: sanitizeString(faq.question, 240),
+        answer: sanitizeString(faq.answer, 1200),
+      };
+    })
+    .filter(faq => faq.question && faq.answer)
+    .slice(0, 10);
 }
 
 /**

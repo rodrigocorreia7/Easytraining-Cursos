@@ -2,12 +2,12 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { BlogPost } from '../../types';
+import { BlogPost, FaqItem } from '../../types';
 import { BlogService } from '../../services/blogService';
 import { 
   Save, Eye, ArrowLeft, Image as ImageIcon, BookOpen, 
   Link as LinkIcon, GraduationCap, CheckCircle2, AlertCircle, Upload,
-  Bot, Wand2, X
+  Bot, Wand2, X, HelpCircle, Plus, Trash2, ArrowUp, ArrowDown, RefreshCw, Sparkles
 } from 'lucide-react';
 import { PostDetailView } from '../blog/PostDetailView';
 import { sanitizeSlug, sanitizeInput } from '../../utils/security';
@@ -60,6 +60,9 @@ export const PostEditorForm: React.FC<PostEditorFormProps> = ({ initialPost, isE
   const [contentHtml, setContentHtml] = useState(initialPost?.contentHtml || initialPost?.content || '');
   const [selectedCourseSlug, setSelectedCourseSlug] = useState(initialPost?.relatedCourse?.slug || 'assistente-administrativo');
   const [author, setAuthor] = useState(initialPost?.author || 'EasyTraining Equipe Pedagógica');
+  const [faqs, setFaqs] = useState<FaqItem[]>(initialPost?.faqs || []);
+  const [generatingFaqs, setGeneratingFaqs] = useState(false);
+  const [faqNotice, setFaqNotice] = useState('');
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -67,6 +70,64 @@ export const PostEditorForm: React.FC<PostEditorFormProps> = ({ initialPost, isE
   const [showAiModal, setShowAiModal] = useState(false);
   const [aiTopic, setAiTopic] = useState('');
   const [aiGenerating, setAiGenerating] = useState(false);
+
+  const handleAddFaq = () => {
+    setFaqs(prev => [...prev, { question: '', answer: '' }]);
+    setFaqNotice('');
+  };
+
+  const handleFaqChange = (index: number, field: 'question' | 'answer', value: string) => {
+    setFaqs(prev => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
+  };
+
+  const handleRemoveFaq = (index: number) => {
+    setFaqs(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleMoveFaq = (index: number, direction: 'up' | 'down') => {
+    if (direction === 'up' && index === 0) return;
+    if (direction === 'down' && index === faqs.length - 1) return;
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    setFaqs(prev => {
+      const updated = [...prev];
+      [updated[index], updated[targetIndex]] = [updated[targetIndex], updated[index]];
+      return updated;
+    });
+  };
+
+  const handleGenerateFaqsWithAi = async () => {
+    if (!title.trim()) {
+      setMessage({ type: 'error', text: 'Preencha o título do artigo antes de gerar perguntas frequentes com IA.' });
+      return;
+    }
+
+    setGeneratingFaqs(true);
+    setMessage(null);
+    setFaqNotice('');
+
+    try {
+      const res = await fetch('/api/admin/posts/generate-faq', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, category, excerpt, contentHtml })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.faqs) {
+        throw new Error(data.error || 'Falha ao gerar perguntas com IA.');
+      }
+
+      setFaqs(data.faqs);
+      setFaqNotice('Perguntas estratégicas geradas com IA! Revise os textos e clique em Salvar.');
+    } catch (err: any) {
+      setMessage({ type: 'error', text: err?.message || 'Falha na comunicação com o serviço de IA.' });
+    } finally {
+      setGeneratingFaqs(false);
+    }
+  };
 
   // AI Blog Post Generator
   const handleGenerateWithAi = async () => {
@@ -217,7 +278,10 @@ export const PostEditorForm: React.FC<PostEditorFormProps> = ({ initialPost, isE
       date: initialPost?.date || new Date().toISOString().split('T')[0],
       readTime: `${Math.max(1, Math.round(contentHtml.replace(/<[^>]+>/g, '').split(/\s+/).length / 180))} min`,
       relatedCourse,
-      tags: [category, 'Guarulhos', 'Cursos Profissionalizantes', 'Mercado de Trabalho']
+      tags: [category, 'Guarulhos', 'Cursos Profissionalizantes', 'Mercado de Trabalho'],
+      faqs: faqs
+        .map(faq => ({ question: faq.question.trim(), answer: faq.answer.trim() }))
+        .filter(faq => faq.question && faq.answer)
     };
 
     try {
@@ -259,7 +323,8 @@ export const PostEditorForm: React.FC<PostEditorFormProps> = ({ initialPost, isE
     date: initialPost?.date || new Date().toISOString().split('T')[0],
     readTime: `${Math.max(1, Math.round(contentHtml.replace(/<[^>]+>/g, '').split(/\s+/).length / 180))} min`,
     relatedCourse: AVAILABLE_COURSES.find(c => c.slug === selectedCourseSlug) || AVAILABLE_COURSES[0],
-    tags: [category, 'Guarulhos', 'Cursos Profissionalizantes']
+    tags: [category, 'Guarulhos', 'Cursos Profissionalizantes'],
+    faqs: faqs.filter(faq => faq.question.trim() && faq.answer.trim())
   };
 
   return (
@@ -449,6 +514,135 @@ export const PostEditorForm: React.FC<PostEditorFormProps> = ({ initialPost, isE
                 placeholder="<p>Escreva os parágrafos do artigo aqui...</p><h2>Subtítulo Importante</h2><p>Mais detalhes...</p>"
                 className="w-full p-4 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 font-mono text-xs sm:text-sm focus:outline-hidden focus:border-[#00B060] focus:ring-2 focus:ring-emerald-100 leading-relaxed"
               />
+            </div>
+
+            {/* FAQ & SEO Section */}
+            <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-100">
+                <div>
+                  <h2 className="text-base font-black text-slate-900 flex items-center gap-2">
+                    <HelpCircle className="w-5 h-5 text-[#00B060]" />
+                    <span>Perguntas Frequentes (FAQ & SEO)</span>
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Responda às dúvidas dos leitores e ajude o artigo a aparecer em buscas com dados estruturados.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleGenerateFaqsWithAi}
+                    disabled={generatingFaqs}
+                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-bold text-xs shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+                    title="Gera perguntas frequentes com base no título e conteúdo do artigo"
+                  >
+                    {generatingFaqs ? (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        <span>Gerando...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>Gerar FAQs com IA</span>
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleAddFaq}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition-colors cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Nova Pergunta</span>
+                  </button>
+                </div>
+              </div>
+
+              {faqNotice && (
+                <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#00874A] shrink-0" />
+                  <span>{faqNotice}</span>
+                </div>
+              )}
+
+              {faqs.length === 0 ? (
+                <div className="p-6 text-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/50 space-y-2">
+                  <HelpCircle className="w-8 h-8 text-slate-300 mx-auto" />
+                  <p className="text-xs font-bold text-slate-600">Nenhuma pergunta cadastrada para este artigo ainda.</p>
+                  <p className="text-[11px] text-slate-400 max-w-sm mx-auto">
+                    Gere perguntas com IA ou crie cada pergunta e resposta manualmente. Elas aparecerão no final do artigo.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {faqs.map((faq, index) => (
+                    <div key={index} className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-xs font-black text-slate-700 flex items-center gap-1.5">
+                          <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-700 text-[11px] font-bold inline-flex items-center justify-center">
+                            {index + 1}
+                          </span>
+                          Pergunta frequente
+                        </span>
+
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => handleMoveFaq(index, 'up')}
+                            disabled={index === 0}
+                            className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-20 cursor-pointer"
+                            title="Mover para cima"
+                          >
+                            <ArrowUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleMoveFaq(index, 'down')}
+                            disabled={index === faqs.length - 1}
+                            className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-20 cursor-pointer"
+                            title="Mover para baixo"
+                          >
+                            <ArrowDown className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveFaq(index)}
+                            className="p-1 text-slate-400 hover:text-red-600 cursor-pointer ml-1"
+                            title="Excluir pergunta"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-600 mb-1">Pergunta</label>
+                        <input
+                          type="text"
+                          value={faq.question}
+                          onChange={(e) => handleFaqChange(index, 'question', e.target.value)}
+                          placeholder="Ex: Para quem este artigo é indicado?"
+                          className="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-medium text-slate-900 focus:outline-hidden focus:border-[#00B060]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-600 mb-1">Resposta</label>
+                        <textarea
+                          rows={3}
+                          value={faq.answer}
+                          onChange={(e) => handleFaqChange(index, 'answer', e.target.value)}
+                          placeholder="Escreva uma resposta clara e útil para o leitor..."
+                          className="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs text-slate-700 focus:outline-hidden focus:border-[#00B060] leading-relaxed"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
           </div>

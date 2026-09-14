@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getPostByIdFromFirestore, deletePostFromFirestore, invalidatePublicContentCache, savePostToFirestore } from '@/lib/firestoreDb';
 import { getStoredPosts, saveStoredPosts } from '@/lib/db';
 import { BlogPost } from '@/types';
-import { sanitizeString, sanitizeObject, sanitizeHtmlContent, sanitizeImageUrl } from '@/lib/security';
+import { sanitizeString, sanitizeObject, sanitizeHtmlContent, sanitizeImageUrl, sanitizeFaqs } from '@/lib/security';
 import { verifyAdminSession } from '@/lib/authServer';
 
 function isValidEntityId(id: string): boolean {
@@ -97,7 +97,7 @@ export async function PUT(
       image: sanitizeImageUrl(body.image || currentPost.image) || '/images/courses/informatica-basica.webp',
       readTime: body.readTime || currentPost.readTime || computedReadTime,
       headings: postHeadings,
-      faqs: Array.isArray(body.faqs) ? body.faqs : (currentPost.faqs || []),
+      faqs: body.faqs !== undefined ? sanitizeFaqs(body.faqs) : (currentPost.faqs || []),
       relatedCourse: body.relatedCourse || currentPost.relatedCourse
     };
 

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getPostBySlugFromFirestore, getPostsFromFirestore, invalidatePublicContentCache, savePostToFirestore } from '@/lib/firestoreDb';
 import { saveStoredPosts } from '@/lib/db';
 import { BlogPost } from '@/types';
-import { sanitizeString, sanitizeObject, sanitizeHtmlContent, sanitizeImageUrl } from '@/lib/security';
+import { sanitizeString, sanitizeObject, sanitizeHtmlContent, sanitizeImageUrl, sanitizeFaqs } from '@/lib/security';
 import { verifyAdminSession } from '@/lib/authServer';
 
 export async function GET(request: NextRequest) {
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
       image: sanitizeImageUrl(body.image) || '/images/courses/informatica-basica.webp',
       tags: Array.isArray(body.tags) ? body.tags.map((t: any) => sanitizeString(t, 40)) : [],
       headings: postHeadings,
-      faqs: Array.isArray(body.faqs) ? body.faqs : [],
+      faqs: sanitizeFaqs(body.faqs),
       relatedCourse: body.relatedCourse || undefined
     };
 

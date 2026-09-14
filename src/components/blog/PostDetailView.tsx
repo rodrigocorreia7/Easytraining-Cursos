@@ -47,6 +47,19 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ post, relatedPos
     }
   };
 
+  const faqJsonLd = post.faqs && post.faqs.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: post.faqs.map(faq => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer
+      }
+    }))
+  } : null;
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-800 selection:bg-[#00B060] selection:text-white">
       {/* Article Schema */}
@@ -54,6 +67,12 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ post, relatedPos
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
       />
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd).replace(/</g, '\\u003c') }}
+        />
+      )}
 
       <Header />
 
@@ -148,7 +167,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ post, relatedPos
 
           {/* Article FAQs */}
           {post.faqs && post.faqs.length > 0 && (
-            <ArticleFaq faqs={post.faqs} />
+            <ArticleFaq faqs={post.faqs} articleTitle={post.title} />
           )}
 
           {/* Social Share Bottom */}
