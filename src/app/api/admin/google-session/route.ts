@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     const apiKey = 
       process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 
       process.env.FIREBASE_API_KEY || 
-      '';
+      'AIzaSyDjC8RWk973GR-rHO9JwX61izKYMBrcPEo';
 
     if (apiKey) {
       try {
@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
       value: token,
       httpOnly: true,
       secure: isProd,
-      sameSite: 'strict',
+      sameSite: 'lax',
       path: '/',
       maxAge: 8 * 60 * 60 // 8 horas
     });

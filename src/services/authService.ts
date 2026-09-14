@@ -148,11 +148,22 @@ export const AuthService = {
         });
 
         if (!sessionRes.ok) {
-          const errData = await sessionRes.json().catch(() => ({}));
+          let errorMsg = '';
+          try {
+            const rawText = await sessionRes.text();
+            try {
+              const errData = JSON.parse(rawText);
+              errorMsg = errData.error || '';
+            } catch {
+              errorMsg = rawText.slice(0, 150);
+            }
+          } catch {
+            // ignore
+          }
           await fbSignOut(auth);
           return {
             success: false,
-            error: errData.error || 'Acesso negado: seu usuário não possui permissão administrativa no servidor.'
+            error: errorMsg || 'Acesso negado: seu usuário não possui permissão administrativa no servidor.'
           };
         }
       } catch (sessErr) {
@@ -238,11 +249,22 @@ export const AuthService = {
         });
 
         if (!sessionRes.ok) {
-          const errData = await sessionRes.json().catch(() => ({}));
+          let errorMsg = '';
+          try {
+            const rawText = await sessionRes.text();
+            try {
+              const errData = JSON.parse(rawText);
+              errorMsg = errData.error || '';
+            } catch {
+              errorMsg = rawText.slice(0, 150);
+            }
+          } catch {
+            // ignore
+          }
           await fbSignOut(auth);
           return {
             success: false,
-            error: errData.error || `Falha no servidor (${sessionRes.status}). Não foi possível criar a sessão administrativa.`
+            error: errorMsg || `Falha no servidor (${sessionRes.status}). Não foi possível criar a sessão administrativa.`
           };
         }
       } catch (sessErr: any) {

@@ -1,10 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import DOMPurify from 'isomorphic-dompurify';
-
-/**
- * Enterprise-Grade Security Utility for Next.js (EasyTraining)
- * Aligned with OWASP Top 10 (2025/2026) and OWASP Top 10 for LLM Applications.
- */
 
 // ============================================================================
 // 1. INPUT SANITIZATION & ANTI-INJECTION (SQLi, NoSQLi, XSS)
@@ -35,29 +29,30 @@ export function sanitizeString(input: unknown, maxLength = 255): string {
 
 /**
  * Sanitiza conteúdo HTML rico para artigos de blog e descrições completas:
- * - Utiliza DOMPurify com lista restrita de tags e atributos permitidos (Anti-Stored XSS)
- * - Elimina esquemas javascript:, tags perigosas (<script>, <iframe>, <embed>, <object>) e manipuladores de eventos
- * - Suporta artigos extensos e profundos (limite expansivo de 500.000 caracteres)
+ * - Filtra e neutraliza tags perigosas (<script>, <iframe>, <embed>, <object>, <svg>, <math>, etc.)
+ * - Elimina manipuladores de eventos inline (onload, onclick, onerror, etc.) mesmo sem espaços
+ * - Neutraliza protocolos perigosos (javascript:, vbscript:, data:text)
+ * - 100% compativel com Edge e Serverless Functions (sem dependência de JSDOM)
  */
 export function sanitizeHtmlContent(input: unknown, maxLength = 500000): string {
   if (typeof input !== 'string') return '';
+  let html = input.slice(0, maxLength);
 
-  const sliced = input.slice(0, maxLength);
+  // 1. Remove blocos inteiros perigosos e seus conteúdos
+  html = html.replace(/<\s*(script|style|iframe|object|embed|applet|svg|math|form|meta|link|base)\b[^>]*>([\s\S]*?<\s*\/\s*\1\s*>)?/gi, '');
+  html = html.replace(/<\s*\/?\s*(script|style|iframe|object|embed|applet|svg|math|form|meta|link|base)\b[^>]*\/?>/gi, '');
 
-  return DOMPurify.sanitize(sliced, {
-    ALLOWED_TAGS: [
-      'p', 'b', 'i', 'em', 'strong', 'u', 's', 'span', 'small', 'sub', 'sup', 'mark', 'abbr',
-      'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-      'ul', 'ol', 'li',
-      'a', 'img', 'figure', 'figcaption',
-      'table', 'thead', 'tbody', 'tr', 'th', 'td', 'caption',
-      'blockquote', 'pre', 'code', 'hr', 'br', 'div', 'section', 'article'
-    ],
-    ALLOWED_ATTR: [
-      'href', 'src', 'alt', 'title', 'class', 'id', 'target', 'rel', 'width', 'height', 'loading', 'style'
-    ],
-    ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
-  });
+  // 2. Remove manipuladores de evento inline como onload, onerror, onclick, on*, mesmo sem espaço (ex: <img/onerror=...)
+  html = html.replace(/[\s\/]on[a-z0-9_]+\s*=\s*(?:'[^']*'|"[^"]*"|[^\s>]+)/gi, '');
+
+  // 3. Desativa esquemas perigosos como javascript:, vbscript: e data: não-imagem
+  html = html.replace(/(href|src)\s*=\s*(['"])\s*(?:javascript|vbscript|data(?!\s*:\s*image\/(?:png|jpeg|webp|gif))):[^'"]*\2/gi, '$1="#"');
+  html = html.replace(/(href|src)\s*=\s*(?:javascript|vbscript|data(?!\s*:\s*image\/(?:png|jpeg|webp|gif))):[^\s>]*/gi, '$1="#"');
+
+  // 4. Remove caracteres de controle nulos e perigosos
+  html = html.replace(/[\u0000-\u0008\u000B-\u000C\u000E-\u001F]/g, '');
+
+  return html;
 }
 
 /**

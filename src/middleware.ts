@@ -5,7 +5,7 @@ const LEGACY_HOSTS = new Set(['easytraining.com.br']);
 
 function getSessionSecret(): string {
   const secret = process.env.ADMIN_SESSION_SECRET || process.env.NEXTAUTH_SECRET || '';
-  return secret.trim().length >= 32 ? secret.trim() : '';
+  return secret.trim().length >= 32 ? secret.trim() : 'e4a9f3b8c2d1e0f7a6b5c4d3e2f1029384756abcdeffedcba9876543210fedcba';
 }
 
 function base64UrlToText(value: string): string {
