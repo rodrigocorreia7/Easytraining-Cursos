@@ -14,6 +14,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [currentUser, setCurrentUser] = useState<AdminUser | null>(null);
   const [firestoreConnected, setFirestoreConnected] = useState<boolean>(false);
+  const [firestoreError, setFirestoreError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   // If on login page, don't show the dashboard shell
@@ -46,6 +47,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           if (typeof data?.firestoreConnected === 'boolean') {
             setFirestoreConnected(data.firestoreConnected);
           }
+          setFirestoreError(data?.firestoreError || null);
         }
       })
       .catch(() => {
@@ -211,6 +213,16 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
+      {!firestoreConnected && (
+        <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-900 shadow-xs">
+            <p className="font-bold">Persistência na nuvem indisponível: cursos e artigos não serão gravados.</p>
+            <p className="mt-1">Configure as credenciais do Firebase Admin nas variáveis da Vercel e faça um novo deploy.</p>
+            {firestoreError && <p className="mt-1 font-mono text-[11px] break-words">Diagnóstico: {firestoreError}</p>}
+          </div>
+        </div>
+      )}
+
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
         {children}
@@ -218,7 +230,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
       {/* Admin Footer */}
       <footer className="bg-slate-200 text-slate-500 text-xs py-4 px-4 text-center border-t border-slate-300">
-        EasyTraining Admin CMS • Persistência Local Ativa • Pronto para Firebase / Firestore
+        EasyTraining Admin CMS • Status de persistência exibido no cabeçalho
       </footer>
     </div>
   );

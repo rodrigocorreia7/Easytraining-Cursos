@@ -22,6 +22,40 @@ async function withTimeout<T>(promise: Promise<T>, ms = 8000): Promise<T> {
   return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 }
 
+export interface FirestoreConnectionStatus {
+  configured: boolean;
+  connected: boolean;
+  error?: string;
+}
+
+/**
+ * Executa uma leitura real no Firestore para distinguir configuração presente
+ * de conexão realmente operacional no runtime (especialmente na Vercel).
+ */
+export async function checkFirestoreConnection(): Promise<FirestoreConnectionStatus> {
+  if (!isFirebaseAdminConfigured()) {
+    return {
+      configured: false,
+      connected: false,
+      error: 'Firebase Admin não configurado no servidor. Adicione FIREBASE_CLIENT_EMAIL e FIREBASE_PRIVATE_KEY na Vercel.'
+    };
+  }
+
+  try {
+    const adminDb = await getAdminDb();
+    await withTimeout(adminDb.collection(COURSES_COLLECTION).limit(1).get(), 10000);
+    isFirestoreOperational = true;
+    return { configured: true, connected: true };
+  } catch (error: any) {
+    isFirestoreOperational = false;
+    return {
+      configured: true,
+      connected: false,
+      error: error?.message || 'Falha ao conectar com o Firestore.'
+    };
+  }
+}
+
 // ============================================================================
 // 1. COURSES
 // ============================================================================

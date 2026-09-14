@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdminSession } from '@/lib/authServer';
 import { isFirebaseAdminConfigured } from '@/lib/firebaseConfigHelper';
+import { checkFirestoreConnection } from '@/lib/firestoreDb';
 import { getStoredSiteConfig } from '@/lib/db';
 
 type CheckStatus = 'ok' | 'missing' | 'error' | 'not_checked' | 'inline_firestore';
@@ -34,20 +35,9 @@ export async function GET(request: NextRequest) {
   let storageError: string | undefined;
 
   if (firebaseAdmin) {
-    try {
-      const { getAdminDb, getAdminInitError } = await import('@/lib/firebaseAdmin');
-      const adminDb = getAdminDb();
-      if (!adminDb) {
-        firestore = 'missing';
-        firestoreError = getAdminInitError() || 'Firebase Admin não inicializou o banco Firestore.';
-      } else {
-        await withTimeout(adminDb.collection('config').limit(1).get(), 10000);
-        firestore = 'ok';
-      }
-    } catch (err: any) {
-      firestore = 'error';
-      firestoreError = err?.message || 'Falha ao conectar com o Firestore';
-    }
+    const firestoreCheck = await checkFirestoreConnection();
+    firestore = firestoreCheck.connected ? 'ok' : 'error';
+    firestoreError = firestoreCheck.error;
 
     try {
       const { getAdminStorage } = await import('@/lib/firebaseAdmin');

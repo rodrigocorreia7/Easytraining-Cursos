@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdminSession } from '@/lib/authServer';
-import { isFirebaseAdminConfigured } from '@/lib/firebaseConfigHelper';
+import { checkFirestoreConnection } from '@/lib/firestoreDb';
 
 export async function GET(request: NextRequest) {
   const auth = verifyAdminSession(request);
@@ -8,9 +8,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Sessão inválida ou expirada.' }, { status: 401 });
   }
 
+  const firestore = await checkFirestoreConnection();
+
   return NextResponse.json({
     authenticated: true,
     user: auth.user,
-    firestoreConnected: isFirebaseAdminConfigured()
+    firestoreConnected: firestore.connected,
+    ...(firestore.error ? { firestoreError: firestore.error } : {})
   });
 }
