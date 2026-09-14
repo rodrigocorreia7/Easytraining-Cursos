@@ -1,7 +1,6 @@
-'use client';
-
 import React from 'react';
 import dynamic from 'next/dynamic';
+import { getCachedCoursesFromFirestore, getCachedPostsFromFirestore } from '../lib/firestoreDb';
 import { Header } from '../components/layout/Header';
 import { Footer } from '../components/layout/Footer';
 import { WhatsAppFloatingButton } from '../components/layout/WhatsAppButton';
@@ -35,7 +34,14 @@ const ContactSection = dynamic(() => import('../components/sections/Contact').th
   loading: () => <div className="min-h-[500px] bg-white animate-pulse" />
 });
 
-export default function HomePage() {
+export const revalidate = 300;
+
+export default async function HomePage() {
+  const [initialCourses, initialPosts] = await Promise.all([
+    getCachedCoursesFromFirestore(),
+    getCachedPostsFromFirestore(),
+  ]);
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-800 selection:bg-[#00874A] selection:text-white font-sans antialiased overflow-x-hidden w-full max-w-full relative">
       <Header />
@@ -43,10 +49,10 @@ export default function HomePage() {
       <main id="main-content" className="overflow-x-hidden w-full max-w-full">
         <Hero />
         <Methodology />
-        <CoursesSection />
+        <CoursesSection initialCourses={initialCourses} />
         <About />
         <Testimonials />
-        <BlogSection />
+        <BlogSection initialPosts={initialPosts} />
         <FAQSection />
         <ContactSection />
       </main>

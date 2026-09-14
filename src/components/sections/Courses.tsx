@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { courses as defaultCourses } from '../../data/coursesData';
 import { Course } from '../../types';
-import { CourseService } from '../../services/courseService';
 import {
   Clock,
   ArrowRight,
@@ -21,24 +20,16 @@ import SplitText from '../ui/SplitText';
 
 interface CoursesSectionProps {
   initialCategory?: string;
+  initialCourses?: Course[];
 }
 
-export const CoursesSection: React.FC<CoursesSectionProps> = ({ initialCategory = 'todos' }) => {
-  const [coursesList, setCoursesList] = useState<Course[]>(defaultCourses);
+export const CoursesSection: React.FC<CoursesSectionProps> = ({ initialCategory = 'todos', initialCourses }) => {
+  const [coursesList] = useState<Course[]>(
+    initialCourses && initialCourses.length > 0 ? initialCourses : defaultCourses
+  );
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
   const [searchFilter, setSearchFilter] = useState('');
   const [activeCourse, setActiveCourse] = useState<Course | null>(null);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      CourseService.getAllCourses().then((data) => {
-        if (data && data.length > 0) {
-          setCoursesList(data);
-        }
-      }).catch(console.error);
-    }, 4000);
-    return () => clearTimeout(timer);
-  }, []);
 
   const categoryCounts = useMemo(() => {
     return {

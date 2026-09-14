@@ -2,6 +2,23 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 const CANONICAL_HOST = 'www.easytraining.com.br';
 const LEGACY_HOSTS = new Set(['easytraining.com.br']);
+const BLOCKED_LEGACY_PATHS = [
+  '/xmlrpc.php',
+  '/wp-login.php',
+  '/wp-admin',
+  '/wp-content',
+  '/wp-includes',
+  '/wp-json',
+  '/admin/uploader',
+];
+
+function isBlockedLegacyPath(pathname: string): boolean {
+  const normalizedPath = pathname.toLowerCase().replace(/\/+$/, '') || '/';
+
+  return BLOCKED_LEGACY_PATHS.some((blockedPath) => (
+    normalizedPath === blockedPath || normalizedPath.startsWith(`${blockedPath}/`)
+  ));
+}
 
 function getSessionSecret(): string {
   const secret = process.env.ADMIN_SESSION_SECRET || process.env.NEXTAUTH_SECRET || '';
@@ -59,6 +76,15 @@ async function isValidAdminSessionCookie(token?: string): Promise<boolean> {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const host = request.headers.get('host')?.split(':')[0].toLowerCase();
+
+  // Bloqueia sondagens de endpoints WordPress antes que a rota dinâmica
+  // /[slug] seja executada e consulte o Firestore para uma URL inexistente.
+  if (isBlockedLegacyPath(pathname)) {
+    const response = new NextResponse(null, { status: 404 });
+    response.headers.set('Cache-Control', 'public, max-age=60, s-maxage=300');
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+    return response;
+  }
 
   if (host && LEGACY_HOSTS.has(host)) {
     const canonicalUrl = request.nextUrl.clone();

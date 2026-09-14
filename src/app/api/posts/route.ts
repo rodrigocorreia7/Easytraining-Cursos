@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPostsFromFirestore, savePostToFirestore } from '@/lib/firestoreDb';
+import { getPostBySlugFromFirestore, getPostsFromFirestore, invalidatePublicContentCache, savePostToFirestore } from '@/lib/firestoreDb';
 import { saveStoredPosts } from '@/lib/db';
 import { BlogPost } from '@/types';
 import { sanitizeString, sanitizeObject, sanitizeHtmlContent, sanitizeImageUrl } from '@/lib/security';
@@ -12,16 +12,15 @@ export async function GET(request: NextRequest) {
     const slug = searchParams.get('slug');
     const query = searchParams.get('q')?.toLowerCase();
 
-    let posts = await getPostsFromFirestore();
-
     if (slug) {
-      const cleanSlug = sanitizeString(slug, 120).toLowerCase();
-      const post = posts.find(p => p.slug.toLowerCase() === cleanSlug);
+      const post = await getPostBySlugFromFirestore(sanitizeString(slug, 120));
       if (!post) {
         return NextResponse.json({ error: 'Post não encontrado.' }, { status: 404 });
       }
       return NextResponse.json(post);
     }
+
+    let posts = await getPostsFromFirestore();
 
     if (category && category !== 'Todos') {
       const cleanCat = sanitizeString(category, 60);
@@ -110,6 +109,7 @@ export async function POST(request: NextRequest) {
     };
 
     await savePostToFirestore(newPost);
+    invalidatePublicContentCache('posts');
 
     posts.unshift(newPost);
     saveStoredPosts(posts);

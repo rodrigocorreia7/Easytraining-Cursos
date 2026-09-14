@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCoursesFromFirestore, saveCourseToFirestore } from '@/lib/firestoreDb';
+import { getCourseByIdFromFirestore, getCoursesFromFirestore, invalidatePublicContentCache, saveCourseToFirestore } from '@/lib/firestoreDb';
 import { saveStoredCourses } from '@/lib/db';
 import { Course } from '@/types';
 import { sanitizeString, sanitizeObject, sanitizeHtmlContent, sanitizeImageUrl } from '@/lib/security';
@@ -11,16 +11,15 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category');
     const slug = searchParams.get('slug');
 
-    let courses = await getCoursesFromFirestore();
-
     if (slug) {
-      const cleanSlug = sanitizeString(slug, 120).toLowerCase();
-      const course = courses.find(c => c.slug.toLowerCase() === cleanSlug);
+      const course = await getCourseByIdFromFirestore(sanitizeString(slug, 120));
       if (!course) {
         return NextResponse.json({ error: 'Curso não encontrado.' }, { status: 404 });
       }
       return NextResponse.json(course);
     }
+
+    let courses = await getCoursesFromFirestore();
 
     if (category && category !== 'Todos') {
       const cleanCat = sanitizeString(category, 60);
@@ -79,6 +78,7 @@ export async function POST(request: NextRequest) {
 
     // Salva no Firestore
     await saveCourseToFirestore(newCourse);
+    invalidatePublicContentCache('courses');
 
     // Sincroniza cache local
     courses.push(newCourse);

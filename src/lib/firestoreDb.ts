@@ -1,4 +1,5 @@
 import { isFirebaseAdminConfigured } from './firebaseConfigHelper';
+import { revalidatePath, revalidateTag, unstable_cache } from 'next/cache';
 import { Course, BlogPost } from '../types';
 import { getStoredCourses, getStoredPosts, getStoredSiteConfig, type SiteConfigType } from './db';
 
@@ -6,6 +7,9 @@ const COURSES_COLLECTION = 'courses';
 const POSTS_COLLECTION = 'posts';
 const CONFIG_COLLECTION = 'config';
 const SITE_CONFIG_DOC = 'siteConfig';
+export const PUBLIC_CONTENT_REVALIDATE_SECONDS = 300;
+export const PUBLIC_COURSES_CACHE_TAG = 'public-courses';
+export const PUBLIC_POSTS_CACHE_TAG = 'public-posts';
 
 let isFirestoreOperational: boolean | null = null;
 
@@ -26,6 +30,7 @@ export interface FirestoreConnectionStatus {
   configured: boolean;
   connected: boolean;
   error?: string;
+  reason?: 'quota_exceeded' | 'credentials' | 'unavailable';
 }
 
 /**
@@ -37,7 +42,8 @@ export async function checkFirestoreConnection(): Promise<FirestoreConnectionSta
     return {
       configured: false,
       connected: false,
-      error: 'Firebase Admin não configurado no servidor. Adicione FIREBASE_CLIENT_EMAIL e FIREBASE_PRIVATE_KEY na Vercel.'
+      error: 'Firebase Admin não configurado no servidor. Adicione FIREBASE_CLIENT_EMAIL e FIREBASE_PRIVATE_KEY na Vercel.',
+      reason: 'credentials'
     };
   }
 
@@ -51,7 +57,10 @@ export async function checkFirestoreConnection(): Promise<FirestoreConnectionSta
     return {
       configured: true,
       connected: false,
-      error: error?.message || 'Falha ao conectar com o Firestore.'
+      error: error?.message || 'Falha ao conectar com o Firestore.',
+      reason: error?.code === 8 || error?.message?.includes('RESOURCE_EXHAUSTED')
+        ? 'quota_exceeded'
+        : 'unavailable'
     };
   }
 }
@@ -82,7 +91,11 @@ export async function getCoursesFromFirestore(): Promise<Course[]> {
     const coursesMap = new Map<string, Course>();
     localCourses.forEach((c) => coursesMap.set(String(c.id), c));
     snapshot.forEach((d) => {
-      const data = d.data() as Course;
+      const rawData = d.data() as Course;
+      const data = {
+        ...rawData,
+        id: rawData.id ?? (Number.isFinite(Number(d.id)) ? Number(d.id) : d.id),
+      } as Course;
       if (data && (data.id || data.slug)) {
         coursesMap.set(String(data.id), data);
       }
@@ -192,6 +205,22 @@ export async function seedCoursesToFirestore(coursesList: Course[]): Promise<voi
   }
 }
 
+/** Catálogo público cacheado por cinco minutos para reduzir leituras repetidas. */
+export const getCachedCoursesFromFirestore = unstable_cache(
+  () => getCoursesFromFirestore(),
+  ['easytraining-public-courses'],
+  { revalidate: PUBLIC_CONTENT_REVALIDATE_SECONDS, tags: [PUBLIC_COURSES_CACHE_TAG] }
+);
+
+export function getCachedCourseBySlugFromFirestore(slug: string): Promise<Course | null> {
+  const cleanSlug = normalizePostSlug(slug);
+  return unstable_cache(
+    () => getCourseByIdFromFirestore(cleanSlug),
+    ['easytraining-public-course', cleanSlug],
+    { revalidate: PUBLIC_CONTENT_REVALIDATE_SECONDS, tags: [PUBLIC_COURSES_CACHE_TAG] }
+  )();
+}
+
 // ============================================================================
 // 2. BLOG POSTS
 // ============================================================================
@@ -209,6 +238,10 @@ export function getCategoryFallbackImage(category?: string, title?: string): str
   if (combined.includes('rh') || combined.includes('recursos humanos') || combined.includes('departamento pessoal')) return '/images/courses/RECURSOS-HUMANOS.webp';
   if (combined.includes('design') || combined.includes('marketing') || combined.includes('midia')) return '/images/courses/crop-hand-drawing-digital-marketing-plan.webp';
   return '/images/courses/informatica-basica.webp';
+}
+
+function normalizePostSlug(slug: string): string {
+  return slug.replace(/^\/+|\/+$/g, '').trim().toLowerCase();
 }
 
 function sanitizePostMedia(p: BlogPost): BlogPost {
@@ -244,6 +277,148 @@ function sanitizePostMedia(p: BlogPost): BlogPost {
   };
 }
 
+function getCourseFromSnapshot(snapshot: any): Course | null {
+  if (!snapshot?.exists) return null;
+  const rawData = snapshot.data() as Course;
+  if (!rawData || (!rawData.id && !rawData.slug)) return null;
+  return {
+    ...rawData,
+    id: rawData.id ?? (Number.isFinite(Number(snapshot.id)) ? Number(snapshot.id) : snapshot.id),
+  } as Course;
+}
+
+function getPostFromSnapshot(snapshot: any): BlogPost | null {
+  if (!snapshot?.exists) return null;
+  const rawData = snapshot.data() as BlogPost;
+  if (!rawData || !rawData.slug) return null;
+  return sanitizePostMedia({
+    ...rawData,
+    id: rawData.id ?? snapshot.id,
+  });
+}
+
+/** Busca um curso sem carregar a coleção inteira. */
+export async function getCourseByIdFromFirestore(id: string | number): Promise<Course | null> {
+  const cleanId = String(id).trim();
+  const localCourse = getStoredCourses().find(
+    (course) => String(course.id) === cleanId || course.slug.toLowerCase() === cleanId.toLowerCase()
+  );
+
+  if (!isFirebaseAdminConfigured()) return localCourse || null;
+
+  try {
+    const adminDb = await getAdminDb();
+    const directSnapshot = await withTimeout(
+      adminDb.collection(COURSES_COLLECTION).doc(cleanId).get(),
+      4000
+    );
+    const directCourse = getCourseFromSnapshot(directSnapshot);
+    if (directCourse) {
+      isFirestoreOperational = true;
+      return directCourse;
+    }
+
+    const idValue = /^\d+$/.test(cleanId) ? Number(cleanId) : cleanId;
+    const idSnapshot = await withTimeout(
+      adminDb.collection(COURSES_COLLECTION).where('id', '==', idValue).limit(1).get(),
+      4000
+    );
+    if (!idSnapshot.empty) {
+      isFirestoreOperational = true;
+      return getCourseFromSnapshot(idSnapshot.docs[0]);
+    }
+
+    const slugSnapshot = await withTimeout(
+      adminDb.collection(COURSES_COLLECTION).where('slug', '==', cleanId.toLowerCase()).limit(1).get(),
+      4000
+    );
+    isFirestoreOperational = true;
+    return slugSnapshot.empty ? (localCourse || null) : getCourseFromSnapshot(slugSnapshot.docs[0]);
+  } catch (error: any) {
+    console.warn('Fallback para curso local devido a erro no Firestore:', error?.message);
+    return localCourse || null;
+  }
+}
+
+/**
+ * Busca somente o artigo solicitado. Isso evita ler a coleção inteira para
+ * cada URL inválida ou para cada visita a um artigo individual.
+ */
+export async function getPostBySlugFromFirestore(slug: string): Promise<BlogPost | null> {
+  const cleanSlug = normalizePostSlug(slug);
+  if (!cleanSlug) return null;
+
+  const localPost = getStoredPosts().find(
+    (post) => normalizePostSlug(String(post.slug || '')) === cleanSlug
+  );
+
+  if (!isFirebaseAdminConfigured()) {
+    return localPost ? sanitizePostMedia(localPost) : null;
+  }
+
+  try {
+    const adminDb = await getAdminDb();
+    const snapshot = await withTimeout(
+      adminDb.collection(POSTS_COLLECTION).where('slug', '==', cleanSlug).limit(1).get(),
+      4000
+    );
+
+    isFirestoreOperational = true;
+
+    if (!snapshot.empty) {
+      return sanitizePostMedia(snapshot.docs[0].data() as BlogPost);
+    }
+
+    return localPost ? sanitizePostMedia(localPost) : null;
+  } catch (error: any) {
+    console.warn('Fallback para artigo local devido a erro no Firestore:', error?.message);
+    return localPost ? sanitizePostMedia(localPost) : null;
+  }
+}
+
+/** Busca um artigo sem carregar a coleção inteira. */
+export async function getPostByIdFromFirestore(id: string | number): Promise<BlogPost | null> {
+  const cleanId = String(id).trim();
+  const localPost = getStoredPosts().find(
+    (post) => String(post.id) === cleanId || normalizePostSlug(String(post.slug || '')) === normalizePostSlug(cleanId)
+  );
+
+  if (!isFirebaseAdminConfigured()) return localPost ? sanitizePostMedia(localPost) : null;
+
+  try {
+    const adminDb = await getAdminDb();
+    const directSnapshot = await withTimeout(
+      adminDb.collection(POSTS_COLLECTION).doc(cleanId).get(),
+      4000
+    );
+    const directPost = getPostFromSnapshot(directSnapshot);
+    if (directPost) {
+      isFirestoreOperational = true;
+      return directPost;
+    }
+
+    const idValue = /^\d+$/.test(cleanId) ? Number(cleanId) : cleanId;
+    const idSnapshot = await withTimeout(
+      adminDb.collection(POSTS_COLLECTION).where('id', '==', idValue).limit(1).get(),
+      4000
+    );
+    if (!idSnapshot.empty) {
+      isFirestoreOperational = true;
+      return getPostFromSnapshot(idSnapshot.docs[0]);
+    }
+
+    const slugSnapshot = await withTimeout(
+      adminDb.collection(POSTS_COLLECTION).where('slug', '==', normalizePostSlug(cleanId)).limit(1).get(),
+      4000
+    );
+    isFirestoreOperational = true;
+    return slugSnapshot.empty ? (localPost ? sanitizePostMedia(localPost) : null) : getPostFromSnapshot(slugSnapshot.docs[0]);
+  } catch (error: any) {
+    console.warn('Fallback para artigo local devido a erro no Firestore:', error?.message);
+    return localPost ? sanitizePostMedia(localPost) : null;
+  }
+}
+
 export async function getPostsFromFirestore(): Promise<BlogPost[]> {
   const localPosts = getStoredPosts();
 
@@ -266,7 +441,11 @@ export async function getPostsFromFirestore(): Promise<BlogPost[]> {
     const postsMap = new Map<string, BlogPost>();
     localPosts.forEach((p) => postsMap.set(String(p.slug).toLowerCase(), sanitizePostMedia(p)));
     snapshot.forEach((d) => {
-      const data = d.data() as BlogPost;
+      const rawData = d.data() as BlogPost;
+      const data = {
+        ...rawData,
+        id: rawData.id ?? d.id,
+      } as BlogPost;
       if (data && data.slug) {
         postsMap.set(String(data.slug).toLowerCase(), sanitizePostMedia(data));
       }
@@ -359,6 +538,42 @@ export async function seedPostsToFirestore(postsList: BlogPost[]): Promise<void>
   } catch (error: any) {
     console.warn('Não foi possível semear posts no Firestore:', error?.message);
   }
+}
+
+/** Conteúdo público do blog cacheado por cinco minutos. */
+export const getCachedPostsFromFirestore = unstable_cache(
+  () => getPostsFromFirestore(),
+  ['easytraining-public-posts'],
+  { revalidate: PUBLIC_CONTENT_REVALIDATE_SECONDS, tags: [PUBLIC_POSTS_CACHE_TAG] }
+);
+
+export function getCachedPostBySlugFromFirestore(slug: string): Promise<BlogPost | null> {
+  const cleanSlug = normalizePostSlug(slug);
+  return unstable_cache(
+    () => getPostBySlugFromFirestore(cleanSlug),
+    ['easytraining-public-post', cleanSlug],
+    { revalidate: PUBLIC_CONTENT_REVALIDATE_SECONDS, tags: [PUBLIC_POSTS_CACHE_TAG] }
+  )();
+}
+
+export function invalidatePublicContentCache(kind: 'courses' | 'posts' | 'all'): void {
+  const invalidateCourses = kind === 'courses' || kind === 'all';
+  const invalidatePosts = kind === 'posts' || kind === 'all';
+
+  if (invalidateCourses) {
+    revalidateTag(PUBLIC_COURSES_CACHE_TAG, 'max');
+    revalidatePath('/cursos', 'page');
+    revalidatePath('/curso/[slug]', 'page');
+  }
+
+  if (invalidatePosts) {
+    revalidateTag(PUBLIC_POSTS_CACHE_TAG, 'max');
+    revalidatePath('/blog', 'page');
+    revalidatePath('/blog/[slug]', 'page');
+  }
+
+  revalidatePath('/', 'page');
+  revalidatePath('/sitemap.xml');
 }
 
 // ============================================================================

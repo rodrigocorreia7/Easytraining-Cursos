@@ -15,6 +15,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<AdminUser | null>(null);
   const [firestoreConnected, setFirestoreConnected] = useState<boolean>(false);
   const [firestoreError, setFirestoreError] = useState<string | null>(null);
+  const [firestoreReason, setFirestoreReason] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   // If on login page, don't show the dashboard shell
@@ -47,6 +48,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           if (typeof data?.firestoreConnected === 'boolean') {
             setFirestoreConnected(data.firestoreConnected);
           }
+          setFirestoreReason(data?.firestoreReason || null);
           setFirestoreError(data?.firestoreError || null);
         }
       })
@@ -172,7 +174,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 ) : (
                   <span className="flex items-center gap-1 text-[10px] text-amber-300/80 leading-tight">
                     <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-                    Firestore indisponível
+                    {firestoreReason === 'quota_exceeded' ? 'Cota Firestore excedida' : 'Firestore indisponível'}
                   </span>
                 )}
               </div>
@@ -216,8 +218,17 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       {!firestoreConnected && (
         <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-4">
           <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-900 shadow-xs">
-            <p className="font-bold">Persistência na nuvem indisponível: cursos e artigos não serão gravados.</p>
-            <p className="mt-1">Configure as credenciais do Firebase Admin nas variáveis da Vercel e faça um novo deploy.</p>
+            {firestoreReason === 'quota_exceeded' ? (
+              <>
+                <p className="font-bold">Cota diária do Firestore excedida: as leituras estão temporariamente indisponíveis.</p>
+                <p className="mt-1">As credenciais do Firebase Admin foram reconhecidas. A gravação voltará a funcionar quando a cota for renovada, desde que a cota de gravações também não tenha sido atingida.</p>
+              </>
+            ) : (
+              <>
+                <p className="font-bold">Persistência na nuvem indisponível: cursos e artigos não serão gravados.</p>
+                <p className="mt-1">Configure as credenciais do Firebase Admin nas variáveis da Vercel e faça um novo deploy.</p>
+              </>
+            )}
             {firestoreError && <p className="mt-1 font-mono text-[11px] break-words">Diagnóstico: {firestoreError}</p>}
           </div>
         </div>

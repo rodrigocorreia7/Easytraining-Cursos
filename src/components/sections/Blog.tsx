@@ -1,26 +1,20 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { realBlogPosts as defaultPosts } from '../../data/blogPostsReal';
 import { BlogPost } from '../../types';
-import { BlogService } from '../../services/blogService';
 import { Calendar, Clock, ArrowRight, Newspaper, BookOpen } from 'lucide-react';
 import SplitText from '../ui/SplitText';
 import { formatShortDate } from '../../lib/dateUtils';
 
-export const BlogSection: React.FC = () => {
-  const [posts, setPosts] = useState<BlogPost[]>(defaultPosts);
+interface BlogSectionProps {
+  initialPosts?: BlogPost[];
+}
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      BlogService.getAllPosts().then((data) => {
-        if (data && data.length > 0) {
-          setPosts(data);
-        }
-      }).catch(console.error);
-    }, 4500);
-    return () => clearTimeout(timer);
-  }, []);
+export const BlogSection: React.FC<BlogSectionProps> = ({ initialPosts }) => {
+  const [posts] = useState<BlogPost[]>(
+    initialPosts && initialPosts.length > 0 ? initialPosts : defaultPosts
+  );
 
   // Show top 3 recent posts on landing page
   const featuredPosts = posts.slice(0, 3);

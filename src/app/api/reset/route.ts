@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { resetStoredCourses, resetStoredPosts, resetStoredSiteConfig } from '@/lib/db';
+import { invalidatePublicContentCache } from '@/lib/firestoreDb';
 import { verifyAdminSession } from '@/lib/authServer';
 
 export async function POST(request: NextRequest) {
@@ -20,6 +21,10 @@ export async function POST(request: NextRequest) {
     if (target === 'config' || target === 'all') {
       resetStoredSiteConfig();
     }
+
+    if (target === 'courses') invalidatePublicContentCache('courses');
+    else if (target === 'posts') invalidatePublicContentCache('posts');
+    else invalidatePublicContentCache('all');
 
     return NextResponse.json({
       success: true,

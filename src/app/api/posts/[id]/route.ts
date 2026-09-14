@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPostsFromFirestore, savePostToFirestore, deletePostFromFirestore } from '@/lib/firestoreDb';
-import { saveStoredPosts } from '@/lib/db';
+import { getPostByIdFromFirestore, deletePostFromFirestore, invalidatePublicContentCache, savePostToFirestore } from '@/lib/firestoreDb';
+import { getStoredPosts, saveStoredPosts } from '@/lib/db';
 import { BlogPost } from '@/types';
 import { sanitizeString, sanitizeObject, sanitizeHtmlContent, sanitizeImageUrl } from '@/lib/security';
 import { verifyAdminSession } from '@/lib/authServer';
 
 function isValidEntityId(id: string): boolean {
-  return typeof id === 'string' && /^[a-zA-Z0-9_-]{2,120}$/.test(id);
+  return typeof id === 'string' && /^[a-zA-Z0-9_-]{1,120}$/.test(id);
 }
 
 export async function GET(
@@ -19,8 +19,7 @@ export async function GET(
       return NextResponse.json({ error: 'Identificador com formato inválido.' }, { status: 400 });
     }
 
-    const posts = await getPostsFromFirestore();
-    const post = posts.find(p => String(p.id) === String(id));
+    const post = await getPostByIdFromFirestore(id);
 
     if (!post) {
       return NextResponse.json({ error: 'Post não encontrado.' }, { status: 404 });
@@ -50,23 +49,21 @@ export async function PUT(
 
     const rawBody = await request.json();
     const body = sanitizeObject<Record<string, any>>(rawBody);
-    const posts = await getPostsFromFirestore();
-
-    const index = posts.findIndex(p => String(p.id) === String(id));
-    if (index === -1) {
+    const currentPost = await getPostByIdFromFirestore(id);
+    if (!currentPost) {
       return NextResponse.json({ error: 'Post não encontrado.' }, { status: 404 });
     }
 
     // Sanitiza HTML de conteúdo rico suportando artigos longos (até 500.000 caracteres)
     const rawContent = rawBody.contentHtml !== undefined 
       ? rawBody.contentHtml 
-      : (rawBody.content !== undefined ? rawBody.content : posts[index].contentHtml);
+      : (rawBody.content !== undefined ? rawBody.content : currentPost.contentHtml);
     const cleanContentHtml = sanitizeHtmlContent(rawContent, 500000);
 
     // Atualiza ou preserva headings
     let postHeadings = Array.isArray(body.headings) && body.headings.length > 0 
       ? body.headings 
-      : (posts[index].headings || []);
+      : (currentPost.headings || []);
 
     if (postHeadings.length === 0 && cleanContentHtml) {
       const headingRegex = /<(h[2-3])[^>]*>(.*?)<\/\1>/gi;
@@ -90,23 +87,27 @@ export async function PUT(
     const computedReadTime = `${Math.max(1, Math.round(wordsCount / 180))} min`;
 
     const updatedPost: BlogPost = {
-      ...posts[index],
+      ...currentPost,
       ...body,
-      id: posts[index].id,
-      title: sanitizeString(body.title || posts[index].title, 255),
-      excerpt: sanitizeString(body.excerpt || posts[index].excerpt, 600),
+      id: currentPost.id,
+      title: sanitizeString(body.title || currentPost.title, 255),
+      excerpt: sanitizeString(body.excerpt || currentPost.excerpt, 600),
       contentHtml: cleanContentHtml,
-      category: sanitizeString(body.category || posts[index].category, 60),
-      image: sanitizeImageUrl(body.image || posts[index].image) || '/images/courses/informatica-basica.webp',
-      readTime: body.readTime || posts[index].readTime || computedReadTime,
+      category: sanitizeString(body.category || currentPost.category, 60),
+      image: sanitizeImageUrl(body.image || currentPost.image) || '/images/courses/informatica-basica.webp',
+      readTime: body.readTime || currentPost.readTime || computedReadTime,
       headings: postHeadings,
-      faqs: Array.isArray(body.faqs) ? body.faqs : (posts[index].faqs || []),
-      relatedCourse: body.relatedCourse || posts[index].relatedCourse
+      faqs: Array.isArray(body.faqs) ? body.faqs : (currentPost.faqs || []),
+      relatedCourse: body.relatedCourse || currentPost.relatedCourse
     };
 
     await savePostToFirestore(updatedPost);
+    invalidatePublicContentCache('posts');
 
-    posts[index] = updatedPost;
+    const posts = getStoredPosts();
+    const index = posts.findIndex(p => String(p.id) === String(currentPost.id));
+    if (index >= 0) posts[index] = updatedPost;
+    else posts.unshift(updatedPost);
     saveStoredPosts(posts);
 
     return NextResponse.json(updatedPost);
@@ -133,8 +134,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Identificador com formato inválido.' }, { status: 400 });
     }
 
-    const posts = await getPostsFromFirestore();
-    const target = posts.find(p => String(p.id) === String(id) || p.slug === id);
+    const target = await getPostByIdFromFirestore(id);
 
     if (target) {
       if (target.slug) await deletePostFromFirestore(target.slug);
@@ -142,7 +142,9 @@ export async function DELETE(
     } else {
       await deletePostFromFirestore(id);
     }
+    invalidatePublicContentCache('posts');
 
+    const posts = getStoredPosts();
     const filtered = posts.filter(p => String(p.id) !== String(id) && (!target || p.slug !== target.slug));
     saveStoredPosts(filtered);
 

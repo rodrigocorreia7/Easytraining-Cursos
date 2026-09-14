@@ -32,12 +32,14 @@ export async function GET(request: NextRequest) {
   let firestore: CheckStatus = firebaseAdmin ? 'not_checked' : 'missing';
   let storage: CheckStatus = firebaseAdmin ? 'not_checked' : 'missing';
   let firestoreError: string | undefined;
+  let firestoreReason: 'quota_exceeded' | 'credentials' | 'unavailable' | undefined;
   let storageError: string | undefined;
 
   if (firebaseAdmin) {
     const firestoreCheck = await checkFirestoreConnection();
     firestore = firestoreCheck.connected ? 'ok' : 'error';
     firestoreError = firestoreCheck.error;
+    firestoreReason = firestoreCheck.reason;
 
     try {
       const { getAdminStorage } = await import('@/lib/firebaseAdmin');
@@ -73,6 +75,7 @@ export async function GET(request: NextRequest) {
     firebase: {
       adminSdk: firebaseAdmin ? 'ok' : 'missing',
       firestore,
+      ...(firestoreReason ? { firestoreReason } : {}),
       storage,
       ...(firestoreError ? { firestoreError } : {}),
       ...(storageError ? { storageError } : {}),

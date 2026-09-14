@@ -1,19 +1,19 @@
 import { notFound, permanentRedirect } from 'next/navigation';
 import type { Metadata } from 'next';
-import { getPostsFromFirestore } from '../../lib/firestoreDb';
+import { cache } from 'react';
+import { getCachedPostBySlugFromFirestore } from '../../lib/firestoreDb';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const revalidate = 300;
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+const getPostBySlug = cache((slug: string) => getCachedPostBySlugFromFirestore(slug));
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const posts = await getPostsFromFirestore();
-  const cleanSlug = slug.replace(/^\/|\/$/g, '').toLowerCase();
-  const post = posts.find(p => p.slug.toLowerCase() === cleanSlug);
+  const post = await getPostBySlug(slug);
 
   if (!post) {
     return {
@@ -31,9 +31,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function RootSlugPageRoute({ params }: PageProps) {
   const { slug } = await params;
-  const posts = await getPostsFromFirestore();
-  const cleanSlug = slug.replace(/^\/|\/$/g, '').toLowerCase();
-  const post = posts.find(p => p.slug.toLowerCase() === cleanSlug);
+  const post = await getPostBySlug(slug);
 
   if (!post) {
     notFound();

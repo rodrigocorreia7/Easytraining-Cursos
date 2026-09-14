@@ -4,10 +4,9 @@ import { Header } from '../../components/layout/Header';
 import { Footer } from '../../components/layout/Footer';
 import { WhatsAppFloatingButton } from '../../components/layout/WhatsAppButton';
 import { getStoredSiteConfig } from '../../lib/db';
-import { getCoursesFromFirestore } from '../../lib/firestoreDb';
+import { getCachedCoursesFromFirestore } from '../../lib/firestoreDb';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: 'Cursos Profissionalizantes em Guarulhos',
@@ -31,7 +30,7 @@ export const metadata: Metadata = {
 };
 
 export default async function CursosPage() {
-  const courses = await getCoursesFromFirestore();
+  const courses = await getCachedCoursesFromFirestore();
   const siteConfig = getStoredSiteConfig();
   const whatsappUrl = `https://wa.me/${siteConfig.whatsappClean}?text=${encodeURIComponent(
     'Olá! Acessei a página de cursos da EasyTraining e gostaria de informações sobre turmas e valores.'

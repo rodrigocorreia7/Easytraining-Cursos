@@ -1,8 +1,7 @@
 import { MetadataRoute } from 'next';
-import { getCoursesFromFirestore, getPostsFromFirestore } from '../lib/firestoreDb';
+import { getCachedCoursesFromFirestore, getCachedPostsFromFirestore } from '../lib/firestoreDb';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const revalidate = 300;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://www.easytraining.com.br';
@@ -55,7 +54,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   // 2. Rotas Dinâmicas de Cursos (Catálogo Completo)
-  const courses = await getCoursesFromFirestore();
+  const courses = await getCachedCoursesFromFirestore();
   const courseRoutes: MetadataRoute.Sitemap = courses
     .filter((c) => c && c.slug)
     .map((course) => ({
@@ -66,7 +65,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
   // 3. Rotas Dinâmicas de Artigos do Blog
-  const posts = await getPostsFromFirestore();
+  const posts = await getCachedPostsFromFirestore();
   const postRoutes: MetadataRoute.Sitemap = posts
     .filter((p) => p && p.slug)
     .map((post) => ({

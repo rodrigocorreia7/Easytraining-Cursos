@@ -1,12 +1,12 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
-import { getCoursesFromFirestore, saveCourseToFirestore, deleteCourseFromFirestore } from '@/lib/firestoreDb';
-import { saveStoredCourses } from '@/lib/db';
+import { getCourseByIdFromFirestore, deleteCourseFromFirestore, invalidatePublicContentCache, saveCourseToFirestore } from '@/lib/firestoreDb';
+import { getStoredCourses, saveStoredCourses } from '@/lib/db';
 import { Course } from '@/types';
 import { sanitizeString, sanitizeObject, sanitizeHtmlContent, sanitizeImageUrl } from '@/lib/security';
 import { verifyAdminSession } from '@/lib/authServer';
 
 function isValidEntityId(id: string): boolean {
-  return typeof id === 'string' && /^[a-zA-Z0-9_-]{2,120}$/.test(id);
+  return typeof id === 'string' && /^[a-zA-Z0-9_-]{1,120}$/.test(id);
 }
 
 export async function GET(
@@ -19,8 +19,7 @@ export async function GET(
       return NextResponse.json({ error: 'Identificador com formato inválido.' }, { status: 400 });
     }
 
-    const courses = await getCoursesFromFirestore();
-    const course = courses.find(c => String(c.id) === String(id));
+    const course = await getCourseByIdFromFirestore(id);
 
     if (!course) {
       return NextResponse.json({ error: 'Curso não encontrado.' }, { status: 404 });
@@ -50,32 +49,34 @@ export async function PUT(
 
     const rawBody = await request.json();
     const body = sanitizeObject<Record<string, any>>(rawBody);
-    const courses = await getCoursesFromFirestore();
-
-    const index = courses.findIndex(c => String(c.id) === String(id));
-    if (index === -1) {
+    const currentCourse = await getCourseByIdFromFirestore(id);
+    if (!currentCourse) {
       return NextResponse.json({ error: 'Curso não encontrado.' }, { status: 404 });
     }
 
     const rawFullDesc = rawBody.fullDescription !== undefined 
       ? rawBody.fullDescription 
-      : (body.fullDescription || courses[index].fullDescription);
+      : (body.fullDescription || currentCourse.fullDescription);
 
     const updatedCourse: Course = {
-      ...courses[index],
+      ...currentCourse,
       ...body,
-      id: courses[index].id,
-      title: sanitizeString(body.title || courses[index].title, 120),
-      shortDescription: sanitizeString(body.shortDescription || courses[index].shortDescription, 280),
+      id: currentCourse.id,
+      title: sanitizeString(body.title || currentCourse.title, 120),
+      shortDescription: sanitizeString(body.shortDescription || currentCourse.shortDescription, 280),
       fullDescription: sanitizeHtmlContent(rawFullDesc, 50000),
-      duration: sanitizeString(body.duration || courses[index].duration, 50),
-      image: sanitizeImageUrl(body.image || courses[index].image) || '/images/courses/informatica-basica.webp',
-      whatsappMessage: sanitizeString(body.whatsappMessage || courses[index].whatsappMessage, 200)
+      duration: sanitizeString(body.duration || currentCourse.duration, 50),
+      image: sanitizeImageUrl(body.image || currentCourse.image) || '/images/courses/informatica-basica.webp',
+      whatsappMessage: sanitizeString(body.whatsappMessage || currentCourse.whatsappMessage, 200)
     };
 
     await saveCourseToFirestore(updatedCourse);
+    invalidatePublicContentCache('courses');
 
-    courses[index] = updatedCourse;
+    const courses = getStoredCourses();
+    const index = courses.findIndex(c => String(c.id) === String(currentCourse.id));
+    if (index >= 0) courses[index] = updatedCourse;
+    else courses.unshift(updatedCourse);
     saveStoredCourses(courses);
 
     return NextResponse.json(updatedCourse);
@@ -103,8 +104,9 @@ export async function DELETE(
     }
 
     await deleteCourseFromFirestore(id);
+    invalidatePublicContentCache('courses');
 
-    const courses = await getCoursesFromFirestore();
+    const courses = getStoredCourses();
     const filtered = courses.filter(c => String(c.id) !== String(id));
     saveStoredCourses(filtered);
 

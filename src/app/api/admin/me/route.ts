@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
     authenticated: true,
     user: auth.user,
     firestoreConnected: firestore.connected,
+    ...(firestore.reason ? { firestoreReason: firestore.reason } : {}),
     ...(firestore.error ? { firestoreError: firestore.error } : {})
   });
 }

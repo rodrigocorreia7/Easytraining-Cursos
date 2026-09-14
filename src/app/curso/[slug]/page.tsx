@@ -2,7 +2,7 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getStoredSiteConfig } from '../../../lib/db';
-import { getCoursesFromFirestore } from '../../../lib/firestoreDb';
+import { getCachedCourseBySlugFromFirestore, getCachedCoursesFromFirestore } from '../../../lib/firestoreDb';
 import { Header } from '../../../components/layout/Header';
 import { Footer } from '../../../components/layout/Footer';
 import { WhatsAppFloatingButton } from '../../../components/layout/WhatsAppButton';
@@ -20,8 +20,7 @@ import {
   Star
 } from 'lucide-react';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const revalidate = 300;
 
 // Map of legacy WordPress slugs and aliases to canonical courses
 const slugAliases: Record<string, string> = {
@@ -62,14 +61,13 @@ const slugAliases: Record<string, string> = {
 };
 
 async function findCourseBySlug(slug: string) {
-  const courses = await getCoursesFromFirestore();
   const normalized = slug.toLowerCase().replace(/\/$/, '');
   const targetSlug = slugAliases[normalized] || normalized;
-  return courses.find(c => c.slug.toLowerCase() === targetSlug || c.slug.toLowerCase() === normalized);
+  return getCachedCourseBySlugFromFirestore(targetSlug);
 }
 
 async function getRelatedCourses(currentCourseId: string | number, categorySlug?: string) {
-  const courses = await getCoursesFromFirestore();
+  const courses = await getCachedCoursesFromFirestore();
   return courses
     .filter(c => c.id !== currentCourseId && (c.categorySlug === categorySlug || c.featured))
     .slice(0, 3);

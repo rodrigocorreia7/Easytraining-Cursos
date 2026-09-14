@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { seedCoursesToFirestore, seedPostsToFirestore, saveSiteConfigToFirestore } from '@/lib/firestoreDb';
+import { invalidatePublicContentCache, seedCoursesToFirestore, seedPostsToFirestore, saveSiteConfigToFirestore } from '@/lib/firestoreDb';
 import { getStoredCourses, getStoredPosts, getStoredSiteConfig } from '@/lib/db';
 import { verifyAdminSession } from '@/lib/authServer';
 
@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
     await seedCoursesToFirestore(courses);
     await seedPostsToFirestore(posts);
     await saveSiteConfigToFirestore(config);
+    invalidatePublicContentCache('all');
 
     return NextResponse.json({
       success: true,
