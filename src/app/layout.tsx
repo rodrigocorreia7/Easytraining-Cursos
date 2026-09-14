@@ -75,8 +75,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const config = getStoredSiteConfig();
-  const gaId = config?.googleAnalyticsId || defaultSiteConfig.googleAnalyticsId;
-  const gtmId = config?.googleTagManagerId || defaultSiteConfig.googleTagManagerId;
+  const rawGaId = config?.googleAnalyticsId || defaultSiteConfig.googleAnalyticsId;
+  const rawGtmId = config?.googleTagManagerId || defaultSiteConfig.googleTagManagerId;
+
+  // Validação estrita de formato alfanumérico para mitigar injeção de script (Anti-Stored XSS)
+  const GA_REGEX = /^[A-Z0-9-]{4,20}$/i;
+  const gaId = GA_REGEX.test(rawGaId || '') ? rawGaId : null;
+  const gtmId = GA_REGEX.test(rawGtmId || '') ? rawGtmId : null;
 
   // Coordenadas oficiais: Av. Jurema, 814 – Parque Jurema (Pimentas), Guarulhos.
   const orgJsonLd = {
@@ -243,12 +248,12 @@ export default function RootLayout({
           }}
         />
 
-        {/* Google Analytics 4 (GA4) - Inserção Dinâmica Otimizada */}
+        {/* Google Analytics 4 (GA4) - Inserção Dinâmica Otimizada e Sanitizada */}
         {gaId && (
           <>
             <Script
               strategy="lazyOnload"
-              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+              src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(gaId)}`}
             />
             <Script
               id="google-analytics-init"
@@ -258,7 +263,7 @@ export default function RootLayout({
                   window.dataLayer = window.dataLayer || [];
                   function gtag(){dataLayer.push(arguments);}
                   gtag('js', new Date());
-                  gtag('config', '${gaId}', {
+                  gtag('config', ${JSON.stringify(gaId)}, {
                     page_path: window.location.pathname,
                   });
                 `,
@@ -267,7 +272,7 @@ export default function RootLayout({
           </>
         )}
 
-        {/* Google Tag Manager (GTM) - Inserção Dinâmica Otimizada */}
+        {/* Google Tag Manager (GTM) - Inserção Dinâmica Otimizada e Sanitizada */}
         {gtmId && (
           <Script
             id="google-tag-manager"
@@ -278,7 +283,7 @@ export default function RootLayout({
                 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
                 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-                })(window,document,'script','dataLayer','${gtmId}');
+                })(window,document,'script','dataLayer',${JSON.stringify(gtmId)});
               `,
             }}
           />

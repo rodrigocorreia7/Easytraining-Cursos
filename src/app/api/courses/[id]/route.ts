@@ -1,9 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { getCoursesFromFirestore, saveCourseToFirestore, deleteCourseFromFirestore } from '@/lib/firestoreDb';
 import { saveStoredCourses } from '@/lib/db';
 import { Course } from '@/types';
 import { sanitizeString, sanitizeObject, sanitizeHtmlContent, sanitizeImageUrl } from '@/lib/security';
 import { verifyAdminSession } from '@/lib/authServer';
+
+function isValidEntityId(id: string): boolean {
+  return typeof id === 'string' && /^[a-zA-Z0-9_-]{2,120}$/.test(id);
+}
 
 export async function GET(
   request: NextRequest,
@@ -11,6 +15,10 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    if (!isValidEntityId(id)) {
+      return NextResponse.json({ error: 'Identificador com formato inválido.' }, { status: 400 });
+    }
+
     const courses = await getCoursesFromFirestore();
     const course = courses.find(c => String(c.id) === String(id));
 
@@ -36,6 +44,10 @@ export async function PUT(
     }
 
     const { id } = await params;
+    if (!isValidEntityId(id)) {
+      return NextResponse.json({ error: 'Identificador com formato inválido.' }, { status: 400 });
+    }
+
     const rawBody = await request.json();
     const body = sanitizeObject<Record<string, any>>(rawBody);
     const courses = await getCoursesFromFirestore();
@@ -86,6 +98,10 @@ export async function DELETE(
     }
 
     const { id } = await params;
+    if (!isValidEntityId(id)) {
+      return NextResponse.json({ error: 'Identificador com formato inválido.' }, { status: 400 });
+    }
+
     await deleteCourseFromFirestore(id);
 
     const courses = await getCoursesFromFirestore();

@@ -3,9 +3,17 @@ import { getSiteConfigFromFirestore, saveSiteConfigToFirestore } from '@/lib/fir
 import { getStoredSiteConfig, saveStoredSiteConfig } from '@/lib/db';
 import { verifyAdminSession } from '@/lib/authServer';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const config = await getSiteConfigFromFirestore();
+    const auth = verifyAdminSession(request);
+
+    // Se o usuário não for administrador autenticado, omite o webhook privado de automações (n8n/CRM)
+    if (!auth.authorized) {
+      const { n8nWebhookUrl, ...publicConfig } = (config || {}) as Record<string, any>;
+      return NextResponse.json(publicConfig);
+    }
+
     return NextResponse.json(config);
   } catch (error) {
     console.error('Erro ao buscar siteConfig:', error);

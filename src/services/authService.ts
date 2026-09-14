@@ -18,12 +18,6 @@ interface StoredSession {
   lastActive: number;
 }
 
-export const ALLOWED_ADMIN_EMAILS = [
-  'raccorreia@gmail.com',
-  'rac2digital@gmail.com',
-  'admin@easytraining.com.br',
-  'easytraining.cursos@gmail.com'
-];
 
 const MOCK_ADMIN: AdminUser = {
   id: 'admin-01',
@@ -107,14 +101,7 @@ export const AuthService = {
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    if (!ALLOWED_ADMIN_EMAILS.includes(normalizedEmail)) {
-      return {
-        success: false,
-        error: 'Este e-mail não possui permissão de administrador no sistema.'
-      };
-    }
-
-    // 2. Autenticação via endpoint seguro no servidor (sem credenciais expostas no front)
+    // 1. Autenticação via endpoint seguro no servidor (senha mestra + verificação de e-mail autorizado)
     try {
       const serverRes = await fetch('/api/admin/login', {
         method: 'POST',
@@ -137,14 +124,45 @@ export const AuthService = {
 
         return { success: true, user: adminUser };
       }
+
+      if (serverRes.status === 429) {
+        const errData = await serverRes.json().catch(() => ({}));
+        return { success: false, error: errData.error || 'Muitas tentativas. Tente novamente em 15 minutos.' };
+      }
     } catch (apiErr) {
       console.warn('Tentativa via API server-side falhou, verificando Firebase Auth...');
     }
 
-    // 3. Fallback para Firebase Authentication
+    // 2. Fallback para Firebase Authentication
     try {
       const userCredential = await signInWithEmailAndPassword(auth, normalizedEmail, pass);
       const fbUser = userCredential.user;
+
+      // Sincroniza sessão oficial via servidor para emissão do cookie seguro HttpOnly
+      try {
+        const idToken = await fbUser.getIdToken(true);
+        const sessionRes = await fetch('/api/admin/google-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idToken })
+        });
+
+        if (!sessionRes.ok) {
+          const errData = await sessionRes.json().catch(() => ({}));
+          await fbSignOut(auth);
+          return {
+            success: false,
+            error: errData.error || 'Acesso negado: seu usuário não possui permissão administrativa no servidor.'
+          };
+        }
+      } catch (sessErr) {
+        console.error('Falha ao emitir sessão segura no servidor:', sessErr);
+        await fbSignOut(auth);
+        return {
+          success: false,
+          error: 'Falha de comunicação ao estabelecer sessão administrativa segura.'
+        };
+      }
 
       const adminUser: AdminUser = {
         id: fbUser.uid,
@@ -200,14 +218,6 @@ export const AuthService = {
       const result = await signInWithPopup(auth, provider);
       const fbUser = result.user;
       const emailLower = (fbUser.email || '').toLowerCase();
-
-      if (!ALLOWED_ADMIN_EMAILS.includes(emailLower)) {
-        await fbSignOut(auth);
-        return {
-          success: false,
-          error: `O e-mail Google (${emailLower}) não possui permissão de administrador no sistema.`
-        };
-      }
 
       const adminUser: AdminUser = {
         id: fbUser.uid,

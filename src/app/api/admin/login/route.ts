@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { timingSafeEqual } from 'crypto';
 import { signAdminToken, ALLOWED_ADMIN_EMAILS } from '@/lib/authServer';
 import { checkRateLimit, getClientIp, sanitizeString } from '@/lib/security';
 
@@ -34,7 +35,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const isMasterValid = password === masterPassword;
+    // Comparação em tempo estritamente constante contra Timing Attacks
+    const maxLen = Math.max(password.length, masterPassword.length, 64);
+    const passBuf = Buffer.from(password.padEnd(maxLen, ' '));
+    const masterBuf = Buffer.from(masterPassword.padEnd(maxLen, ' '));
+    const isMasterValid = password.length === masterPassword.length && timingSafeEqual(passBuf, masterBuf);
 
     if (!isMasterValid) {
       return NextResponse.json({ error: 'Credenciais inválidas.' }, { status: 401 });

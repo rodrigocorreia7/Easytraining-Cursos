@@ -5,12 +5,20 @@ import { BlogPost } from '@/types';
 import { sanitizeString, sanitizeObject, sanitizeHtmlContent, sanitizeImageUrl } from '@/lib/security';
 import { verifyAdminSession } from '@/lib/authServer';
 
+function isValidEntityId(id: string): boolean {
+  return typeof id === 'string' && /^[a-zA-Z0-9_-]{2,120}$/.test(id);
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
+    if (!isValidEntityId(id)) {
+      return NextResponse.json({ error: 'Identificador com formato inválido.' }, { status: 400 });
+    }
+
     const posts = await getPostsFromFirestore();
     const post = posts.find(p => String(p.id) === String(id));
 
@@ -36,6 +44,10 @@ export async function PUT(
     }
 
     const { id } = await params;
+    if (!isValidEntityId(id)) {
+      return NextResponse.json({ error: 'Identificador com formato inválido.' }, { status: 400 });
+    }
+
     const rawBody = await request.json();
     const body = sanitizeObject<Record<string, any>>(rawBody);
     const posts = await getPostsFromFirestore();
@@ -117,6 +129,10 @@ export async function DELETE(
     }
 
     const { id } = await params;
+    if (!isValidEntityId(id)) {
+      return NextResponse.json({ error: 'Identificador com formato inválido.' }, { status: 400 });
+    }
+
     const posts = await getPostsFromFirestore();
     const target = posts.find(p => String(p.id) === String(id) || p.slug === id);
 

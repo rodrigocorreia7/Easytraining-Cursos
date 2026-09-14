@@ -10,9 +10,9 @@ service cloud.firestore {
       allow read: if true;
       allow write: if false;
     }
+    // Configurações do Site (Acesso somente via API server-side autorizada; bloqueio total no cliente)
     match /config/{configId} {
-      allow read: if true;
-      allow write: if false;
+      allow read, write: if false;
     }
 
     // 2. Leads de Alunos (Proteção LGPD Máxima)

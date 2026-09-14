@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import DOMPurify from 'isomorphic-dompurify';
 
 /**
  * Enterprise-Grade Security Utility for Next.js (EasyTraining)
@@ -34,27 +35,29 @@ export function sanitizeString(input: unknown, maxLength = 255): string {
 
 /**
  * Sanitiza conteúdo HTML rico para artigos de blog e descrições completas:
- * - Preserva tags e estrutura HTML semântica (<p>, <h2>, <h3>, <h4>, <ul>, <ol>, <li>, <a>, <img>, <strong>, <em>, <blockquote>, <figure>, etc.)
- * - Remove scripts (<script>), manipuladores inline de eventos (onload, onclick, onerror, etc.) e esquemas javascript:
- * - Suporta artigos extensos e profundos (limite expansivo de 500.000 caracteres, ~70 mil palavras)
+ * - Utiliza DOMPurify com lista restrita de tags e atributos permitidos (Anti-Stored XSS)
+ * - Elimina esquemas javascript:, tags perigosas (<script>, <iframe>, <embed>, <object>) e manipuladores de eventos
+ * - Suporta artigos extensos e profundos (limite expansivo de 500.000 caracteres)
  */
 export function sanitizeHtmlContent(input: unknown, maxLength = 500000): string {
   if (typeof input !== 'string') return '';
 
-  return input
-    .slice(0, maxLength)
-    // Remove tags de script e seus conteúdos
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    // Remove manipuladores de evento inline como onclick, onerror, onload, etc.
-    .replace(/\son\w+\s*=\s*(['"]).*?\1/gi, '')
-    .replace(/\son\w+\s*=\s*[^>\s]+/gi, '')
-    // Desativa esquemas javascript: em links e fontes
-    .replace(/href\s*=\s*(['"])javascript:[^'"]*\1/gi, 'href="#"')
-    .replace(/src\s*=\s*(['"])javascript:[^'"]*\1/gi, '')
-    // Remove operadores de injeção NoSQL no corpo do texto
-    .replace(/(\$where|\$regex)/gi, '')
-    // Remove caracteres de controle nulos e perigosos
-    .replace(/[\u0000-\u0008\u000B-\u000C\u000E-\u001F]/g, '');
+  const sliced = input.slice(0, maxLength);
+
+  return DOMPurify.sanitize(sliced, {
+    ALLOWED_TAGS: [
+      'p', 'b', 'i', 'em', 'strong', 'u', 's', 'span', 'small', 'sub', 'sup', 'mark', 'abbr',
+      'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+      'ul', 'ol', 'li',
+      'a', 'img', 'figure', 'figcaption',
+      'table', 'thead', 'tbody', 'tr', 'th', 'td', 'caption',
+      'blockquote', 'pre', 'code', 'hr', 'br', 'div', 'section', 'article'
+    ],
+    ALLOWED_ATTR: [
+      'href', 'src', 'alt', 'title', 'class', 'id', 'target', 'rel', 'width', 'height', 'loading', 'style'
+    ],
+    ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
+  });
 }
 
 /**

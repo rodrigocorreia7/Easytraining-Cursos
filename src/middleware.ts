@@ -68,6 +68,20 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(canonicalUrl, 308);
   }
 
+  // 1. Guarda Perimetral para APIs Administrativas (Defense-in-Depth)
+  if (pathname.startsWith('/api/admin/')) {
+    const isPublicAuthApi = pathname === '/api/admin/login' || pathname === '/api/admin/google-session';
+    if (!isPublicAuthApi) {
+      const adminSession = request.cookies.get('admin_session')?.value;
+      const hasValidAdminSession = await isValidAdminSessionCookie(adminSession);
+      if (!hasValidAdminSession) {
+        return NextResponse.json({ error: 'Acesso administrativo não autorizado.' }, { status: 401 });
+      }
+    }
+    return NextResponse.next();
+  }
+
+  // 2. Guarda para Páginas Administrativas (/admin)
   if (pathname.startsWith('/admin')) {
     const isLoginPage = pathname === '/admin/login';
     const adminSession = request.cookies.get('admin_session')?.value;
@@ -106,5 +120,8 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|logo1.svg|logo1.png|images|manifest.json).*)'],
+  matcher: [
+    '/((?!api|_next/static|_next/image|favicon.ico|logo1.svg|logo1.png|images|manifest.json).*)',
+    '/api/admin/:path*'
+  ],
 };
