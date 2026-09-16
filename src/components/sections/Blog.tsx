@@ -85,7 +85,7 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ initialPosts }) => {
                   </div>
 
                   <h3 className="text-lg font-bold text-[#052e7f] mb-2.5 leading-snug group-hover:text-[#00B060] transition-colors">
-                    <a href={`/${post.slug}`} className="hover:underline">
+                      <a href={`/blog/${post.slug}`} className="hover:underline">
                       {post.title}
                     </a>
                   </h3>
@@ -96,7 +96,7 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ initialPosts }) => {
 
                 <div className="pt-5 mt-5 border-t border-slate-200/80 flex items-center justify-between">
                   <a
-                    href={`/${post.slug}`}
+                      href={`/blog/${post.slug}`}
                     className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#052e7f] group-hover:text-[#00874A] transition-colors"
                   >
                     <span>Ler Artigo Completo</span>

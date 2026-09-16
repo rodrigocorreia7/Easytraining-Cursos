@@ -3,6 +3,7 @@ import path from 'path';
 import { Course, BlogPost } from '../types';
 import { courses as defaultCourses } from '../data/coursesData';
 import { realBlogPosts as defaultPosts } from '../data/blogPostsReal';
+import { legacyWordpressPosts } from '../data/legacyWordpressPosts';
 import { siteConfig as defaultSiteConfig } from '../data/siteConfig';
 
 const DB_DIR = path.join(process.cwd(), 'src', 'data', 'db');
@@ -54,12 +55,25 @@ export function getStoredPosts(): BlogPost[] {
     ensureDbDir();
     if (fs.existsSync(POSTS_FILE)) {
       const raw = fs.readFileSync(POSTS_FILE, 'utf-8');
-      return JSON.parse(raw);
+      return mergePosts(JSON.parse(raw));
     }
   } catch (error) {
     console.warn('Aviso ao ler posts.json:', error);
   }
-  return defaultPosts;
+  return mergePosts(defaultPosts);
+}
+
+/**
+ * Mantém os artigos recuperados disponíveis no fallback versionado até que o
+ * administrador os grave no Firestore. O slug é a chave para evitar duplicatas.
+ */
+function mergePosts(posts: BlogPost[]): BlogPost[] {
+  const bySlug = new Map<string, BlogPost>();
+  [...legacyWordpressPosts, ...defaultPosts, ...posts].forEach((post) => {
+    const slug = String(post?.slug || '').trim().toLowerCase();
+    if (slug) bySlug.set(slug, post);
+  });
+  return Array.from(bySlug.values());
 }
 
 export function saveStoredPosts(posts: BlogPost[]): void {

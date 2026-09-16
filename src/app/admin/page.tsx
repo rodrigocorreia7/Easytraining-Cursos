@@ -24,6 +24,7 @@ export default function AdminOverviewDashboard() {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [resetting, setResetting] = useState(false);
+  const [syncingRecovered, setSyncingRecovered] = useState(false);
   const [notification, setNotification] = useState('');
 
   const loadData = async () => {
@@ -71,6 +72,31 @@ export default function AdminOverviewDashboard() {
     setResetting(false);
   };
 
+  const handleSyncRecoveredPosts = async () => {
+    setSyncingRecovered(true);
+    setNotification('');
+    try {
+      const response = await fetch('/api/admin/migrate-legacy-posts', { method: 'POST' });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok && response.status !== 207) {
+        throw new Error(data.error || 'Não foi possível sincronizar os artigos recuperados.');
+      }
+
+      const errors = Array.isArray(data.errors) ? data.errors : [];
+      const errorText = errors.length > 0
+        ? ` Erros: ${errors.map((item: { slug: string; message: string }) => `${item.slug} (${item.message})`).join('; ')}`
+        : '';
+      setNotification(
+        `Sincronização concluída: ${data.created?.length || 0} criados, ${data.existing?.length || 0} já existentes.${errorText}`
+      );
+      await loadData();
+    } catch (error: any) {
+      setNotification(error?.message || 'Não foi possível sincronizar os artigos recuperados.');
+    } finally {
+      setSyncingRecovered(false);
+    }
+  };
+
   const totalCategories = new Set([
     ...courses.map(c => c.category),
     ...posts.map(p => p.category)
@@ -111,6 +137,17 @@ export default function AdminOverviewDashboard() {
               <Plus className="w-4 h-4 text-amber-300" />
               <span>Novo Artigo</span>
             </a>
+
+            <button
+              type="button"
+              onClick={handleSyncRecoveredPosts}
+              disabled={syncingRecovered}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-amber-400/15 hover:bg-amber-400/25 text-amber-100 font-bold text-xs sm:text-sm border border-amber-200/30 transition-all cursor-pointer disabled:opacity-60"
+              title="Insere no Firestore somente os 5 artigos recuperados que ainda não existem"
+            >
+              <RefreshCw className={`w-4 h-4 ${syncingRecovered ? 'animate-spin' : ''}`} />
+              <span>{syncingRecovered ? 'Sincronizando...' : 'Sincronizar conteúdo recuperado'}</span>
+            </button>
           </div>
         </div>
       </div>

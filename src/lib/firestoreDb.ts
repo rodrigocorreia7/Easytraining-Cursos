@@ -540,6 +540,78 @@ export async function seedPostsToFirestore(postsList: BlogPost[]): Promise<void>
   }
 }
 
+export interface RecoveredPostsSyncResult {
+  created: string[];
+  existing: string[];
+  errors: { slug: string; message: string }[];
+}
+
+/**
+ * Migra somente os artigos recuperados que ainda não existem no Firestore.
+ * Cada documento usa o slug como ID e é criado sem merge para impedir que uma
+ * edição já existente seja substituída durante a recuperação.
+ */
+export async function syncRecoveredPostsToFirestore(postsList: BlogPost[]): Promise<RecoveredPostsSyncResult> {
+  if (!isFirebaseAdminConfigured()) {
+    throw new Error('Firebase Admin Firestore não configurado no servidor.');
+  }
+
+  const posts = postsList.filter((post) => post?.slug);
+  const result: RecoveredPostsSyncResult = { created: [], existing: [], errors: [] };
+  if (posts.length === 0) return result;
+  const adminDb = await getAdminDb();
+
+  const existingBySlug = new Set<string>();
+  const slugSnapshot = await withTimeout(
+    adminDb.collection(POSTS_COLLECTION).where('slug', 'in', posts.map((post) => normalizePostSlug(post.slug))).get(),
+    10000
+  );
+  slugSnapshot.forEach((doc) => {
+    const slug = normalizePostSlug(String(doc.data()?.slug || ''));
+    if (slug) existingBySlug.add(slug);
+  });
+
+  // Também protege documentos legados cujo ID já seja o slug, mesmo sem o
+  // campo slug corretamente preenchido.
+  const directSnapshots = await Promise.all(
+    posts.map((post) => withTimeout(adminDb.collection(POSTS_COLLECTION).doc(normalizePostSlug(post.slug)).get(), 10000))
+  );
+  directSnapshots.forEach((doc, index) => {
+    if (doc.exists) existingBySlug.add(normalizePostSlug(posts[index].slug));
+  });
+
+  for (const post of posts) {
+    const slug = normalizePostSlug(post.slug);
+    if (existingBySlug.has(slug)) {
+      result.existing.push(slug);
+      continue;
+    }
+
+    try {
+      await withTimeout(
+        adminDb.collection(POSTS_COLLECTION).doc(slug).create(cleanFirestoreDoc(post)),
+        10000
+      );
+      result.created.push(slug);
+      existingBySlug.add(slug);
+      isFirestoreOperational = true;
+    } catch (error: any) {
+      if (error?.code === 6 || error?.code === 'already-exists') {
+        result.existing.push(slug);
+        existingBySlug.add(slug);
+      } else {
+        result.errors.push({
+          slug,
+          message: error?.message || 'Erro desconhecido ao criar o documento.',
+        });
+      }
+    }
+  }
+
+  if (result.errors.length === 0) isFirestoreOperational = true;
+  return result;
+}
+
 /** Conteúdo público do blog cacheado por cinco minutos. */
 export const getCachedPostsFromFirestore = unstable_cache(
   () => getPostsFromFirestore(),

@@ -1,6 +1,26 @@
 /** @type {import('next').NextConfig} */
 const legacyRedirects = [
   {
+    source: '/curso-de-auxiliar-de-veterinario-tudo-que-voce-precisa-saber',
+    destination: '/blog/curso-de-auxiliar-de-veterinario-tudo-que-voce-precisa-saber',
+  },
+  {
+    source: '/cursos-presenciais-ou-online-em-guarulhos',
+    destination: '/blog/cursos-presenciais-ou-online-em-guarulhos',
+  },
+  {
+    source: '/qualificacao-profissional-em-guarulhos',
+    destination: '/blog/qualificacao-profissional-em-guarulhos',
+  },
+  {
+    source: '/cursos-livres-em-guarulhos',
+    destination: '/blog/cursos-livres-em-guarulhos',
+  },
+  {
+    source: '/cursos-profissionalizantes-em-guarulhos',
+    destination: '/blog/cursos-profissionalizantes-em-guarulhos',
+  },
+  {
     source: '/mercado-de-trabalho',
     destination: '/blog/a-importancia-da-educacao-profissionalizante-para-o-mercado-de-trabalho',
   },

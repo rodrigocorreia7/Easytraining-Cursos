@@ -70,7 +70,7 @@ export const BlogCard: React.FC<BlogCardProps> = ({ post, featured = false }) =>
               featured ? 'text-2xl sm:text-3xl' : 'text-xl'
             }`}
           >
-            <a href={`/${post.slug}`} className="hover:underline focus:outline-hidden">
+            <a href={`/blog/${post.slug}`} className="hover:underline focus:outline-hidden">
               {post.title}
             </a>
           </h3>
@@ -86,7 +86,7 @@ export const BlogCard: React.FC<BlogCardProps> = ({ post, featured = false }) =>
           </span>
 
           <a
-            href={`/${post.slug}`}
+              href={`/blog/${post.slug}`}
             className="inline-flex items-center gap-1.5 text-sm font-bold text-[#00B060] group-hover:text-[#052e7f] transition-colors"
           >
             <span>Ler Artigo</span>
