@@ -623,7 +623,8 @@ export function getCachedPostBySlugFromFirestore(slug: string): Promise<BlogPost
   const cleanSlug = normalizePostSlug(slug);
   return unstable_cache(
     () => getPostBySlugFromFirestore(cleanSlug),
-    ['easytraining-public-post', cleanSlug],
+    // A versão evita reutilizar 404s gerados antes da recuperação dos artigos.
+    ['easytraining-public-post-v2', cleanSlug],
     { revalidate: PUBLIC_CONTENT_REVALIDATE_SECONDS, tags: [PUBLIC_POSTS_CACHE_TAG] }
   )();
 }
