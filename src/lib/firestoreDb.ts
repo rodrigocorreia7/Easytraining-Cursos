@@ -655,7 +655,7 @@ export function invalidatePublicContentCache(kind: 'courses' | 'posts' | 'all'):
 
 export async function getSiteConfigFromFirestore(): Promise<SiteConfigType> {
   const localConfig = getStoredSiteConfig();
-  if (!isFirebaseAdminConfigured() || isFirestoreOperational === false) {
+  if (!isFirebaseAdminConfigured()) {
     return localConfig;
   }
 
@@ -668,6 +668,7 @@ export async function getSiteConfigFromFirestore(): Promise<SiteConfigType> {
       return localConfig;
     }
 
+    isFirestoreOperational = true;
     return (doc.data() as SiteConfigType) || localConfig;
   } catch (error) {
     isFirestoreOperational = false;

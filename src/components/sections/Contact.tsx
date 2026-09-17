@@ -13,6 +13,8 @@ export const ContactSection: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [course, setCourse] = useState('Informática Básica');
   const [message, setMessage] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submitFeedback, setSubmitFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
     SiteConfigService.getConfig().then((data) => {
@@ -20,10 +22,18 @@ export const ContactSection: React.FC = () => {
     }).catch(console.error);
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (name.trim() && phone.trim()) {
-      fetch('/api/leads', {
+    if (!name.trim() || !phone.trim() || submitting) return;
+
+    const text = `Olá! Meu nome é ${name}, telefone ${phone}. Tenho interesse no curso de ${course}. ${message}`;
+    const whatsappUrl = `https://wa.me/${config.whatsappClean}?text=${encodeURIComponent(text)}`;
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+
+    setSubmitting(true);
+    setSubmitFeedback(null);
+    try {
+      const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -34,10 +44,25 @@ export const ContactSection: React.FC = () => {
           notes: message ? message.trim() : 'Enviado pelo formulário de contato do site',
           source: 'Formulário Contato (Site)'
         })
-      }).catch(err => console.warn('Aviso ao registrar lead de contato:', err));
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Não foi possível confirmar o contato no CRM.');
+      }
+
+      setSubmitFeedback({
+        type: 'success',
+        message: 'Contato registrado no CRM. O WhatsApp foi aberto para você falar com a secretaria agora.'
+      });
+    } catch (error: any) {
+      setSubmitFeedback({
+        type: 'error',
+        message: `${error?.message || 'Falha de conexão com o CRM.'} O WhatsApp foi aberto como alternativa.`
+      });
+    } finally {
+      setSubmitting(false);
     }
-    const text = `Olá! Meu nome é ${name}, telefone ${phone}. Tenho interesse no curso de ${course}. ${message}`;
-    window.open(`https://wa.me/${config.whatsappClean}?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   return (
@@ -230,10 +255,25 @@ export const ContactSection: React.FC = () => {
 
               <button
                 type="submit"
+                disabled={submitting}
                 className="w-full py-3.5 bg-[#00874A] hover:bg-[#00703C] text-white font-bold text-sm rounded-full transition-all shadow-md active:scale-98 cursor-pointer flex items-center justify-center gap-2"
               >
-                <Send className="w-4 h-4" /> Solicitar Informações e Valores
+                <Send className={`w-4 h-4 ${submitting ? 'animate-pulse' : ''}`} />
+                {submitting ? 'Registrando contato...' : 'Solicitar Informações e Valores'}
               </button>
+
+              {submitFeedback && (
+                <p
+                  role="status"
+                  className={`rounded-xl px-3 py-2 text-xs font-semibold ${
+                    submitFeedback.type === 'success'
+                      ? 'bg-emerald-50 text-emerald-800'
+                      : 'bg-red-50 text-red-800'
+                  }`}
+                >
+                  {submitFeedback.message}
+                </p>
+              )}
             </form>
           </div>
 

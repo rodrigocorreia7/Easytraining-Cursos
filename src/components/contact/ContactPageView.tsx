@@ -49,12 +49,21 @@ export const ContactPageView: React.FC = () => {
   const [shift, setShift] = useState('Noite (19h às 21h)');
   const [message, setMessage] = useState('');
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitFeedback, setSubmitFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!name.trim() || !phone.trim() || submitting) return;
 
-    if (name.trim() && phone.trim()) {
-      fetch('/api/leads', {
+    const text = `Olá! Meu nome é ${name}, telefone ${phone}.\nTenho interesse no curso de *${course}* no turno *${shift}*.\n${message ? `Mensagem/Dúvida: ${message}` : 'Gostaria de receber informações sobre turmas, grade e valores.'}`;
+    const whatsappUrl = `https://wa.me/${siteConfig.whatsappClean}?text=${encodeURIComponent(text)}`;
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+
+    setSubmitting(true);
+    setSubmitFeedback(null);
+    try {
+      const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -65,11 +74,25 @@ export const ContactPageView: React.FC = () => {
           notes: message ? message.trim() : 'Enviado pela página dedicada de contato /contato',
           source: 'Página Contato (/contato)'
         })
-      }).catch(err => console.error('Erro ao enviar lead para API a partir de /contato:', err));
-    }
+      });
+      const data = await res.json().catch(() => ({}));
 
-    const text = `Olá! Meu nome é ${name}, telefone ${phone}.\nTenho interesse no curso de *${course}* no turno *${shift}*.\n${message ? `Mensagem/Dúvida: ${message}` : 'Gostaria de receber informações sobre turmas, grade e valores.'}`;
-    window.open(`https://wa.me/${siteConfig.whatsappClean}?text=${encodeURIComponent(text)}`, '_blank');
+      if (!res.ok) {
+        throw new Error(data.error || 'Não foi possível confirmar o contato no CRM.');
+      }
+
+      setSubmitFeedback({
+        type: 'success',
+        message: 'Contato registrado no CRM. O WhatsApp foi aberto para falar com a secretaria.'
+      });
+    } catch (error: any) {
+      setSubmitFeedback({
+        type: 'error',
+        message: `${error?.message || 'Falha de conexão com o CRM.'} O WhatsApp foi aberto como alternativa.`
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const toggleFaq = (index: number) => {
@@ -347,10 +370,25 @@ export const ContactPageView: React.FC = () => {
 
                 <button
                   type="submit"
+                  disabled={submitting}
                   className="w-full py-4 bg-[#00874A] hover:bg-[#00703C] text-white font-bold text-sm sm:text-base rounded-2xl transition-all shadow-md active:scale-98 cursor-pointer flex items-center justify-center gap-2"
                 >
-                  <Send className="w-5 h-5" /> Enviar Mensagem para a Secretaria no WhatsApp
+                  <Send className={`w-5 h-5 ${submitting ? 'animate-pulse' : ''}`} />
+                  {submitting ? 'Registrando contato...' : 'Enviar Mensagem para a Secretaria no WhatsApp'}
                 </button>
+
+                {submitFeedback && (
+                  <p
+                    role="status"
+                    className={`rounded-xl px-3 py-2 text-xs font-semibold ${
+                      submitFeedback.type === 'success'
+                        ? 'bg-emerald-50 text-emerald-800'
+                        : 'bg-red-50 text-red-800'
+                    }`}
+                  >
+                    {submitFeedback.message}
+                  </p>
+                )}
               </form>
             </div>
 

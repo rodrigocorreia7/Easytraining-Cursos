@@ -90,6 +90,8 @@ export interface Lead {
   notes?: string;
   createdAt: string;
   lastContactAt?: string;
+  notificationStatus?: 'pending' | 'sent' | 'not_configured' | 'failed';
+  notificationLastAttemptAt?: string;
   isDeleted?: boolean;
   deletedAt?: string;
 }

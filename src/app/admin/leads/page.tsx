@@ -61,6 +61,7 @@ export default function AdminLeadsPage() {
   const [showTrashModal, setShowTrashModal] = useState(false);
   const [showN8nConfig, setShowN8nConfig] = useState(false);
   const [webhookUrl, setWebhookUrl] = useState('');
+  const [savingWebhook, setSavingWebhook] = useState(false);
   const [testingWebhook, setTestingWebhook] = useState(false);
   const [webhookFeedback, setWebhookFeedback] = useState('');
 
@@ -76,9 +77,9 @@ export default function AdminLeadsPage() {
     setTimeout(() => setToast(''), 4000);
   };
 
-  const loadLeads = async () => {
+  const loadLeads = async (showSpinner = true) => {
     try {
-      setLoading(true);
+      if (showSpinner) setLoading(true);
       setLoadError('');
       const res = await fetch('/api/leads');
       if (res.ok) {
@@ -86,16 +87,16 @@ export default function AdminLeadsPage() {
         setLeads(data);
       } else {
         const data = await res.json().catch(() => ({}));
-        setLeads([]);
+        if (showSpinner) setLeads([]);
         setLoadError(data.error || 'Não foi possível carregar os leads do CRM.');
       }
       loadTrashLeads();
     } catch (err) {
       console.error('Erro ao carregar leads:', err);
-      setLeads([]);
+      if (showSpinner) setLeads([]);
       setLoadError('Falha de conexão ao carregar os leads do CRM.');
     } finally {
-      setLoading(false);
+      if (showSpinner) setLoading(false);
     }
   };
 
@@ -117,6 +118,17 @@ export default function AdminLeadsPage() {
         if (cfg.n8nWebhookUrl) setWebhookUrl(cfg.n8nWebhookUrl);
       })
       .catch(() => {});
+
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === 'visible') loadLeads(false);
+    };
+    const refreshTimer = window.setInterval(refreshWhenVisible, 30000);
+    window.addEventListener('focus', refreshWhenVisible);
+
+    return () => {
+      window.clearInterval(refreshTimer);
+      window.removeEventListener('focus', refreshWhenVisible);
+    };
   }, []);
 
   const handleDragStart = (e: React.DragEvent, id: string) => {
@@ -278,19 +290,49 @@ export default function AdminLeadsPage() {
     }
   };
 
-  const handleSaveN8nWebhook = async () => {
+  const saveN8nWebhook = async (): Promise<boolean> => {
+    const normalizedUrl = webhookUrl.trim();
+    if (normalizedUrl && !/^https?:\/\//i.test(normalizedUrl)) {
+      setWebhookFeedback('❌ Informe uma URL válida iniciando com https://');
+      return false;
+    }
+
     try {
-      const cfgRes = await fetch('/api/site-config');
-      const cfg = await cfgRes.json();
-      await fetch('/api/site-config', {
+      setSavingWebhook(true);
+      const saveRes = await fetch('/api/site-config', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...cfg, n8nWebhookUrl: webhookUrl })
+        body: JSON.stringify({ n8nWebhookUrl: normalizedUrl })
       });
-      setWebhookFeedback('Webhook salvo com sucesso no Firebase!');
-      setTimeout(() => setWebhookFeedback(''), 4000);
-    } catch (e) {
-      setWebhookFeedback('Erro ao salvar webhook.');
+
+      if (!saveRes.ok) {
+        const data = await saveRes.json().catch(() => ({}));
+        throw new Error(data.error || `Falha ao salvar (${saveRes.status}).`);
+      }
+
+      const readbackRes = await fetch('/api/site-config', { cache: 'no-store' });
+      if (!readbackRes.ok) throw new Error('Não foi possível confirmar o valor salvo.');
+      const readback = await readbackRes.json();
+      if (String(readback.n8nWebhookUrl || '').trim() !== normalizedUrl) {
+        throw new Error('O Firestore não confirmou o webhook informado.');
+      }
+
+      setWebhookUrl(normalizedUrl);
+      return true;
+    } catch (error: any) {
+      setWebhookFeedback(`❌ ${error?.message || 'Erro ao salvar webhook.'}`);
+      return false;
+    } finally {
+      setSavingWebhook(false);
+    }
+  };
+
+  const handleSaveN8nWebhook = async () => {
+    setWebhookFeedback('Salvando e confirmando no Firestore...');
+    const saved = await saveN8nWebhook();
+    if (saved) {
+      setWebhookFeedback('✅ Webhook salvo e confirmado no Firestore!');
+      setTimeout(() => setWebhookFeedback(''), 5000);
     }
   };
 
@@ -300,30 +342,21 @@ export default function AdminLeadsPage() {
       return;
     }
     setTestingWebhook(true);
-    setWebhookFeedback('Enviando disparo teste para o N8N...');
+    setWebhookFeedback('Salvando a URL antes do teste...');
     try {
-      const res = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          event: 'teste_conexao',
-          origem: 'Painel EasyTraining CRM',
-          mensagem: 'Disparo de teste bem-sucedido! Integração ativa.',
-          leadExemplo: {
-            nome: 'Aluno Teste',
-            whatsapp: '(11) 2303-7983',
-            curso: 'Auxiliar Veterinário',
-            turno: 'Segunda a Sexta - Noite'
-          }
-        })
-      });
+      const saved = await saveN8nWebhook();
+      if (!saved) return;
+
+      setWebhookFeedback('Enviando disparo de teste pelo servidor da Vercel...');
+      const res = await fetch('/api/admin/lead-webhook', { method: 'POST' });
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
-        setWebhookFeedback('✅ Sucesso! O N8N recebeu o disparo teste.');
+        setWebhookFeedback('✅ Sucesso! O servidor enviou e o n8n recebeu o teste.');
       } else {
-        setWebhookFeedback(`⚠️ O N8N respondeu com status ${res.status}.`);
+        setWebhookFeedback(`❌ ${data.error || `Falha no teste (${res.status}).`}`);
       }
     } catch (e: any) {
-      setWebhookFeedback(`❌ Falha: ${e.message}`);
+      setWebhookFeedback(`❌ Falha: ${e?.message || 'erro de conexão'}`);
     } finally {
       setTestingWebhook(false);
     }
@@ -440,13 +473,14 @@ export default function AdminLeadsPage() {
             />
             <button
               onClick={handleSaveN8nWebhook}
+              disabled={savingWebhook || testingWebhook}
               className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs transition-all cursor-pointer shadow-xs"
             >
-              Salvar Webhook
+              {savingWebhook ? 'Salvando...' : 'Salvar Webhook'}
             </button>
             <button
               onClick={handleTestN8nWebhook}
-              disabled={testingWebhook}
+              disabled={testingWebhook || savingWebhook}
               className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-all cursor-pointer border border-white/20 flex items-center gap-1.5"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${testingWebhook ? 'animate-spin' : ''}`} />
@@ -506,7 +540,7 @@ export default function AdminLeadsPage() {
           />
         </div>
         <button
-          onClick={loadLeads}
+          onClick={() => loadLeads()}
           className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold cursor-pointer transition-colors"
           title="Atualizar lista"
         >
@@ -588,6 +622,25 @@ export default function AdminLeadsPage() {
                           {lead.source}
                         </span>
                       </div>
+
+                      {lead.notificationStatus && lead.notificationStatus !== 'pending' && (
+                        <div
+                          className={`mb-2.5 inline-flex rounded-md px-2 py-0.5 text-[9px] font-bold ${
+                            lead.notificationStatus === 'sent'
+                              ? 'bg-emerald-50 text-emerald-700'
+                              : lead.notificationStatus === 'not_configured'
+                                ? 'bg-amber-50 text-amber-800'
+                                : 'bg-red-50 text-red-700'
+                          }`}
+                          title="Resultado do envio do lead para a automação n8n"
+                        >
+                          {lead.notificationStatus === 'sent'
+                            ? 'N8N notificado'
+                            : lead.notificationStatus === 'not_configured'
+                              ? 'N8N não configurado'
+                              : 'Falha ao notificar N8N'}
+                        </div>
+                      )}
 
                       {/* Internal Notes */}
                       {lead.notes && (

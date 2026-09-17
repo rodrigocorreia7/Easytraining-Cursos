@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdminSession } from '@/lib/authServer';
 import { isFirebaseAdminConfigured } from '@/lib/firebaseConfigHelper';
-import { checkFirestoreConnection } from '@/lib/firestoreDb';
-import { getStoredSiteConfig } from '@/lib/db';
+import { checkFirestoreConnection, getSiteConfigFromFirestore } from '@/lib/firestoreDb';
 
 type CheckStatus = 'ok' | 'missing' | 'error' | 'not_checked' | 'inline_firestore';
 
@@ -63,7 +62,7 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  const config = getStoredSiteConfig();
+  const config = await getSiteConfigFromFirestore();
   const n8nWebhookUrl = (config as any)?.n8nWebhookUrl || process.env.N8N_WEBHOOK_URL || '';
 
   return NextResponse.json({

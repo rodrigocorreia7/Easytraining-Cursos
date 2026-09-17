@@ -3,11 +3,18 @@ import path from 'path';
 import type { Firestore } from 'firebase-admin/firestore';
 import { isFirebaseAdminConfigured } from './firebaseConfigHelper';
 import { Lead, LeadStatus } from '../types';
-import { getStoredSiteConfig } from './db';
+import { getSiteConfigFromFirestore } from './firestoreDb';
 
 const DB_DIR = path.join(process.cwd(), 'src', 'data', 'db');
 const LEADS_FILE = path.join(DB_DIR, 'leads.json');
 const LEADS_COLLECTION = 'leads';
+
+export type LeadWebhookStatus = 'sent' | 'not_configured' | 'failed';
+
+export interface LeadWebhookResult {
+  status: LeadWebhookStatus;
+  httpStatus?: number;
+}
 
 function canUseLocalLeadStore(): boolean {
   return process.env.NODE_ENV !== 'production' && process.env.VERCEL !== '1';
@@ -36,6 +43,46 @@ function ensureDbDir() {
     }
   } catch {
     // Sistema de arquivos somente-leitura na Vercel
+  }
+}
+
+async function resolveLeadWebhookUrl(): Promise<string> {
+  try {
+    const config = await getSiteConfigFromFirestore();
+    const firestoreUrl = String((config as any)?.n8nWebhookUrl || '').trim();
+    if (firestoreUrl) return firestoreUrl;
+  } catch (error: any) {
+    console.warn('Não foi possível consultar o webhook salvo no Firestore:', error?.message);
+  }
+
+  return String(process.env.N8N_WEBHOOK_URL || '').trim();
+}
+
+export async function sendLeadWebhook(payload: Record<string, unknown>): Promise<LeadWebhookResult> {
+  const webhookUrl = await resolveLeadWebhookUrl();
+
+  if (!/^https?:\/\//i.test(webhookUrl)) {
+    return { status: 'not_configured' };
+  }
+
+  try {
+    const webhookRes = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(8000),
+      cache: 'no-store',
+    });
+
+    if (!webhookRes.ok) {
+      console.error(`Webhook N8N recusou o disparo com status ${webhookRes.status}.`);
+      return { status: 'failed', httpStatus: webhookRes.status };
+    }
+
+    return { status: 'sent', httpStatus: webhookRes.status };
+  } catch (error: any) {
+    console.error('Erro ao disparar Webhook N8N:', error?.message);
+    return { status: 'failed' };
   }
 }
 
@@ -73,11 +120,15 @@ export async function getLeadsFromDb(includeTrash = false): Promise<Lead[]> {
       const adminDb = await getAdminDb();
       const snap = await adminDb.collection(LEADS_COLLECTION).get();
       if (snap.empty) {
-        leads = getLocalLeads();
+        leads = canUseLocalLeadStore() ? getLocalLeads() : [];
       } else {
         leads = snap.docs.map((d) => d.data() as Lead);
       }
     } catch (err: any) {
+      if (!canUseLocalLeadStore()) {
+        console.error('Erro ao consultar leads no Firestore:', err?.message);
+        throw new LeadPersistenceError('Não foi possível consultar os leads reais no Firestore.');
+      }
       console.warn('Aviso: Leitura do Firestore falhou, usando base local:', err?.message);
       leads = getLocalLeads();
     }
@@ -114,6 +165,7 @@ export async function createLead(
     notes: leadData.notes || '',
     isDeleted: false,
     createdAt: new Date().toISOString(),
+    notificationStatus: 'pending',
   };
 
   let firestoreSaved = false;
@@ -135,34 +187,33 @@ export async function createLead(
     localSaved = true;
   }
 
-  if (!firestoreSaved && !localSaved) {
-    throw new LeadPersistenceError('Não foi possível confirmar o lead no CRM.');
+  // 2. Tenta notificar mesmo se o CRM oscilar, para que o Telegram ainda possa
+  // servir como cópia de segurança. A API só confirma sucesso se o CRM salvou.
+  const notification = await sendLeadWebhook({
+    event: 'novo_lead',
+    timestamp: new Date().toISOString(),
+    lead: newLead,
+  });
+  newLead.notificationStatus = notification.status;
+  newLead.notificationLastAttemptAt = new Date().toISOString();
+
+  if (firestoreSaved) {
+    try {
+      const adminDb = await getAdminDb();
+      await adminDb.collection(LEADS_COLLECTION).doc(newLead.id).set(
+        {
+          notificationStatus: newLead.notificationStatus,
+          notificationLastAttemptAt: newLead.notificationLastAttemptAt,
+        },
+        { merge: true }
+      );
+    } catch (err: any) {
+      console.warn('Lead salvo, mas o status da notificação não foi atualizado:', err?.message);
+    }
   }
 
-  // 2. Dispara Webhook do N8N se configurado, depois do lead entrar no CRM.
-  try {
-    const config = getStoredSiteConfig();
-    const webhookUrl =
-      (config as any)?.n8nWebhookUrl ||
-      process.env.N8N_WEBHOOK_URL ||
-      '';
-    if (webhookUrl && webhookUrl.startsWith('http')) {
-      const webhookRes = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          event: 'novo_lead',
-          timestamp: new Date().toISOString(),
-          lead: newLead,
-        }),
-        signal: AbortSignal.timeout(5000),
-      });
-      if (!webhookRes.ok) {
-        console.error(`Webhook N8N recusou o lead com status ${webhookRes.status}.`);
-      }
-    }
-  } catch (e: any) {
-    console.error('Erro ao disparar Webhook N8N:', e?.message);
+  if (!firestoreSaved && !localSaved) {
+    throw new LeadPersistenceError('Não foi possível confirmar o lead no CRM.');
   }
 
   // 3. Cache local apenas depois de confirmar persistência real no Firestore.
