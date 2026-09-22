@@ -137,10 +137,6 @@ const legacyRedirects = [
     destination: '/curso/auxiliar-veterinario',
   },
   {
-    source: '/auxiliar-de-farmacia',
-    destination: '/curso/auxiliar-de-farmacia',
-  },
-  {
     source: '/banho-e-tosa',
     destination: '/curso/banho-e-tosa-higienica',
   },

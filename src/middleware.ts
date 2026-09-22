@@ -94,6 +94,9 @@ const CANONICAL_REDIRECTS: Record<string, string> = {
   '/qualificacao-profissional-em-guarulhos': '/blog/qualificacao-profissional-em-guarulhos',
   '/cursos-livres-em-guarulhos': '/blog/cursos-livres-em-guarulhos',
   '/cursos-profissionalizantes-em-guarulhos': '/blog/cursos-profissionalizantes-em-guarulhos',
+  // No WordPress, este slug na raiz era um artigo. O curso equivalente
+  // continua em /curso/auxiliar-de-farmacia.
+  '/auxiliar-de-farmacia': '/blog/auxiliar-de-farmacia',
   '/mercado-de-trabalho': '/blog/a-importancia-da-educacao-profissionalizante-para-o-mercado-de-trabalho',
 
   // 2. Cursos e Aliases Legados (da raiz ou aliases /curso/ para o slug oficial /curso/[slug])
@@ -116,7 +119,6 @@ const CANONICAL_REDIRECTS: Record<string, string> = {
   '/auxiliar-veterinario': '/curso/auxiliar-veterinario',
   '/curso-auxiliar-veterinario': '/curso/auxiliar-veterinario',
   '/curso-de-auxiliar-veterinario': '/curso/auxiliar-veterinario',
-  '/auxiliar-de-farmacia': '/curso/auxiliar-de-farmacia',
   '/banho-e-tosa': '/curso/banho-e-tosa-higienica',
   '/recursos-humanos': '/curso/assistente-de-recursos-humanos',
   '/logistica': '/curso/assistente-de-logistica',
