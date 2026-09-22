@@ -25,6 +25,42 @@ const legacyRedirects = [
     destination: '/blog/a-importancia-da-educacao-profissionalizante-para-o-mercado-de-trabalho',
   },
   {
+    source: '/carreira-em-medicina-veterinaria-vale-a-pena',
+    destination: '/blog/carreira-em-medicina-veterinaria-vale-a-pena',
+  },
+  {
+    source: '/descubra-a-importancia-de-um-curso-de-informatica-basica',
+    destination: '/blog/descubra-a-importancia-de-um-curso-de-informatica-basica',
+  },
+  {
+    source: '/o-que-se-faz-em-um-curso-de-informatica',
+    destination: '/blog/o-que-se-faz-em-um-curso-de-informatica',
+  },
+  {
+    source: '/importancia-do-excel-no-mercado-de-trabalho',
+    destination: '/blog/importancia-do-excel-no-mercado-de-trabalho',
+  },
+  {
+    source: '/guia-definitivo-curso-auxiliar-veterinario-guarulhos',
+    destination: '/blog/guia-definitivo-curso-auxiliar-veterinario-guarulhos',
+  },
+  {
+    source: '/jovem-aprendiz-2026-guarulhos-idade-salario',
+    destination: '/blog/jovem-aprendiz-2026-guarulhos-idade-salario',
+  },
+  {
+    source: '/como-ser-estagiario-pelo-ciee-guia-completo-e-dicas-essenciais',
+    destination: '/blog/como-ser-estagiario-pelo-ciee-guia-completo-e-dicas-essenciais',
+  },
+  {
+    source: '/curso-de-informatica-basicadesvende-o-mundo-digital',
+    destination: '/blog/curso-de-informatica-basicadesvende-o-mundo-digital',
+  },
+  {
+    source: '/a-importancia-da-educacao-profissionalizante-para-o-mercado-de-trabalho',
+    destination: '/blog/a-importancia-da-educacao-profissionalizante-para-o-mercado-de-trabalho',
+  },
+  {
     source: '/curso/informatica-basica',
     destination: '/curso/curso-de-informatica-basica',
   },
@@ -126,6 +162,7 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
+  skipTrailingSlashRedirect: true,
   serverExternalPackages: ['firebase-admin'],
   experimental: {
     optimizePackageImports: ['lucide-react', 'gsap'],
@@ -139,11 +176,11 @@ const nextConfig = {
       },
     ],
   },
+  // Os redirecionamentos canônicos 301 de salto único são centralizados no Edge Middleware (src/middleware.ts)
+  // para garantir resolução com domínio canônico absoluto (https://www.easytraining.com.br),
+  // suporte a remoção de trailing slash sem hops intermediários e header Cache-Control imutável de 1 ano.
   async redirects() {
-    return legacyRedirects.map((redirect) => ({
-      ...redirect,
-      permanent: true,
-    }));
+    return [];
   },
   async headers() {
     return [

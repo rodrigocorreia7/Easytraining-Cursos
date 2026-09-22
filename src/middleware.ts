@@ -73,12 +73,61 @@ async function isValidAdminSessionCookie(token?: string): Promise<boolean> {
   }
 }
 
+// -----------------------------------------------------------------------------
+// MAPA CANÔNICO DE REDIRECIONAMENTOS DE SALTO ÚNICO (SINGLE-HOP 301)
+// Consolida todas as URLs antigas do WordPress, permalinks da raiz e aliases
+// diretamente no destino canônico final em 1 único salto (< 20ms no Edge).
+// -----------------------------------------------------------------------------
+const CANONICAL_REDIRECTS: Record<string, string> = {
+  // 1. Artigos de Blog Legados do WordPress (migrados da raiz para /blog/[slug])
+  '/carreira-em-medicina-veterinaria-vale-a-pena': '/blog/carreira-em-medicina-veterinaria-vale-a-pena',
+  '/descubra-a-importancia-de-um-curso-de-informatica-basica': '/blog/descubra-a-importancia-de-um-curso-de-informatica-basica',
+  '/o-que-se-faz-em-um-curso-de-informatica': '/blog/o-que-se-faz-em-um-curso-de-informatica',
+  '/importancia-do-excel-no-mercado-de-trabalho': '/blog/importancia-do-excel-no-mercado-de-trabalho',
+  '/guia-definitivo-curso-auxiliar-veterinario-guarulhos': '/blog/guia-definitivo-curso-auxiliar-veterinario-guarulhos',
+  '/jovem-aprendiz-2026-guarulhos-idade-salario': '/blog/jovem-aprendiz-2026-guarulhos-idade-salario',
+  '/como-ser-estagiario-pelo-ciee-guia-completo-e-dicas-essenciais': '/blog/como-ser-estagiario-pelo-ciee-guia-completo-e-dicas-essenciais',
+  '/curso-de-informatica-basicadesvende-o-mundo-digital': '/blog/curso-de-informatica-basicadesvende-o-mundo-digital',
+  '/a-importancia-da-educacao-profissionalizante-para-o-mercado-de-trabalho': '/blog/a-importancia-da-educacao-profissionalizante-para-o-mercado-de-trabalho',
+  '/curso-de-auxiliar-de-veterinario-tudo-que-voce-precisa-saber': '/blog/curso-de-auxiliar-de-veterinario-tudo-que-voce-precisa-saber',
+  '/cursos-presenciais-ou-online-em-guarulhos': '/blog/cursos-presenciais-ou-online-em-guarulhos',
+  '/qualificacao-profissional-em-guarulhos': '/blog/qualificacao-profissional-em-guarulhos',
+  '/cursos-livres-em-guarulhos': '/blog/cursos-livres-em-guarulhos',
+  '/cursos-profissionalizantes-em-guarulhos': '/blog/cursos-profissionalizantes-em-guarulhos',
+  '/mercado-de-trabalho': '/blog/a-importancia-da-educacao-profissionalizante-para-o-mercado-de-trabalho',
+
+  // 2. Cursos e Aliases Legados (da raiz ou aliases /curso/ para o slug oficial /curso/[slug])
+  '/curso/informatica-basica': '/curso/curso-de-informatica-basica',
+  '/curso/curso-de-informatica': '/curso/informatica',
+  '/curso/curso-de-informatica-em-guarulhos': '/curso/informatica',
+  '/curso/curso-de-informatica-basica-em-guarulhos': '/curso/curso-de-informatica-basica',
+  '/curso/curso-de-excel-avancado': '/curso/excel-avancado',
+  '/curso/curso-auxiliar-veterinario': '/curso/auxiliar-veterinario',
+  '/curso/curso-de-auxiliar-veterinario': '/curso/auxiliar-veterinario',
+  '/curso/curso-de-auxiliar-veterinario-em-guarulhos': '/curso/auxiliar-veterinario',
+  '/curso/banho-e-tosa': '/curso/banho-e-tosa-higienica',
+  '/curso/tosa-pet': '/curso/curso-de-tosa-pet-geral-em-guarulhos-sp',
+  '/curso/tosa-pet-geral': '/curso/curso-de-tosa-pet-geral-em-guarulhos-sp',
+  '/curso/recursos-humanos': '/curso/assistente-de-recursos-humanos',
+  '/curso/logistica': '/curso/assistente-de-logistica',
+  '/curso/contabilidade': '/curso/auxiliar-de-contabilidade',
+  '/curso-de-informatica': '/curso/informatica',
+  '/informatica-basica': '/curso/curso-de-informatica-basica',
+  '/auxiliar-veterinario': '/curso/auxiliar-veterinario',
+  '/curso-auxiliar-veterinario': '/curso/auxiliar-veterinario',
+  '/curso-de-auxiliar-veterinario': '/curso/auxiliar-veterinario',
+  '/auxiliar-de-farmacia': '/curso/auxiliar-de-farmacia',
+  '/banho-e-tosa': '/curso/banho-e-tosa-higienica',
+  '/recursos-humanos': '/curso/assistente-de-recursos-humanos',
+  '/logistica': '/curso/assistente-de-logistica',
+  '/contabilidade': '/curso/auxiliar-de-contabilidade',
+};
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const host = request.headers.get('host')?.split(':')[0].toLowerCase();
 
-  // Bloqueia sondagens de endpoints WordPress antes que a rota dinâmica
-  // /[slug] seja executada e consulte o Firestore para uma URL inexistente.
+  // Bloqueia sondagens de endpoints WordPress antes que qualquer rota seja executada.
   if (isBlockedLegacyPath(pathname)) {
     const response = new NextResponse(null, { status: 404 });
     response.headers.set('Cache-Control', 'public, max-age=60, s-maxage=300');
@@ -86,15 +135,32 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  if (host && LEGACY_HOSTS.has(host)) {
-    const canonicalUrl = request.nextUrl.clone();
-    canonicalUrl.protocol = 'https:';
-    canonicalUrl.hostname = CANONICAL_HOST;
-    canonicalUrl.port = '';
-    return NextResponse.redirect(canonicalUrl, 308);
+  // 2. Resolução Canônica de Salto Único (Single-Hop 301) para SEO e Backlinks
+  const isLocal = host ? (host.includes('localhost') || host.includes('127.0.0.1')) : false;
+  const isLegacyHost = host ? LEGACY_HOSTS.has(host) : false;
+  const targetHost = (isLegacyHost || !host) ? CANONICAL_HOST : host;
+  const targetProtocol = (!isLocal && (isLegacyHost || targetHost === CANONICAL_HOST))
+    ? 'https:'
+    : request.nextUrl.protocol;
+
+  const normalizedPath = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
+  const mappedPath = CANONICAL_REDIRECTS[normalizedPath];
+  const targetPath = mappedPath || normalizedPath;
+
+  const needsRedirect = (
+    isLegacyHost ||
+    pathname !== targetPath
+  );
+
+  if (needsRedirect) {
+    const finalUrl = new URL(targetPath, `${targetProtocol}//${targetHost}`);
+    request.nextUrl.searchParams.forEach((val, key) => finalUrl.searchParams.set(key, val));
+    const response = NextResponse.redirect(finalUrl, 301);
+    response.headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+    return response;
   }
 
-  // 1. Guarda Perimetral para APIs Administrativas (Defense-in-Depth)
+  // 3. Guarda Perimetral para APIs Administrativas (Defense-in-Depth)
   if (pathname.startsWith('/api/admin/')) {
     const isPublicAuthApi = pathname === '/api/admin/login' || pathname === '/api/admin/google-session';
     if (!isPublicAuthApi) {
