@@ -34,7 +34,7 @@ const ContactSection = dynamic(() => import('../components/sections/Contact').th
   loading: () => <div className="min-h-[500px] bg-white animate-pulse" />
 });
 
-export const revalidate = 300;
+export const revalidate = 43200;
 
 export default async function HomePage() {
   const [initialCourses, initialPosts] = await Promise.all([

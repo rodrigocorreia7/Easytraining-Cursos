@@ -7,7 +7,7 @@ import { getCachedPostsFromFirestore } from '../../lib/firestoreDb';
 import { Newspaper } from 'lucide-react';
 import { BlogArchiveClient } from '../../components/blog/BlogArchiveClient';
 
-export const revalidate = 300;
+export const revalidate = 43200;
 
 export const metadata: Metadata = {
   title: 'Blog & Notícias de Carreira | Dicas e Mercado em Guarulhos',

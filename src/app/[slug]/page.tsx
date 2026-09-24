@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { cache } from 'react';
 import { getCachedPostBySlugFromFirestore } from '../../lib/firestoreDb';
 
-export const revalidate = 300;
+export const revalidate = 43200;
 
 interface PageProps {
   params: Promise<{ slug: string }>;

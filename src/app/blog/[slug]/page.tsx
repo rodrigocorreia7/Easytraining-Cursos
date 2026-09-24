@@ -2,10 +2,20 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { cache } from 'react';
-import { getCachedPostBySlugFromFirestore, getCachedPostsFromFirestore } from '../../../lib/firestoreDb';
+import { getCachedPostBySlugFromFirestore, getCachedPostsFromFirestore, getPostsFromFirestore } from '../../../lib/firestoreDb';
 import { PostDetailView } from '../../../components/blog/PostDetailView';
 
-export const revalidate = 300;
+export const revalidate = 43200;
+
+// Pre-render the known canonical article URLs. Unlisted slugs remain dynamic
+// so newly published content and legacy links continue to resolve safely.
+export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
+  const posts = await getPostsFromFirestore();
+
+  return posts
+    .filter((post) => post?.slug)
+    .map((post) => ({ slug: post.slug }));
+}
 
 interface PageProps {
   params: Promise<{ slug: string }>;

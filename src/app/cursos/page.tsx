@@ -6,7 +6,7 @@ import { WhatsAppFloatingButton } from '../../components/layout/WhatsAppButton';
 import { getStoredSiteConfig } from '../../lib/db';
 import { getCachedCoursesFromFirestore } from '../../lib/firestoreDb';
 
-export const revalidate = 300;
+export const revalidate = 43200;
 
 export const metadata: Metadata = {
   title: 'Cursos Profissionalizantes em Guarulhos',

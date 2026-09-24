@@ -2,7 +2,7 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getStoredSiteConfig } from '../../../lib/db';
-import { getCachedCourseBySlugFromFirestore, getCachedCoursesFromFirestore } from '../../../lib/firestoreDb';
+import { getCachedCourseBySlugFromFirestore, getCachedCoursesFromFirestore, getCoursesFromFirestore } from '../../../lib/firestoreDb';
 import { Header } from '../../../components/layout/Header';
 import { Footer } from '../../../components/layout/Footer';
 import { WhatsAppFloatingButton } from '../../../components/layout/WhatsAppButton';
@@ -20,7 +20,17 @@ import {
   Star
 } from 'lucide-react';
 
-export const revalidate = 300;
+export const revalidate = 43200;
+
+// Pre-render the known canonical course URLs. Aliases and future courses keep
+// the default dynamicParams behavior so existing backlinks are not rejected.
+export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
+  const courses = await getCoursesFromFirestore();
+
+  return courses
+    .filter((course) => course?.slug)
+    .map((course) => ({ slug: course.slug }));
+}
 
 // Map of legacy WordPress slugs and aliases to canonical courses
 const slugAliases: Record<string, string> = {

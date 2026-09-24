@@ -7,7 +7,11 @@ const COURSES_COLLECTION = 'courses';
 const POSTS_COLLECTION = 'posts';
 const CONFIG_COLLECTION = 'config';
 const SITE_CONFIG_DOC = 'siteConfig';
-export const PUBLIC_CONTENT_REVALIDATE_SECONDS = 300;
+// Public course and blog content changes through the CMS are invalidated on
+// demand below. A longer fallback window keeps normal crawls and visits from
+// repeatedly regenerating the same content while preserving freshness after
+// an intentional admin update.
+export const PUBLIC_CONTENT_REVALIDATE_SECONDS = 43200;
 export const PUBLIC_COURSES_CACHE_TAG = 'public-courses';
 export const PUBLIC_POSTS_CACHE_TAG = 'public-posts';
 
@@ -205,7 +209,7 @@ export async function seedCoursesToFirestore(coursesList: Course[]): Promise<voi
   }
 }
 
-/** Catálogo público cacheado por cinco minutos para reduzir leituras repetidas. */
+/** Catálogo público cacheado por doze horas; o CMS invalida sob demanda. */
 export const getCachedCoursesFromFirestore = unstable_cache(
   () => getCoursesFromFirestore(),
   ['easytraining-public-courses'],
@@ -612,7 +616,7 @@ export async function syncRecoveredPostsToFirestore(postsList: BlogPost[]): Prom
   return result;
 }
 
-/** Conteúdo público do blog cacheado por cinco minutos. */
+/** Conteúdo público do blog cacheado por doze horas; o CMS invalida sob demanda. */
 export const getCachedPostsFromFirestore = unstable_cache(
   () => getPostsFromFirestore(),
   ['easytraining-public-posts'],
