@@ -2,19 +2,38 @@ import { siteConfig as defaultSiteConfig } from '../data/siteConfig';
 
 export type SiteConfig = typeof defaultSiteConfig;
 
+let inFlightPromise: Promise<SiteConfig> | null = null;
+let cachedConfig: SiteConfig | null = null;
+
 export const SiteConfigService = {
   /**
-   * Obtém as configurações atuais do site
+   * Obtém as configurações atuais do site com deduplicação de requisições e cache em memória
    */
   async getConfig(): Promise<SiteConfig> {
-    try {
-      const res = await fetch('/api/site-config', { cache: 'no-store' });
-      if (!res.ok) throw new Error('Falha ao buscar configurações');
-      return await res.json();
-    } catch (error) {
-      console.error('SiteConfigService.getConfig error:', error);
-      return defaultSiteConfig;
+    if (cachedConfig) {
+      return cachedConfig;
     }
+
+    if (inFlightPromise) {
+      return inFlightPromise;
+    }
+
+    inFlightPromise = (async () => {
+      try {
+        const res = await fetch('/api/site-config');
+        if (!res.ok) throw new Error('Falha ao buscar configurações');
+        const data = await res.json();
+        cachedConfig = data;
+        return data;
+      } catch (error) {
+        console.error('SiteConfigService.getConfig error:', error);
+        return defaultSiteConfig;
+      } finally {
+        inFlightPromise = null;
+      }
+    })();
+
+    return inFlightPromise;
   },
 
   /**
@@ -28,7 +47,9 @@ export const SiteConfigService = {
         body: JSON.stringify(newConfig)
       });
       if (!res.ok) throw new Error('Falha ao atualizar configurações');
-      return await res.json();
+      const data = await res.json();
+      cachedConfig = data;
+      return data;
     } catch (error) {
       console.error('SiteConfigService.updateConfig error:', error);
       return null;
@@ -45,6 +66,9 @@ export const SiteConfigService = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ target: 'config' })
       });
+      if (res.ok) {
+        cachedConfig = null;
+      }
       return res.ok;
     } catch (error) {
       console.error('SiteConfigService.resetConfig error:', error);

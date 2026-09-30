@@ -14,6 +14,7 @@ const SITE_CONFIG_DOC = 'siteConfig';
 export const PUBLIC_CONTENT_REVALIDATE_SECONDS = 43200;
 export const PUBLIC_COURSES_CACHE_TAG = 'public-courses';
 export const PUBLIC_POSTS_CACHE_TAG = 'public-posts';
+export const PUBLIC_CONFIG_CACHE_TAG = 'public-site-config';
 
 let isFirestoreOperational: boolean | null = null;
 
@@ -680,6 +681,16 @@ export async function getSiteConfigFromFirestore(): Promise<SiteConfigType> {
   }
 }
 
+/** Configurações públicas do site cacheadas por 24 horas; o CMS invalida sob demanda. */
+export const getCachedSiteConfigFromFirestore = unstable_cache(
+  () => getSiteConfigFromFirestore(),
+  ['easytraining-public-site-config'],
+  {
+    revalidate: 86400,
+    tags: [PUBLIC_CONFIG_CACHE_TAG],
+  }
+);
+
 export async function saveSiteConfigToFirestore(config: SiteConfigType): Promise<void> {
   if (!isFirebaseAdminConfigured()) {
     if (!isServerlessProd()) {
@@ -694,6 +705,11 @@ export async function saveSiteConfigToFirestore(config: SiteConfigType): Promise
     const docRef = adminDb.collection(CONFIG_COLLECTION).doc(SITE_CONFIG_DOC);
     await withTimeout(docRef.set(cleanFirestoreDoc(config), { merge: true }), 10000);
     isFirestoreOperational = true;
+    try {
+      revalidateTag(PUBLIC_CONFIG_CACHE_TAG, 'max');
+      revalidatePath('/api/site-config');
+      revalidatePath('/', 'layout');
+    } catch {}
   } catch (error: any) {
     console.error('Erro crítico ao salvar siteConfig no Firestore via Admin SDK:', error?.message);
     throw new Error(`Falha ao persistir configurações no Firestore: ${error?.message || 'Erro desconhecido'}`);

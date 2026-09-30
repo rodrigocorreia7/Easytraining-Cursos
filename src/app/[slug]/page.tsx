@@ -1,9 +1,21 @@
 import { notFound, permanentRedirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { cache } from 'react';
-import { getCachedPostBySlugFromFirestore } from '../../lib/firestoreDb';
+import { getCachedPostBySlugFromFirestore, getCachedPostsFromFirestore } from '../../lib/firestoreDb';
 
 export const revalidate = 43200;
+export const dynamicParams = false;
+
+// Pré-renderiza estaticamente todos os artigos legados conhecidos na raiz.
+// dynamicParams = false garante que qualquer URL inexistente receba 404 estático na CDN
+// sem acordar funções serverless nem consultar o banco de dados.
+export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
+  const posts = await getCachedPostsFromFirestore();
+
+  return posts
+    .filter((post) => post?.slug)
+    .map((post) => ({ slug: post.slug }));
+}
 
 interface PageProps {
   params: Promise<{ slug: string }>;

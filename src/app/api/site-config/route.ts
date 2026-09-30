@@ -1,20 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSiteConfigFromFirestore, saveSiteConfigToFirestore } from '@/lib/firestoreDb';
-import { getStoredSiteConfig, saveStoredSiteConfig } from '@/lib/db';
+import { getCachedSiteConfigFromFirestore, getSiteConfigFromFirestore, saveSiteConfigToFirestore } from '@/lib/firestoreDb';
+import { saveStoredSiteConfig } from '@/lib/db';
 import { verifyAdminSession } from '@/lib/authServer';
+import { revalidatePath } from 'next/cache';
 
 export async function GET(request: NextRequest) {
   try {
-    const config = await getSiteConfigFromFirestore();
     const auth = verifyAdminSession(request);
 
-    // Se o usuário não for administrador autenticado, omite o webhook privado de automações (n8n/CRM)
+    // Se o usuário não for administrador autenticado, serve versão pública com cache de borda de 24h
     if (!auth.authorized) {
+      const config = await getCachedSiteConfigFromFirestore();
       const { n8nWebhookUrl, ...publicConfig } = (config || {}) as Record<string, any>;
-      return NextResponse.json(publicConfig);
+      return NextResponse.json(publicConfig, {
+        headers: {
+          'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800',
+        },
+      });
     }
 
-    return NextResponse.json(config);
+    // Administrador autenticado recebe a versão fresca com webhook completo
+    const config = await getSiteConfigFromFirestore();
+    return NextResponse.json(config, {
+      headers: {
+        'Cache-Control': 'private, no-cache, no-store, must-revalidate',
+      },
+    });
   } catch (error) {
     console.error('Erro ao buscar siteConfig:', error);
     return NextResponse.json({ error: 'Erro ao buscar configurações' }, { status: 500 });
@@ -57,6 +68,11 @@ export async function PUT(request: NextRequest) {
 
     // Sincroniza cache local
     saveStoredSiteConfig(updatedConfig);
+
+    try {
+      revalidatePath('/api/site-config');
+      revalidatePath('/', 'layout');
+    } catch {}
 
     return NextResponse.json(updatedConfig);
   } catch (error) {

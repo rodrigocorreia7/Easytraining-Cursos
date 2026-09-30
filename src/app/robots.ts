@@ -1,4 +1,4 @@
-﻿import { MetadataRoute } from 'next';
+import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -7,6 +7,10 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: '*',
         allow: '/',
         disallow: ['/admin', '/api'],
+      },
+      {
+        userAgent: ['ByteSpider', 'PetalBot', 'MJ12bot', 'DotBot'],
+        disallow: '/',
       },
     ],
     sitemap: 'https://www.easytraining.com.br/sitemap.xml',

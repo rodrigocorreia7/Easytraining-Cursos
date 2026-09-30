@@ -10,6 +10,10 @@ const BLOCKED_LEGACY_PATHS = [
   '/wp-includes',
   '/wp-json',
   '/admin/uploader',
+  '/.env',
+  '/.git',
+  '/wp-config.php',
+  '/phpmyadmin',
 ];
 
 function isBlockedLegacyPath(pathname: string): boolean {
@@ -132,7 +136,7 @@ export async function middleware(request: NextRequest) {
   // Bloqueia sondagens de endpoints WordPress antes que qualquer rota seja executada.
   if (isBlockedLegacyPath(pathname)) {
     const response = new NextResponse(null, { status: 404 });
-    response.headers.set('Cache-Control', 'public, max-age=60, s-maxage=300');
+    response.headers.set('Cache-Control', 'public, max-age=86400, s-maxage=604800, immutable');
     response.headers.set('X-Robots-Tag', 'noindex, nofollow');
     return response;
   }
